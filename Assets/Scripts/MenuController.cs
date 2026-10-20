@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
  
-public class MainMenu : MonoBehaviour
+public class MenuController : MonoBehaviour
 {
     // Táto metóda sa spustí automaticky hneď po načítaní scény
     private void Start()
@@ -18,7 +18,12 @@ public class MainMenu : MonoBehaviour
         MusicManager.Instance.PlayMusic("Menu");
         Debug.Log("Play button clicked. Loading MenuScene and playing 'Menu' music.");
     }
- 
+
+    public void ChangeScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
+    }
+
     public void Quit()
     {
         Application.Quit();
