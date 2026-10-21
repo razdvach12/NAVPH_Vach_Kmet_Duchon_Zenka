@@ -267,7 +267,7 @@ GameObject:
   - component: {fileID: 1515358421}
   - component: {fileID: 1515358420}
   m_Layer: 0
-  m_Name: GridManager
+  m_Name: BasicGrid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -286,8 +286,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
   gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
-  width: 5
-  height: 5
+  spacing: 1
+  gridPreset: {fileID: 11400000, guid: 5711eb65147535949b016962e130939b, type: 2}
+  basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
+  lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
+  iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
+  rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
+  natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
 --- !u!4 &1515358421
 Transform:
   m_ObjectHideFlags: 0
@@ -297,7 +302,7 @@ Transform:
   m_GameObject: {fileID: 1515358419}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.07315, y: 1.119, z: 0}
+  m_LocalPosition: {x: -6.37, y: -2.23, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

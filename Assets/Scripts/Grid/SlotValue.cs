@@ -6,8 +6,7 @@ public enum BlockElement { None, Basic, Lava, Ice, Rock, Nature }
 public class SlotValue : MonoBehaviour
 {
     public BlockElement element;
-    public int thickness = 1; // Hrúbka 1, 2 alebo 3
-    public TextMeshPro thicknessText; // Text priamo na políčku
+    public int thickness = 1; // Hrúbka 1, 2 alebo 3s
 
     public void Setup(int startThickness)
     {
@@ -31,7 +30,6 @@ public class SlotValue : MonoBehaviour
 
     private void UpdateVisual()
     {
-        if (thicknessText != null)
-            thicknessText.text = thickness.ToString();
+        
     }
 }

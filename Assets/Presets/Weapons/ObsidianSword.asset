@@ -10,58 +10,38 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7194fc99f2d95ee41b98d3ab8505c32b, type: 3}
-  m_Name: IceWizzard
+  m_Name: ObsidianSword
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
-  width: 5
+  width: 3
   height: 5
   cells:
   - element: 0
     thickness: 0
+  - element: 2
+    thickness: 1
   - element: 0
     thickness: 0
   - element: 0
     thickness: 0
+  - element: 2
+    thickness: 1
   - element: 0
     thickness: 0
   - element: 0
     thickness: 0
+  - element: 2
+    thickness: 1
   - element: 0
     thickness: 0
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
   - element: 0
     thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
+  - element: 1
+    thickness: 1
   - element: 0
     thickness: 0
