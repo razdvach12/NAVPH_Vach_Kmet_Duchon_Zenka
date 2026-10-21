@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1641102343604686381}
   - component: {fileID: 9190428484217815627}
+  - component: {fileID: 3105754896525035866}
   m_Layer: 0
-  m_Name: HpSlot
+  m_Name: HpPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,7 +83,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.33665293, g: 1, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -92,3 +93,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!114 &3105754896525035866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1279879664256612087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b00b85293ce73a48a85172bdb34e674, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotValue
+  element: 0
+  thickness: 1
+  thicknessText: {fileID: 0}
