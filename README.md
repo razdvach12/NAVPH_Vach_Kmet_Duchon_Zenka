@@ -9,7 +9,8 @@
 ## Dizajn
 * Jakub Ralbovský
 
-
+## Verzia a nastavenie
+* Projekt je robený v Unity verzia **6000.6.3.f1**
 
 # Reticulum
 
