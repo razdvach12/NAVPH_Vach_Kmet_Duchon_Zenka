@@ -3120,15 +3120,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6659390a449cdea47bd4cc72b903ca86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  isPlayerGrid: 1
   gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
   spacing: 0.65
-  gridPreset: {fileID: 11400000, guid: 12bee7e6408b73b48ba3dd84bcced309, type: 2}
+  singlePreset: {fileID: 11400000, guid: 12bee7e6408b73b48ba3dd84bcced309, type: 2}
+  boardWidth: 20
+  boardHeight: 8
+  enemyPresets: []
+  gapBetweenEnemies: 1
   basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
   lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
-  isPlayer: 1
 --- !u!1 &1414724183
 GameObject:
   m_ObjectHideFlags: 0
@@ -4657,15 +4661,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6659390a449cdea47bd4cc72b903ca86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  isPlayerGrid: 1
   gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
   spacing: 0.65
-  gridPreset: {fileID: 11400000, guid: 5711eb65147535949b016962e130939b, type: 2}
+  singlePreset: {fileID: 11400000, guid: 5711eb65147535949b016962e130939b, type: 2}
+  boardWidth: 20
+  boardHeight: 8
+  enemyPresets: []
+  gapBetweenEnemies: 1
   basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
   lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
-  isPlayer: 1
 --- !u!1 &1870077147
 GameObject:
   m_ObjectHideFlags: 0
@@ -4710,15 +4718,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6659390a449cdea47bd4cc72b903ca86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  isPlayerGrid: 1
   gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
   spacing: 0.65
-  gridPreset: {fileID: 11400000, guid: 3cf15c9c322c15e45aeb024ef4e2a207, type: 2}
+  singlePreset: {fileID: 11400000, guid: 3cf15c9c322c15e45aeb024ef4e2a207, type: 2}
+  boardWidth: 20
+  boardHeight: 8
+  enemyPresets: []
+  gapBetweenEnemies: 1
   basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
   lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
-  isPlayer: 1
 --- !u!1 &1880560825
 GameObject:
   m_ObjectHideFlags: 0
@@ -5633,15 +5645,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6659390a449cdea47bd4cc72b903ca86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  isPlayerGrid: 1
   gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
   spacing: 0.65
-  gridPreset: {fileID: 11400000, guid: a4f5a8ee37acbd847a482221365835f3, type: 2}
+  singlePreset: {fileID: 11400000, guid: a4f5a8ee37acbd847a482221365835f3, type: 2}
+  boardWidth: 20
+  boardHeight: 8
+  enemyPresets: []
+  gapBetweenEnemies: 1
   basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
   lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
-  isPlayer: 1
 --- !u!1 &2088998150
 GameObject:
   m_ObjectHideFlags: 0
