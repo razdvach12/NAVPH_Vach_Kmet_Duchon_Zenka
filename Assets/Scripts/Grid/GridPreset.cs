@@ -1,11 +1,21 @@
 using UnityEngine;
 
+//toto je zakladna forma presetu pre tvorbu gridu
+
+
 [System.Serializable]
 public struct CellSetup
 {
     public BlockElement element; // None = prázdne miesto, Basic, Lava, Ice, Rock, Nature
     [Range(1, 3)]
     public int thickness;        // Hrúbka políčka 1 až 3
+
+    public enum Gridtype
+    {
+        Character,
+        Weapon,
+        Heal
+    }
 }
 
 [CreateAssetMenu(fileName = "NewGridPreset", menuName = "Combat/Grid Preset")]
@@ -14,6 +24,10 @@ public class GridPreset : ScriptableObject
     public int width = 5;
     public int height = 5;
 
+    [Header("Grid type:")]
+    public CellSetup.Gridtype actionType = CellSetup.Gridtype.Character;
+    public int staminaCost = 1;
+    
     // 1D pole reprezentujúce 2D mriežku (veľkosť = width * height)
     public CellSetup[] cells = new CellSetup[25];
 

@@ -11,9 +11,8 @@ GameObject:
   - component: {fileID: 2887804500754650771}
   - component: {fileID: 1645869194796994328}
   - component: {fileID: 5355622745088838805}
-  - component: {fileID: 4941673574879483050}
   m_Layer: 0
-  m_Name: Square
+  m_Name: GridSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -83,7 +82,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 5604211359086491676, guid: 1e77d8ad1c834944a97b08e3550588d8, type: 3}
   m_Color: {r: 0.5622641, g: 0.5622641, b: 0.5622641, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -132,7 +131,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 0.64, y: 0.64}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -140,16 +139,3 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &4941673574879483050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7429591877599579584}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 317d85d6b14ccd548a1f4c2a78f2c694, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GridSlot
-  gridSlotPrefab: {fileID: 1279879664256612087, guid: dda1b789bd690f44fabb1613b7273bc6, type: 3}

@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEditor;
 
+//vdaka tomuto skriptu vieme vytvorit preset konkretneho gridu
+
 [CustomEditor(typeof(GridPreset))]
 public class GridPresetEditor : Editor
 {
@@ -9,8 +11,8 @@ public class GridPresetEditor : Editor
         GridPreset preset = (GridPreset)target;
 
         EditorGUI.BeginChangeCheck();
-        preset.width = EditorGUILayout.IntSlider("Šírka (Width)", preset.width, 1, 10);
-        preset.height = EditorGUILayout.IntSlider("Výška (Height)", preset.height, 1, 10);
+        preset.width = EditorGUILayout.IntSlider("Width", preset.width, 1, 7);
+        preset.height = EditorGUILayout.IntSlider("Height", preset.height, 1, 7);
 
         int targetSize = preset.width * preset.height;
         if (preset.cells == null || preset.cells.Length != targetSize)
@@ -19,7 +21,7 @@ public class GridPresetEditor : Editor
         }
 
         EditorGUILayout.Space(10);
-        EditorGUILayout.HelpBox("Ľavý klik = Zmena živlu (Farba)\nPravý klik = Zmena hrúbky (1 - 3)", MessageType.Info);
+        EditorGUILayout.HelpBox("Left Click = Change the Element\nRight Click = Change the value (1 - 3)", MessageType.Info);
         EditorGUILayout.Space(5);
 
         // Vykreslenie 2D mriežky tlačidiel

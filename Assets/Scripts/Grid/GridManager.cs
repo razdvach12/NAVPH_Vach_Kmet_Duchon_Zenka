@@ -1,21 +1,26 @@
 using UnityEngine;
 
+//tu sa nastavuje celkove zlozenie gridu daneho objektu (ci uz zivoty alebo zbrane)
+
 public class GridManager : MonoBehaviour
 {
-    [Header("Základná plocha")]
+    [Header("Base background")]
     [SerializeField] private GameObject gridSlotPrefab;
-    [SerializeField] private float spacing = 1.1f; // Rozostup medzi políčkami (1 = tesne pri sebe)
+    [SerializeField] private float spacing = 1.1f; // Rozostup medzi políčkami
 
-    [Header("Šablóna konkrétneho gridu (Hráč / Nepriateľ)")]
+    [Header("Preset")]
     [SerializeField] private GridPreset gridPreset;
 
-    [Header("Tvojich 5 Prefab Variantov (HP políčka)")]
+    [Header("Slot prefabs")]
     [SerializeField] private GameObject basicHpPrefab;
     [SerializeField] private GameObject lavaHpPrefab;
     [SerializeField] private GameObject iceHpPrefab;
     [SerializeField] private GameObject rockHpPrefab;
     [SerializeField] private GameObject natureHpPrefab;
 
+    [Header("Grid owner")]
+    public bool isPlayer = true;
+    
     // 2D pole, aby sme pri útokoch vedeli okamžite nájsť políčko na [x, y]
     private GameObject[,] spawnedTiles;
 
@@ -26,8 +31,7 @@ public class GridManager : MonoBehaviour
             GenerateGrid();
         }
     }
-
-    [ContextMenu("Vygenerovať Grid teraz")]
+    
     public void GenerateGrid()
     {
         // Zmaže staré políčka, ak skúšaš generovanie viackrát za sebou
