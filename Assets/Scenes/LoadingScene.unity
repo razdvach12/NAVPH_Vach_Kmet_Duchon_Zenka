@@ -506,6 +506,7 @@ RectTransform:
   - {fileID: 1102682625}
   - {fileID: 128221411}
   - {fileID: 171004334}
+  - {fileID: 1870077148}
   m_Father: {fileID: 1749314879}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1704,6 +1705,7 @@ RectTransform:
   - {fileID: 1175525459}
   - {fileID: 782350596}
   - {fileID: 336929322}
+  - {fileID: 1379988940}
   m_Father: {fileID: 1749314879}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3074,6 +3076,59 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1376277515}
   m_CullTransparentMesh: 1
+--- !u!1 &1379988939
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1379988940}
+  - component: {fileID: 1379988941}
+  m_Layer: 0
+  m_Name: IceHP
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1379988940
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379988939}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -555, y: 12, z: -8207.343}
+  m_LocalScale: {x: 90, y: 90, z: 90}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 852475396}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1379988941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379988939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6659390a449cdea47bd4cc72b903ca86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
+  spacing: 0.65
+  gridPreset: {fileID: 11400000, guid: 12bee7e6408b73b48ba3dd84bcced309, type: 2}
+  basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
+  lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
+  iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
+  rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
+  natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  isPlayer: 1
 --- !u!1 &1414724183
 GameObject:
   m_ObjectHideFlags: 0
@@ -3982,6 +4037,7 @@ RectTransform:
   m_LocalScale: {x: 1.00008, y: 1.00008, z: 1.00008}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2057706152}
   - {fileID: 1009247242}
   - {fileID: 1577739719}
   - {fileID: 653742245}
@@ -4376,6 +4432,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1848693036}
   - {fileID: 1929335165}
   - {fileID: 1714734926}
   - {fileID: 904551447}
@@ -4556,6 +4613,112 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 657a90b0d5be1044a92c80c334a9b159, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IgnoringAlphaPixels
+--- !u!1 &1848693035
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1848693036}
+  - component: {fileID: 1848693037}
+  m_Layer: 0
+  m_Name: LavaHP
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1848693036
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848693035}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -555.04425, y: 12.001007, z: -8207.999}
+  m_LocalScale: {x: 90.00718, y: 90.00718, z: 90.00718}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1777774758}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1848693037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848693035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6659390a449cdea47bd4cc72b903ca86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
+  spacing: 0.65
+  gridPreset: {fileID: 11400000, guid: 5711eb65147535949b016962e130939b, type: 2}
+  basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
+  lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
+  iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
+  rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
+  natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  isPlayer: 1
+--- !u!1 &1870077147
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1870077148}
+  - component: {fileID: 1870077149}
+  m_Layer: 0
+  m_Name: NatureHP
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1870077148
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870077147}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -554.9999, y: 12, z: -8207.343}
+  m_LocalScale: {x: 90, y: 90, z: 90}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 180380557}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1870077149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870077147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6659390a449cdea47bd4cc72b903ca86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
+  spacing: 0.65
+  gridPreset: {fileID: 11400000, guid: 3cf15c9c322c15e45aeb024ef4e2a207, type: 2}
+  basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
+  lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
+  iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
+  rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
+  natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  isPlayer: 1
 --- !u!1 &1880560825
 GameObject:
   m_ObjectHideFlags: 0
@@ -5426,6 +5589,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 657a90b0d5be1044a92c80c334a9b159, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IgnoringAlphaPixels
+--- !u!1 &2057706151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2057706152}
+  - component: {fileID: 2057706153}
+  m_Layer: 0
+  m_Name: RockHP
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2057706152
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2057706151}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -554.9999, y: 12, z: -8207.343}
+  m_LocalScale: {x: 90, y: 90, z: 90}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1751785377}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2057706153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2057706151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6659390a449cdea47bd4cc72b903ca86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
+  spacing: 0.65
+  gridPreset: {fileID: 11400000, guid: a4f5a8ee37acbd847a482221365835f3, type: 2}
+  basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
+  lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
+  iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
+  rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
+  natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  isPlayer: 1
 --- !u!1 &2088998150
 GameObject:
   m_ObjectHideFlags: 0
