@@ -11,7 +11,11 @@ public class LoadingScene : MonoBehaviour
     
 
     public RectTransform loadingSpinner;
-    public float spinSpeed = 300f; 
+    public float baseSpinSpeed = 300f; // Základná rýchlosť otáčania
+
+    [Header("Nastavenia nepravidelného otáčania")]
+    public float wobbleAmount = 200f;  // O koľko sa môže rýchlosť navyšovať/znižovať
+    public float wobbleFrequency = 3f; // Ako rýchlo sa mení cyklus (rýchly/pomalý)
 
     private void Awake()
     {
@@ -29,10 +33,13 @@ public class LoadingScene : MonoBehaviour
 
     private void Update()
     {
-
         if (loadingScreen.activeSelf && loadingSpinner != null)
         {
-            loadingSpinner.Rotate(0f, 0f, -spinSpeed * Time.deltaTime);
+            // Vypočítame aktuálnu rýchlosť pomocou sínusu, aby plynulo kolísala
+            float currentSpeed = baseSpinSpeed + Mathf.Sin(Time.time * wobbleFrequency) * wobbleAmount;
+
+            // Aplikujeme rotáciu
+            loadingSpinner.Rotate(0f, 0f, -currentSpeed * Time.deltaTime);
         }
     }
 
