@@ -5,38 +5,21 @@ public enum BlockElement { None, Basic, Lava, Ice, Rock, Nature }
 public class SlotValue : MonoBehaviour
 {
     public BlockElement element;
-    public int thickness = 1; // Hrúbka 1, 2 alebo 3
+    public int thickness = 1; // Hrúbka políčka 1, 2 alebo 3
 
-    [Header("Vrstvy vežičky (Sprity pre hrúbku 1, 2, 3)")]
-    [SerializeField] private GameObject bottomLayer; // Hrúbka 1 (Earth_Health_bottom)
-    [SerializeField] private GameObject middleLayer; // Hrúbka 2 (Earth_Health_middle)
-    [SerializeField] private GameObject topLayer;    // Hrúbka 3 (Earth_Health_top)
+    // Index nepriateľa (-1 = Hráč, 0 = Prvý nepriateľ, 1 = Druhý nepriateľ, atď.)
+    [HideInInspector]
+    public int ownerEnemyIndex = -1;
 
-    public void Setup(int startThickness)
+    [Header("Tower Layers (Sprites for thickness 1, 2, 3)")]
+    [SerializeField] private GameObject bottomLayer; // Hrúbka 1
+    [SerializeField] private GameObject middleLayer; // Hrúbka 2
+    [SerializeField] private GameObject topLayer;    // Hrúbka 3
+
+    public void Setup(int startThickness, int ownerIndex = -1)
     {
         thickness = Mathf.Clamp(startThickness, 1, 3);
-        UpdateVisual();
-    }
-
-    public void TakeDamage(int dmg)
-    {
-        thickness -= dmg;
-        if (thickness <= 0)
-        {
-            // Políčko sa úplne roztrieštilo!
-            Destroy(gameObject);
-        }
-        else
-        {
-            // Postupne „odlupujeme“ vrchné poschodia vežičky
-            UpdateVisual();
-        }
-    }
-
-    // Pridané aj pre prípad liečenia (napr. Nature pasívka nepriateľa alebo Kováč)
-    public void HealThickness(int amount)
-    {
-        thickness = Mathf.Clamp(thickness + amount, 1, 3);
+        ownerEnemyIndex = ownerIndex;
         UpdateVisual();
     }
 

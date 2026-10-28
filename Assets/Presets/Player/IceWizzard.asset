@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
   width: 4
   height: 4
+  actionType: 0
+  staminaCost: 1
   cells:
   - element: 0
     thickness: 0
