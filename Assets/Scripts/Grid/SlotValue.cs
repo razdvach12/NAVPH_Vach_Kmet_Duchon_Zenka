@@ -5,16 +5,23 @@ public enum BlockElement { None, Basic, Lava, Ice, Rock, Nature }
 public class SlotValue : MonoBehaviour
 {
     public BlockElement element;
-    public int thickness = 1; // Hrúbka políčka 1, 2 alebo 3
+    public int thickness = 1;
 
-    // Index nepriateľa (-1 = Hráč, 0 = Prvý nepriateľ, 1 = Druhý nepriateľ, atď.)
     [HideInInspector]
     public int ownerEnemyIndex = -1;
 
     [Header("Tower Layers (Sprites for thickness 1, 2, 3)")]
-    [SerializeField] private GameObject bottomLayer; // Hrúbka 1
-    [SerializeField] private GameObject middleLayer; // Hrúbka 2
-    [SerializeField] private GameObject topLayer;    // Hrúbka 3
+    [SerializeField] private GameObject bottomLayer;
+    [SerializeField] private GameObject middleLayer;
+    [SerializeField] private GameObject topLayer;
+
+    private SpriteRenderer[] layerRenderers;
+
+    private void Awake()
+    {
+        // Uložíme si všetky SpriteRenderery z vrstiev vežičky (Bottom, Middle, Top)
+        layerRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+    }
 
     public void Setup(int startThickness, int ownerIndex = -1)
     {
@@ -23,9 +30,36 @@ public class SlotValue : MonoBehaviour
         UpdateVisual();
     }
 
+    public void TakeDamage(int damage)
+    {
+        thickness -= damage;
+        if (thickness <= 0)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            UpdateVisual();
+        }
+    }
+
+    // Zafarbí priamo vrstvy HP vežičky pri mierení zbraňou
+    public void SetHighlight(bool active, Color highlightColor)
+    {
+        if (layerRenderers == null) return;
+
+        foreach (var sr in layerRenderers)
+        {
+            if (sr != null)
+            {
+                // Keď je active = false, vráti sa biela (čo v Unity znamená pôvodné farby spritu)
+                sr.color = active ? highlightColor : Color.white;
+            }
+        }
+    }
+
     private void UpdateVisual()
     {
-        // Zapne príslušné vrstvy podľa aktuálnej hrúbky (1, 2 alebo 3)
         if (bottomLayer != null) bottomLayer.SetActive(thickness >= 1);
         if (middleLayer != null) middleLayer.SetActive(thickness >= 2);
         if (topLayer != null)    topLayer.SetActive(thickness >= 3);

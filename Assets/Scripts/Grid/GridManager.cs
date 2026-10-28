@@ -4,7 +4,7 @@ using UnityEngine;
 public class GridManager : MonoBehaviour
 {
     [Header("Grid Owner Settings")]
-    public bool isPlayerGrid = false; // True = Hráčov grid vľavo, False = Veľký Enemy grid vpravo
+    public bool isPlayerGrid = false; // True = Hráčov grid / Náhľad zbrane, False = Veľký Enemy grid
 
     [Header("Base Grid Setup")]
     [SerializeField] private GameObject gridSlotPrefab;
@@ -48,7 +48,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // --- GENEROVANIE OBYČAJNÉHO GRIDU (PRE HRÁČA) ---
+    // --- GENEROVANIE OBYČAJNÉHO GRIDU (PRE HRÁČA ALEBO NÁHĽAD ZBRANE) ---
     public void GenerateSingleGrid(GridPreset preset)
     {
         ClearGrid();
@@ -83,7 +83,6 @@ public class GridManager : MonoBehaviour
 
         Vector3 centerOffset = new Vector3((totalWidth - 1) * spacing * 0.5f, (totalHeight - 1) * spacing * 0.5f, 0);
 
-        // 1. Vytvoríme celú fixnú plochu (vždy viditeľná)
         for (int x = 0; x < totalWidth; x++)
         {
             for (int y = 0; y < totalHeight; y++)
@@ -94,7 +93,6 @@ public class GridManager : MonoBehaviour
 
         if (enemies == null || enemies.Count == 0) return;
 
-        // 2. Spočítame šírku celej skupiny nepriateľov vrátane medzier
         int groupWidth = 0;
         for (int i = 0; i < enemies.Count; i++)
         {
@@ -103,10 +101,8 @@ public class GridManager : MonoBehaviour
             if (i < enemies.Count - 1) groupWidth += gapBetweenEnemies;
         }
 
-        // 3. Vycentrujeme skupinu horizontálne do stredu fixnej plochy
         int currentStartX = Mathf.Max(0, (boardWidth - groupWidth) / 2);
 
-        // 4. Uložíme jednotlivých nepriateľov na fixnú plochu
         for (int enemyIndex = 0; enemyIndex < enemies.Count; enemyIndex++)
         {
             GridPreset enemy = enemies[enemyIndex];
@@ -128,16 +124,115 @@ public class GridManager : MonoBehaviour
                         {
                             SpawnSlotValueOnSlot(slots[targetX, targetY], cellData, enemyIndex);
                         }
-                        else
-                        {
-                            Debug.LogWarning($"Enemy {enemy.name} exceeds fixed board size ({boardWidth}x{boardHeight})!");
-                        }
                     }
                 }
             }
 
             currentStartX += enemy.width + gapBetweenEnemies;
         }
+    }
+
+    // --- LOGIKA ZÁSahu ZBRAŇOU (PREVIEW + DAMAGE) ---
+
+    // Vypočíta, ktoré políčka tohto gridu prekrýva zbraň, keď hráč mieri na centerSlot
+    public List<(GridSlot slot, CellSetup weaponCell)> GetOverlappedSlots(GridSlot centerSlot, GridPreset weaponPreset)
+    {
+        var result = new List<(GridSlot, CellSetup)>();
+
+        // Stred zbrane (napr. pre 3x3 zbraň je stred [1, 1])
+        int weaponCenterX = weaponPreset.width / 2;
+        int weaponCenterY = weaponPreset.height / 2;
+
+        for (int wx = 0; wx < weaponPreset.width; wx++)
+        {
+            for (int wy = 0; wy < weaponPreset.height; wy++)
+            {
+                CellSetup weaponCell = weaponPreset.GetCell(wx, wy);
+                if (weaponCell.element == BlockElement.None) continue; // Prázdne polia zbrane ignorujeme
+
+                int targetX = centerSlot.x + (wx - weaponCenterX);
+                int targetY = centerSlot.y + (wy - weaponCenterY);
+
+                // Kontrola, či políčko zbrane spadá do rozmerov nášho gridu
+                if (targetX >= 0 && targetX < totalWidth && targetY >= 0 && targetY < totalHeight)
+                {
+                    result.Add((slots[targetX, targetY], weaponCell));
+                }
+            }
+        }
+        return result;
+    }
+
+    // Rozsvieti políčka, ktoré zbraň zasiahne pri aktuálnej pozícii myši
+    public void ShowWeaponPreview(GridSlot centerSlot, GridPreset weaponPreset)
+    {
+        ClearPreview();
+        if (isPlayerGrid) return; // Na hráčovom gride nechceme ukazovať útok zbrane
+
+        var overlapped = GetOverlappedSlots(centerSlot, weaponPreset);
+        foreach (var (slot, _) in overlapped)
+        {
+            // Ak na slote stojí HP políčko nepriateľa, svieti výrazne červeno, inak slabšie
+            Color previewColor = (slot.currentBlock != null)
+                ? new Color(1f, 0.25f, 0.25f, 0.9f)
+                : new Color(1f, 0.6f, 0.2f, 0.45f);
+
+            slot.SetHighlight(true, previewColor);
+        }
+    }
+
+    public void ClearPreview()
+    {
+        if (slots == null) return;
+        foreach (var s in slots)
+        {
+            if (s != null) s.SetHighlight(false, Color.white);
+        }
+    }
+
+    // Po kliknutí aplikuje damage na všetky prekryté políčka nepriateľa
+    public bool ApplyWeaponDamage(GridSlot centerSlot, GridPreset weaponPreset)
+    {
+        if (isPlayerGrid) return false; // Zbraňou útočíme len do Enemy gridu
+
+        var overlapped = GetOverlappedSlots(centerSlot, weaponPreset);
+        if (overlapped.Count == 0) return false;
+
+        foreach (var (slot, weaponCell) in overlapped)
+        {
+            if (slot.currentBlock != null)
+            {
+                // Výpočet bonusu podľa tabuľky slabín (+1 / -1 / 0)
+                int elementBonus = GetElementBonus(weaponCell.element, slot.currentBlock.element);
+                // Hrúbka (thickness) políčka v presete zbrane určuje jej základný Damage (1, 2, 3)
+                int finalDamage = Mathf.Max(0, weaponCell.thickness + elementBonus);
+
+                if (finalDamage > 0)
+                {
+                    slot.currentBlock.TakeDamage(finalDamage);
+                }
+            }
+        }
+
+        ClearPreview();
+        return true;
+    }
+
+    public static int GetElementBonus(BlockElement attacker, BlockElement defender)
+    {
+        if (attacker == BlockElement.Lava && defender == BlockElement.Ice) return 1;
+        if (attacker == BlockElement.Ice && defender == BlockElement.Lava) return -1;
+
+        if (attacker == BlockElement.Ice && defender == BlockElement.Nature) return 1;
+        if (attacker == BlockElement.Nature && defender == BlockElement.Ice) return -1;
+
+        if (attacker == BlockElement.Nature && defender == BlockElement.Rock) return 1;
+        if (attacker == BlockElement.Rock && defender == BlockElement.Nature) return -1;
+
+        if (attacker == BlockElement.Rock && defender == BlockElement.Lava) return 1;
+        if (attacker == BlockElement.Lava && defender == BlockElement.Rock) return -1;
+
+        return 0;
     }
 
     // --- POMOCNÉ METÓDY ---
@@ -150,7 +245,7 @@ public class GridManager : MonoBehaviour
 
         GridSlot slot = spawnedTile.GetComponent<GridSlot>();
         if (slot == null) slot = spawnedTile.AddComponent<GridSlot>();
-        slot.Init(x, y);
+        slot.Init(x, y, this);
 
         slots[x, y] = slot;
         return slot;
@@ -173,7 +268,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    private void ClearGrid()
+    public void ClearGrid()
     {
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
