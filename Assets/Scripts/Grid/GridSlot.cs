@@ -8,6 +8,15 @@ public class GridSlot : MonoBehaviour
 
     public SlotValue currentBlock;
 
+    // Políčko je odomknuté v Max HP (aj keď je práve zničené na 0)
+    public bool IsUnlockedMaxHp => currentBlock != null;
+
+    // Políčko má aktuálne život > 0
+    public bool HasAliveBlock => currentBlock != null && currentBlock.IsAlive;
+
+    // Políčko sa dá liečiť potionom (je súčasťou Max HP a nemá plnú hrúbku)
+    public bool CanBeHealed => currentBlock != null && currentBlock.thickness < currentBlock.maxThickness;
+
     [SerializeField] private SpriteRenderer slotRenderer;
     private Color defaultColor;
 
@@ -23,13 +32,11 @@ public class GridSlot : MonoBehaviour
 
     public void SetHighlight(bool active, Color highlightColor)
     {
-        // 1. Zafarbí šedý podkladový štvorček
         if (slotRenderer != null)
         {
             slotRenderer.color = active ? highlightColor : defaultColor;
         }
 
-        // 2. Ak je na políčku reálne HPčko (SlotValue), zafarbí aj samotnú vežičku!
         if (currentBlock != null)
         {
             currentBlock.SetHighlight(active, highlightColor);

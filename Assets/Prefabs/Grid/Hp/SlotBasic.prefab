@@ -56,6 +56,10 @@ PrefabInstance:
       propertyPath: element
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3105754896525035866, guid: dda1b789bd690f44fabb1613b7273bc6, type: 3}
+      propertyPath: maxThickness
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4869019098926533025, guid: dda1b789bd690f44fabb1613b7273bc6, type: 3}
       propertyPath: m_Sprite
       value: 

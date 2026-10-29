@@ -26,6 +26,10 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject rockHpPrefab;
     [SerializeField] private GameObject natureHpPrefab;
 
+    [Header("Destroyed Max HP Visual Prefab")]
+    [Tooltip("Prefab, ktorý sa zobrazí, keď odomknuté Max HP políčko klesne na 0")]
+    [SerializeField] private GameObject destroyedHpPrefab;
+
     private GridSlot[,] slots;
     private int totalWidth;
     private int totalHeight;
@@ -132,14 +136,12 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // --- LOGIKA ZÁSahu ZBRAŇOU (PREVIEW + DAMAGE) ---
+    // --- LOGIKA ZÁSAHU ZBRAŇOU (PREVIEW + DAMAGE) ---
 
-    // Vypočíta, ktoré políčka tohto gridu prekrýva zbraň, keď hráč mieri na centerSlot
     public List<(GridSlot slot, CellSetup weaponCell)> GetOverlappedSlots(GridSlot centerSlot, GridPreset weaponPreset)
     {
         var result = new List<(GridSlot, CellSetup)>();
 
-        // Stred zbrane (napr. pre 3x3 zbraň je stred [1, 1])
         int weaponCenterX = weaponPreset.width / 2;
         int weaponCenterY = weaponPreset.height / 2;
 
@@ -148,12 +150,11 @@ public class GridManager : MonoBehaviour
             for (int wy = 0; wy < weaponPreset.height; wy++)
             {
                 CellSetup weaponCell = weaponPreset.GetCell(wx, wy);
-                if (weaponCell.element == BlockElement.None) continue; // Prázdne polia zbrane ignorujeme
+                if (weaponCell.element == BlockElement.None) continue;
 
                 int targetX = centerSlot.x + (wx - weaponCenterX);
                 int targetY = centerSlot.y + (wy - weaponCenterY);
 
-                // Kontrola, či políčko zbrane spadá do rozmerov nášho gridu
                 if (targetX >= 0 && targetX < totalWidth && targetY >= 0 && targetY < totalHeight)
                 {
                     result.Add((slots[targetX, targetY], weaponCell));
@@ -163,17 +164,16 @@ public class GridManager : MonoBehaviour
         return result;
     }
 
-    // Rozsvieti políčka, ktoré zbraň zasiahne pri aktuálnej pozícii myši
     public void ShowWeaponPreview(GridSlot centerSlot, GridPreset weaponPreset)
     {
         ClearPreview();
-        if (isPlayerGrid) return; // Na hráčovom gride nechceme ukazovať útok zbrane
+        if (isPlayerGrid) return;
 
         var overlapped = GetOverlappedSlots(centerSlot, weaponPreset);
         foreach (var (slot, _) in overlapped)
         {
-            // Ak na slote stojí HP políčko nepriateľa, svieti výrazne červeno, inak slabšie
-            Color previewColor = (slot.currentBlock != null)
+            // Výrazne červená iba ak je na políčku ŽIVÝ blok (thickness > 0)
+            Color previewColor = slot.HasAliveBlock
                 ? new Color(1f, 0.25f, 0.25f, 0.9f)
                 : new Color(1f, 0.6f, 0.2f, 0.45f);
 
@@ -190,21 +190,19 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // Po kliknutí aplikuje damage na všetky prekryté políčka nepriateľa
     public bool ApplyWeaponDamage(GridSlot centerSlot, GridPreset weaponPreset)
     {
-        if (isPlayerGrid) return false; // Zbraňou útočíme len do Enemy gridu
+        if (isPlayerGrid) return false;
 
         var overlapped = GetOverlappedSlots(centerSlot, weaponPreset);
         if (overlapped.Count == 0) return false;
 
         foreach (var (slot, weaponCell) in overlapped)
         {
-            if (slot.currentBlock != null)
+            // Zásah dostanú iba políčka, ktoré ešte nie sú zničené (HasAliveBlock)
+            if (slot.HasAliveBlock)
             {
-                // Výpočet bonusu podľa tabuľky slabín (+1 / -1 / 0)
                 int elementBonus = GetElementBonus(weaponCell.element, slot.currentBlock.element);
-                // Hrúbka (thickness) políčka v presete zbrane určuje jej základný Damage (1, 2, 3)
                 int finalDamage = Mathf.Max(0, weaponCell.thickness + elementBonus);
 
                 if (finalDamage > 0)
@@ -216,6 +214,70 @@ public class GridManager : MonoBehaviour
 
         ClearPreview();
         return true;
+    }
+
+    // --- LOGIKA PRE LIEČENIE POTIONOM A MAX HP ---
+
+    public void ShowPotionPreview(GridSlot centerSlot, GridPreset potionPreset)
+    {
+        ClearPreview();
+        if (!isPlayerGrid) return;
+
+        var overlapped = GetOverlappedSlots(centerSlot, potionPreset);
+        foreach (var (slot, _) in overlapped)
+        {
+            // Zelená ak bolo políčko v Max HP a je zničené (0) alebo poškodené
+            Color previewColor = slot.CanBeHealed
+                ? new Color(0.2f, 1f, 0.2f, 0.85f)
+                : new Color(0.7f, 0.7f, 0.7f, 0.35f);
+
+            slot.SetHighlight(true, previewColor);
+        }
+    }
+
+    public bool ApplyPotionHeal(GridSlot centerSlot, GridPreset potionPreset)
+    {
+        if (!isPlayerGrid) return false;
+
+        var overlapped = GetOverlappedSlots(centerSlot, potionPreset);
+        bool healedAny = false;
+
+        foreach (var (slot, potionCell) in overlapped)
+        {
+            // Vylieči len políčka, ktoré patria do Max HP (vrátane zničených so živlom)
+            if (slot.CanBeHealed)
+            {
+                slot.currentBlock.Heal(potionCell.thickness);
+                healedAny = true;
+            }
+        }
+
+        ClearPreview();
+        return healedAny;
+    }
+
+    // Pridanie nového políčka do Max HP (na predtým prázdny slot) alebo zvýšenie maxThickness
+    public bool UnlockOrUpgradePlayerMaxHp(GridSlot targetSlot, BlockElement newElement, int addThickness = 1)
+    {
+        if (!isPlayerGrid || targetSlot == null) return false;
+
+        if (!targetSlot.IsUnlockedMaxHp)
+        {
+            CellSetup newCell = new CellSetup
+            {
+                element = newElement,
+                thickness = Mathf.Clamp(addThickness, 1, 3)
+            };
+            SpawnSlotValueOnSlot(targetSlot, newCell, -1);
+            return true;
+        }
+        else if (targetSlot.currentBlock.maxThickness < 3)
+        {
+            targetSlot.currentBlock.UpgradeMaxThickness(addThickness);
+            return true;
+        }
+
+        return false;
     }
 
     public static int GetElementBonus(BlockElement attacker, BlockElement defender)
@@ -263,7 +325,8 @@ public class GridManager : MonoBehaviour
         var slotValueScript = hpBlock.GetComponent<SlotValue>();
         if (slotValueScript != null)
         {
-            slotValueScript.Setup(cellData.thickness, ownerIndex);
+            // Odovzdáme aj destroyedHpPrefab, aby ho SlotValue vedel zobraziť pri klesnutí na 0
+            slotValueScript.Setup(cellData.thickness, ownerIndex, destroyedHpPrefab);
             slot.currentBlock = slotValueScript;
         }
     }

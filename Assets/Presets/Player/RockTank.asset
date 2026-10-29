@@ -12,30 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7194fc99f2d95ee41b98d3ab8505c32b, type: 3}
   m_Name: RockTank
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
-  width: 4
-  height: 4
+  width: 6
+  height: 6
+  actionType: 0
+  staminaCost: 1
   cells:
-  - element: 1
+  - element: 0
     thickness: 1
-  - element: 4
+  - element: 0
     thickness: 2
-  - element: 4
+  - element: 0
     thickness: 2
-  - element: 4
+  - element: 0
     thickness: 2
-  - element: 1
+  - element: 0
     thickness: 1
-  - element: 1
+  - element: 0
     thickness: 1
-  - element: 1
-    thickness: 1
-  - element: 4
-    thickness: 2
-  - element: 4
-    thickness: 2
-  - element: 1
-    thickness: 1
-  - element: 1
+  - element: 0
     thickness: 1
   - element: 1
     thickness: 1
@@ -45,5 +39,53 @@ MonoBehaviour:
     thickness: 2
   - element: 4
     thickness: 2
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 2
   - element: 1
     thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 4
+    thickness: 2
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 4
+    thickness: 2
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 4
+    thickness: 2
+  - element: 4
+    thickness: 2
+  - element: 4
+    thickness: 2
+  - element: 1
+    thickness: 1
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
