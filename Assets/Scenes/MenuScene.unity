@@ -1127,7 +1127,7 @@ PrefabInstance:
     - target: {fileID: 5752973396741826057, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 2915238444415765383, guid: 49a135c1237456f448890a632b6133f8, type: 3}
+      objectReference: {fileID: 5000927251509650613, guid: 175a451e00fdfed4cb8e51fbd387831f, type: 3}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1463,7 +1463,7 @@ Transform:
   m_GameObject: {fileID: 993218609}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 394, y: 44, z: -9000}
+  m_LocalPosition: {x: 429, y: 29, z: -9000}
   m_LocalScale: {x: 1100, y: 1100, z: 1100}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1730,7 +1730,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -483, y: -87}
+  m_AnchoredPosition: {x: 39, y: -64}
   m_SizeDelta: {x: 700, y: 700}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1116015201
@@ -2337,7 +2337,7 @@ PrefabInstance:
     - target: {fileID: 5752973396741826057, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -825215395, guid: 4104cf41d03df3a4c98e75b6d71181ed, type: 3}
+      objectReference: {fileID: -7113479977989563460, guid: 5835b2b734e6e534497bab9463686acf, type: 3}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2563,7 +2563,7 @@ PrefabInstance:
     - target: {fileID: 5752973396741826057, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -825215395, guid: 4104cf41d03df3a4c98e75b6d71181ed, type: 3}
+      objectReference: {fileID: 3952392024310007418, guid: 557a90b1764576d40b306735d1c5a6bc, type: 3}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2717,7 +2717,7 @@ PrefabInstance:
     - target: {fileID: 5752973396741826057, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 3794550611322748858, guid: d87d86beba2db834e8258e63a208e973, type: 3}
+      objectReference: {fileID: -3705056552240212882, guid: 56eded7723d578f4c922118aef68f0de, type: 3}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2900,7 +2900,7 @@ PrefabInstance:
     - target: {fileID: 5752973396741826057, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -7057980149406798923, guid: af1dcbca1af93f34ca9cea2f8c5b59b0, type: 3}
+      objectReference: {fileID: -1922979618149193216, guid: 7be2b13ce6d547c478d319e441378900, type: 3}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
