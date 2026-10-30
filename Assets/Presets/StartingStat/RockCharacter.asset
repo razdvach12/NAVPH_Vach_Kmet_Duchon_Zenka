@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71e78f28f366ebd4c8ef2446c5bfdc89, type: 3}
+  m_Name: RockCharacter
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  characterName: Rock Tank
+  startingGold: 4
+  healthGridPreset: {fileID: 11400000, guid: a4f5a8ee37acbd847a482221365835f3, type: 2}
+  startingWeapons:
+  - {fileID: 11400000, guid: e394c66f5a6076e44a8dcb79b3ef4c33, type: 2}
+  - {fileID: 11400000, guid: 31be1fd2b64f67a47900cd0d585a4498, type: 2}
