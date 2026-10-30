@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Citrical Damage
   description: 
-  icon: {fileID: 6956665579318794515, guid: caaf220d3c276834e9cce960818aa476, type: 3}
+  icon: {fileID: -2880787507616007325, guid: 9e26f63a59a2afb46a925355e2c958ec, type: 3}
   price: 20
   itemType: 1
   elementType: 0

@@ -18,34 +18,44 @@ public class ShopSlotUI : MonoBehaviour
 
         if (assignedItem != null) 
         {
+            // Ak máme predmet, uistíme sa, že celý slot (GameObject) je zapnutý a viditeľný
+            gameObject.SetActive(true);
+
             if (iconImage != null) 
             {
                 iconImage.gameObject.SetActive(true);
                 iconImage.sprite = assignedItem.icon;
             }
             if (nameText != null) nameText.text = assignedItem.itemName;
+            
             if (priceText != null) priceText.text = $"{assignedItem.price} Gold";
             
             if (buyButton != null) 
             {
                 buyButton.interactable = true;
+                buyButton.gameObject.SetActive(true);
                 buyButton.onClick.RemoveAllListeners();
                 buyButton.onClick.AddListener(TryBuyItem);
             }
         } 
         else 
         {
-            if (iconImage != null) iconImage.gameObject.SetActive(false);
-            if (nameText != null) nameText.text = "Prázdne";
-            if (priceText != null) priceText.text = "";
-            if (buyButton != null) buyButton.interactable = false;
+            // AK JE PREDMET KÚPENÝ / PRÁZDNY:
+            // Úplne vypne celý tento GameObject (slot úplne zmizne z obrazovky)
+            gameObject.SetActive(false);
         }
     }
 
     void TryBuyItem() 
     {
-        if (assignedItem == null) return;
-        Debug.Log(string.Format("Hráč kúpil predmet: {0} za {1} mincí.", assignedItem.itemName, assignedItem.price));
-        SetItem(null); // Po nákupe slot vyčistí
+        //if (assignedItem == null) return;
+
+        // Vypíše do konzoly nákup
+        Debug.Log($"Kupujem {assignedItem.itemName} za {assignedItem.price} goldov.");
+
+        // Tu neskôr pridáte logiku na odčítanie mincí hráčovi
+
+        // Po úspešnom nákupe nastavíme predmet na null, čo zavolá else vetvu a skryjeme celý slot
+        SetItem(null);
     }
 }

@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Shield Of Courage
   description: 
   icon: {fileID: -6717884257390833292, guid: d52fab7d2664d0d4887bb31b9f866f53, type: 3}
-  price: 0
+  price: 500
   itemType: 2
   elementType: 0
   staminaCost: 1

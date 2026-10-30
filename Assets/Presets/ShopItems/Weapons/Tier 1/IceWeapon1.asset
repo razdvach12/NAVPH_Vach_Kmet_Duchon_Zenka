@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23e4aaed00e69b34f9887f5132b6217f, type: 3}
   m_Name: IceWeapon1
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: Ice
+  itemName: Ice Star
   description: 
-  icon: {fileID: 2746889905359702070, guid: 115a90339facd4b49b7576da280b9a01, type: 3}
-  price: 504
+  icon: {fileID: -4656157496897403196, guid: d97532cee7f565b448f3ea0dcae038c8, type: 3}
+  price: 150
   itemType: 0
   elementType: 0
   staminaCost: 3

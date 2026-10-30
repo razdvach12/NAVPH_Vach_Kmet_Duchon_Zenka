@@ -6,11 +6,17 @@ public class ShopManager : MonoBehaviour
     [Header("Databáza všetkých predmetov")]
     public List<ItemData> allWeaponItems;
     public List<ItemData> allConsumableItems;
+    public List<ItemData> allRelicItems; 
+
+    public List<ItemData> allUpgradeItems; 
+
 
     [Header("UI Sloty v obchode")]
     public List<ShopSlotUI> weaponSlots;
     public List<ShopSlotUI> consumableSlots;
-
+    
+    public List<ShopSlotUI> relicSlots; 
+    public List<ShopSlotUI> upgradeSlots; 
     void Start() 
     {
         GenerateShopStock();
@@ -20,7 +26,19 @@ public class ShopManager : MonoBehaviour
     {
         FillSlotsRandomly(allWeaponItems, weaponSlots);
         FillSlotsRandomly(allConsumableItems, consumableSlots);
-    }
+
+        List<ItemData> relicsAndUpgradesCombined = new List<ItemData>();
+
+        if (allRelicItems != null) {
+            relicsAndUpgradesCombined.AddRange(allRelicItems);
+        }
+
+        if (allUpgradeItems != null) {
+            relicsAndUpgradesCombined.AddRange(allUpgradeItems);
+        }
+
+        FillSlotsRandomly(relicsAndUpgradesCombined, relicSlots);
+        }
 
     void FillSlotsRandomly(List<ItemData> sourceDatabase, List<ShopSlotUI> targetSlots) 
     {

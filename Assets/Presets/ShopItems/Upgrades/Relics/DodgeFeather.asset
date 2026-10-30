@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Dodge Feather
   description: 
   icon: {fileID: 7050445022762500012, guid: d244a7b71326a6d4fbfedf2a86d33df1, type: 3}
-  price: 0
+  price: 67
   itemType: 2
   elementType: 0
   staminaCost: 1

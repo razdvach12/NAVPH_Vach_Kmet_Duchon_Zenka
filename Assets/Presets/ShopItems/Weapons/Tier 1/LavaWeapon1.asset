@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Ice
   description: 
-  icon: {fileID: 2746889905359702070, guid: 115a90339facd4b49b7576da280b9a01, type: 3}
-  price: 504
+  icon: {fileID: 1603154981907671658, guid: 092d170f9ec45484990e2104cc4860cf, type: 3}
+  price: 200
   itemType: 0
   elementType: 0
   staminaCost: 3
