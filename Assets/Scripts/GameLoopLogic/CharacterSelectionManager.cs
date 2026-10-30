@@ -27,7 +27,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
         if (LoadingScene.Instance != null)
         {
-            LoadingScene.Instance.SwitchToScene(2); 
+            LoadingScene.Instance.SwitchToScene(5); 
         }
     }
 }

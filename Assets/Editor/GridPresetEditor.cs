@@ -1,8 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 
-//vdaka tomuto skriptu vieme vytvorit preset konkretneho gridu
-
 [CustomEditor(typeof(GridPreset))]
 public class GridPresetEditor : Editor
 {
@@ -11,8 +9,13 @@ public class GridPresetEditor : Editor
         GridPreset preset = (GridPreset)target;
 
         EditorGUI.BeginChangeCheck();
+        
         preset.width = EditorGUILayout.IntSlider("Width", preset.width, 1, 7);
         preset.height = EditorGUILayout.IntSlider("Height", preset.height, 1, 7);
+
+        EditorGUILayout.Space(5);
+        preset.weaponIcon = (Sprite)EditorGUILayout.ObjectField("Weapon Icon", preset.weaponIcon, typeof(Sprite), false);
+        // -------------------------------------
 
         int targetSize = preset.width * preset.height;
         if (preset.cells == null || preset.cells.Length != targetSize)

@@ -5,7 +5,7 @@ public class LoadingSceneManager : MonoBehaviour
 {
     public void OnClickPlay()
     {
-        LoadingScene.Instance.SwitchToScene(2);
+        LoadingScene.Instance.SwitchToScene(5);
     }
 
     public void OnClickShop()
