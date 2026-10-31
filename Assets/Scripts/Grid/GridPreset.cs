@@ -24,6 +24,9 @@ public class GridPreset : ScriptableObject
     public int width = 5;
     public int height = 5;
 
+    [Header("Vizuál zbrane v UI")]
+    public Sprite weaponIcon;
+    
     [Header("Grid type:")]
     public CellSetup.Gridtype actionType = CellSetup.Gridtype.Character;
     public int staminaCost = 1;

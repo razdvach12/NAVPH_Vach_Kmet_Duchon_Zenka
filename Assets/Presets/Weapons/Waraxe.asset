@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
   width: 5
   height: 5
+  weaponIcon: {fileID: 4917789199377153820, guid: b6e099359b6641245aecd61ff2a8de32, type: 3}
+  actionType: 0
+  staminaCost: 1
   cells:
   - element: 1
     thickness: 1

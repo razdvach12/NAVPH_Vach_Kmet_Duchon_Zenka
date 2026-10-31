@@ -12,10 +12,16 @@ EditorBuildSettings:
     path: Assets/Scenes/LoadingScene.unity
     guid: 528b5d876854c6140b8c793ea1a1380a
   - enabled: 1
+    path: Assets/Scenes/ShopScene.unity
+    guid: 011a4e844376f3749b8ea6b24b56805f
+  - enabled: 1
     path: Assets/Scenes/MapScene.unity
     guid: 332019fcefd8d4b4a9095c6137cc9aa2
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/MapTemplate.unity
+    guid: 29031d489f82b1f43a2d7c764ec2920e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
