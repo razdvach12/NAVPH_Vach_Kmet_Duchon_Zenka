@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NatureCharacter
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: Nature Rouge
-  startingGold: 3
+  startingGold: 1100
   healthGridPreset: {fileID: 11400000, guid: 3cf15c9c322c15e45aeb024ef4e2a207, type: 2}
   startingWeapons:
   - {fileID: 11400000, guid: 689ce3c7e476b7c4bb030bb4aae9d171, type: 2}

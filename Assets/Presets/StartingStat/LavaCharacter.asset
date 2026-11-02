@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LavaCharacter
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: Lava Nieco
-  startingGold: 2
+  startingGold: 2000
   healthGridPreset: {fileID: 11400000, guid: 5711eb65147535949b016962e130939b, type: 2}
   startingWeapons:
   - {fileID: 11400000, guid: 0072c14c6ecff614fa52bf54931be248, type: 2}

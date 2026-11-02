@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI; // Dôležité pre prácu s Image komponentom
+using UnityEngine.UI;
 using TMPro;
 
 public class ShopUIController : MonoBehaviour
@@ -9,30 +9,59 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private GridManager playerHealthGrid;   
 
     [Header("Zbrane hráča v UI (Ikonky / Sloty)")]
-    [Tooltip("Sem pretiahni sloty (Circle alebo objekty, ktoré majú na sebe Image komponent pre zbraň)")]
     [SerializeField] private GameObject[] weaponSlots;       
+
+    [Header("Potiony hráča v UI (Ikonky / Sloty)")]
+    [SerializeField] private GameObject[] consumableSlots; 
+
+    [Header("Relikvie hráča v UI (Ikonky / Sloty)")]
+    [SerializeField] private GameObject[] relicSlots; // <-- SEM DÁŠ 4 SLOTY PRE RELIKVIE
 
     private void Start()
     {
         UpdateShopUI();
+
+        // Zavesenie na signály
+        if (PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.OnMoneyChanged += UpdateMoneyText;
+            PlayerStats.Instance.OnWeaponsChanged += UpdateWeaponSlots;
+            PlayerStats.Instance.OnConsumablesChanged += UpdateConsumableSlots;
+            PlayerStats.Instance.OnRelicsChanged += UpdateRelicSlots; // Zavesenie relikvií
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Odhlásenie pri zničení scény
+        if (PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.OnMoneyChanged -= UpdateMoneyText;
+            PlayerStats.Instance.OnWeaponsChanged -= UpdateWeaponSlots;
+            PlayerStats.Instance.OnConsumablesChanged -= UpdateConsumableSlots;
+            PlayerStats.Instance.OnRelicsChanged -= UpdateRelicSlots; 
+        }
     }
 
     public void UpdateShopUI()
     {
-        if (PlayerStats.Instance != null)
+        UpdateMoneyText();
+        UpdateWeaponSlots();
+        UpdateConsumableSlots();
+        UpdateRelicSlots();
+
+        if (PlayerStats.Instance != null && playerHealthGrid != null && PlayerStats.Instance.playerHealthPreset != null)
         {
-            if (coinText != null)
-            {
-                coinText.text = PlayerStats.Instance.money.ToString();
-            }
+            playerHealthGrid.isPlayerGrid = true;
+            playerHealthGrid.GenerateSingleGrid(PlayerStats.Instance.playerHealthPreset);
+        }
+    }
 
-            if (playerHealthGrid != null && PlayerStats.Instance.playerHealthPreset != null)
-            {
-                playerHealthGrid.isPlayerGrid = true;
-                playerHealthGrid.GenerateSingleGrid(PlayerStats.Instance.playerHealthPreset);
-            }
-
-            UpdateWeaponSlots();
+    private void UpdateMoneyText()
+    {
+        if (PlayerStats.Instance != null && coinText != null)
+        {
+            coinText.text = PlayerStats.Instance.money.ToString();
         }
     }
 
@@ -44,22 +73,18 @@ public class ShopUIController : MonoBehaviour
         {
             if (weaponSlots[i] == null) continue;
 
-            // Ak má hráč na tejto pozícií zbraň
             if (i < PlayerStats.Instance.unlockedWeapons.Count)
             {
                 weaponSlots[i].SetActive(true);
-
-                // Získame GridPreset zbrane z PlayerStats
                 GridPreset weapon = PlayerStats.Instance.unlockedWeapons[i];
-
-                // Nájdeme Image komponent na tomto slote (alebo v jeho deťoch)
                 Image slotImage = weaponSlots[i].GetComponent<Image>();
+                
                 if (slotImage != null)
                 {
-                    if (weapon.weaponIcon != null)
+                    if (weapon != null && weapon.weaponIcon != null)
                     {
                         slotImage.gameObject.SetActive(true);
-                        slotImage.sprite = weapon.weaponIcon; // <-- Toto natiahne tvoju novú ikonku do UI!
+                        slotImage.sprite = weapon.weaponIcon; 
                     }
                     else
                     {
@@ -69,8 +94,68 @@ public class ShopUIController : MonoBehaviour
             }
             else
             {
-                // Ak hráč nemá toľko zbraní, slot schováme
                 weaponSlots[i].SetActive(false);
+            }
+        }
+    }
+
+    private void UpdateConsumableSlots()
+    {
+        if (PlayerStats.Instance == null) return;
+
+        for (int i = 0; i < consumableSlots.Length; i++)
+        {
+            if (consumableSlots[i] == null) continue;
+
+            Image slotImage = consumableSlots[i].GetComponent<Image>();
+            
+            if (slotImage != null)
+            {
+                if (i < PlayerStats.Instance.consumables.Count)
+                {
+                    ItemData potion = PlayerStats.Instance.consumables[i];
+                    if (potion != null && potion.icon != null)
+                    {
+                        slotImage.gameObject.SetActive(true); 
+                        slotImage.sprite = potion.icon;       
+                    }
+                }
+                else
+                {
+                    slotImage.sprite = null;
+                }
+            }
+        }
+    }
+
+    // --- TÁTO METÓDA VYKRESLÍ RELIKVIE ---
+    private void UpdateRelicSlots()
+    {
+        if (PlayerStats.Instance == null) return;
+
+        for (int i = 0; i < relicSlots.Length; i++)
+        {
+            if (relicSlots[i] == null) continue;
+
+            Image slotImage = relicSlots[i].GetComponent<Image>();
+            
+            if (slotImage != null)
+            {
+                if (i < PlayerStats.Instance.relics.Count)
+                {
+                    // Hráč MÁ relikviu na tejto pozícii
+                    ItemData relic = PlayerStats.Instance.relics[i];
+                    if (relic != null && relic.icon != null)
+                    {
+                        slotImage.gameObject.SetActive(true); 
+                        slotImage.sprite = relic.icon;       
+                    }
+                }
+                else
+                {
+                    // Hráč NEMÁ relikviu (slot je prázdny)
+                    slotImage.sprite = null;
+                }
             }
         }
     }

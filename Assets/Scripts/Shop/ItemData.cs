@@ -31,4 +31,8 @@ public class ItemData : ScriptableObject
     [Range(1, 3)]
     public int staminaCost = 1;
     public int effectValue;
+
+    [Header("Prepojenie na PlayerStats")]
+    // TOTO JE NOVÉ: Sem v Unity priradíš konkrétny GridPreset zbrane
+    public GridPreset weaponGridPreset; 
 }

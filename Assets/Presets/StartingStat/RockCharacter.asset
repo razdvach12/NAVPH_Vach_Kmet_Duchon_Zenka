@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: RockCharacter
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: Rock Tank
-  startingGold: 4
+  startingGold: 500
   healthGridPreset: {fileID: 11400000, guid: a4f5a8ee37acbd847a482221365835f3, type: 2}
   startingWeapons:
   - {fileID: 11400000, guid: e394c66f5a6076e44a8dcb79b3ef4c33, type: 2}
