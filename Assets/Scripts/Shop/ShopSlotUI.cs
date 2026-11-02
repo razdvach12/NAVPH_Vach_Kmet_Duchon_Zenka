@@ -76,6 +76,12 @@ public class ShopSlotUI : MonoBehaviour
                 PlayerStats.Instance.AddPurchasedItem(assignedItem);
                 
                 SetItem(null);
+
+
+                if (ShopManager.Instance != null)
+                {
+                    ShopManager.Instance.CheckIfSectionsAreEmpty();
+                }
             }
             else
             {

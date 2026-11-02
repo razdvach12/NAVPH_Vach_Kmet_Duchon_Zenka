@@ -1,39 +1,42 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement; 
 
 public class ShopUIController : MonoBehaviour
 {
     [Header("UI Odkazy")]
     [SerializeField] private TextMeshProUGUI coinText;       
     [SerializeField] private GridManager playerHealthGrid;   
+    
+    // --- ODKAZ NA OBRÁZOK V UI ---
+    [SerializeField] private Image characterPortrait;
 
     [Header("Zbrane hráča v UI (Ikonky / Sloty)")]
     [SerializeField] private GameObject[] weaponSlots;       
+    [SerializeField] private Button[] removeWeaponButtons;
 
     [Header("Potiony hráča v UI (Ikonky / Sloty)")]
     [SerializeField] private GameObject[] consumableSlots; 
 
     [Header("Relikvie hráča v UI (Ikonky / Sloty)")]
-    [SerializeField] private GameObject[] relicSlots; // <-- SEM DÁŠ 4 SLOTY PRE RELIKVIE
+    [SerializeField] private GameObject[] relicSlots; 
 
     private void Start()
     {
         UpdateShopUI();
 
-        // Zavesenie na signály
         if (PlayerStats.Instance != null)
         {
             PlayerStats.Instance.OnMoneyChanged += UpdateMoneyText;
             PlayerStats.Instance.OnWeaponsChanged += UpdateWeaponSlots;
             PlayerStats.Instance.OnConsumablesChanged += UpdateConsumableSlots;
-            PlayerStats.Instance.OnRelicsChanged += UpdateRelicSlots; // Zavesenie relikvií
+            PlayerStats.Instance.OnRelicsChanged += UpdateRelicSlots; 
         }
     }
 
     private void OnDestroy()
     {
-        // Odhlásenie pri zničení scény
         if (PlayerStats.Instance != null)
         {
             PlayerStats.Instance.OnMoneyChanged -= UpdateMoneyText;
@@ -55,19 +58,25 @@ public class ShopUIController : MonoBehaviour
             playerHealthGrid.isPlayerGrid = true;
             playerHealthGrid.GenerateSingleGrid(PlayerStats.Instance.playerHealthPreset);
         }
+
+        // --- AKTUALIZÁCIA OBRÁZKA POSTAVY ---
+        if (PlayerStats.Instance != null && characterPortrait != null && PlayerStats.Instance.playerSprite != null)
+        {
+            characterPortrait.sprite = PlayerStats.Instance.playerSprite;
+        }
     }
 
     private void UpdateMoneyText()
     {
         if (PlayerStats.Instance != null && coinText != null)
-        {
             coinText.text = PlayerStats.Instance.money.ToString();
-        }
     }
 
     private void UpdateWeaponSlots()
     {
         if (PlayerStats.Instance == null) return;
+
+        bool isInShopScene = (SceneManager.GetActiveScene().buildIndex == 2);
 
         for (int i = 0; i < weaponSlots.Length; i++)
         {
@@ -75,26 +84,38 @@ public class ShopUIController : MonoBehaviour
 
             if (i < PlayerStats.Instance.unlockedWeapons.Count)
             {
-                weaponSlots[i].SetActive(true);
+                weaponSlots[i].SetActive(true); 
                 GridPreset weapon = PlayerStats.Instance.unlockedWeapons[i];
                 Image slotImage = weaponSlots[i].GetComponent<Image>();
                 
-                if (slotImage != null)
+                if (slotImage != null && weapon != null && weapon.weaponIcon != null)
                 {
-                    if (weapon != null && weapon.weaponIcon != null)
+                    slotImage.sprite = weapon.weaponIcon; 
+                }
+
+                if (removeWeaponButtons != null && i < removeWeaponButtons.Length && removeWeaponButtons[i] != null)
+                {
+                    if (isInShopScene) 
                     {
-                        slotImage.gameObject.SetActive(true);
-                        slotImage.sprite = weapon.weaponIcon; 
+                        removeWeaponButtons[i].gameObject.SetActive(true); 
+                        removeWeaponButtons[i].onClick.RemoveAllListeners();
+                        int slotIndex = i; 
+                        removeWeaponButtons[i].onClick.AddListener(() => PlayerStats.Instance.RemoveWeapon(slotIndex));
                     }
                     else
                     {
-                        slotImage.sprite = null;
+                        removeWeaponButtons[i].gameObject.SetActive(false); 
                     }
                 }
             }
             else
             {
-                weaponSlots[i].SetActive(false);
+                weaponSlots[i].SetActive(false); 
+                
+                if (removeWeaponButtons != null && i < removeWeaponButtons.Length && removeWeaponButtons[i] != null)
+                {
+                    removeWeaponButtons[i].gameObject.SetActive(false);
+                }
             }
         }
     }
@@ -102,60 +123,55 @@ public class ShopUIController : MonoBehaviour
     private void UpdateConsumableSlots()
     {
         if (PlayerStats.Instance == null) return;
-
         for (int i = 0; i < consumableSlots.Length; i++)
         {
             if (consumableSlots[i] == null) continue;
-
-            Image slotImage = consumableSlots[i].GetComponent<Image>();
             
-            if (slotImage != null)
+            if (i < PlayerStats.Instance.consumables.Count)
             {
-                if (i < PlayerStats.Instance.consumables.Count)
+                consumableSlots[i].SetActive(true); 
+                Image slotImage = consumableSlots[i].GetComponent<Image>();
+                
+                if (slotImage != null)
                 {
                     ItemData potion = PlayerStats.Instance.consumables[i];
                     if (potion != null && potion.icon != null)
                     {
-                        slotImage.gameObject.SetActive(true); 
                         slotImage.sprite = potion.icon;       
                     }
                 }
-                else
-                {
-                    slotImage.sprite = null;
-                }
+            }
+            else 
+            {
+                consumableSlots[i].SetActive(false); 
             }
         }
     }
 
-    // --- TÁTO METÓDA VYKRESLÍ RELIKVIE ---
     private void UpdateRelicSlots()
     {
         if (PlayerStats.Instance == null) return;
-
         for (int i = 0; i < relicSlots.Length; i++)
         {
             if (relicSlots[i] == null) continue;
-
-            Image slotImage = relicSlots[i].GetComponent<Image>();
             
-            if (slotImage != null)
+            if (i < PlayerStats.Instance.relics.Count)
             {
-                if (i < PlayerStats.Instance.relics.Count)
+                relicSlots[i].SetActive(true); 
+                Image slotImage = relicSlots[i].GetComponent<Image>();
+                
+                if (slotImage != null)
                 {
-                    // Hráč MÁ relikviu na tejto pozícii
                     ItemData relic = PlayerStats.Instance.relics[i];
                     if (relic != null && relic.icon != null)
                     {
-                        slotImage.gameObject.SetActive(true); 
                         slotImage.sprite = relic.icon;       
                     }
                 }
-                else
-                {
-                    // Hráč NEMÁ relikviu (slot je prázdny)
-                    slotImage.sprite = null;
-                }
+            }
+            else 
+            {
+                relicSlots[i].SetActive(false); 
             }
         }
     }

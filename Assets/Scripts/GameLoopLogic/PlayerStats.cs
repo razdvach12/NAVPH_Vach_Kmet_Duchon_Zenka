@@ -10,14 +10,16 @@ public class PlayerStats : MonoBehaviour
     public event Action OnMoneyChanged;
     public event Action OnWeaponsChanged;
     public event Action OnConsumablesChanged; 
-    public event Action OnRelicsChanged; // <-- NOVÝ SIGNÁL PRE RELIKVIE
+    public event Action OnRelicsChanged; 
 
     [Header("Aktuálny stav hráča")]
     public int money = 0;
     public int encountersDefeated = 0;
     
+    // --- OBRÁZOK POSTAVY ---
+    public Sprite playerSprite; 
+
     [Header("Inventár")]
-    // ZMENA: Namiesto List<string> teraz ukladáme List<ItemData>, aby sme mali prístup k ikonke!
     public List<ItemData> relics = new List<ItemData>(); 
     public List<GridPreset> unlockedWeapons = new List<GridPreset>();
     public List<ItemData> consumables = new List<ItemData>(); 
@@ -44,15 +46,16 @@ public class PlayerStats : MonoBehaviour
         money = character.startingGold;
         playerHealthPreset = character.healthGridPreset;
         
+        // --- ULOŽENIE OBRÁZKA POSTAVY ---
+        // Ak sa v tvojom CharacterData volá premenná inak, zmeň slovo "characterSprite"
+        playerSprite = character.characterSprite; 
+        
         unlockedWeapons.Clear();
         if (character.startingWeapons != null)
         {
             unlockedWeapons.AddRange(character.startingWeapons);
         }
 
-        Debug.Log($"Postava {character.characterName} inicializovaná! Goldy: {money}");
-        
-        // Zaktualizuj všetko UI pri načítaní postavy
         OnMoneyChanged?.Invoke();
         OnWeaponsChanged?.Invoke();
         OnConsumablesChanged?.Invoke();
@@ -64,11 +67,9 @@ public class PlayerStats : MonoBehaviour
         if (money >= amount)
         {
             money -= amount;
-            Debug.Log($"Nákup úspešný! Zostáva ti {money} goldov.");
             OnMoneyChanged?.Invoke(); 
             return true;
         }
-        Debug.Log("Nemáš dostatok goldov!");
         return false;
     }
 
@@ -87,30 +88,27 @@ public class PlayerStats : MonoBehaviour
             if (item.weaponGridPreset != null)
             {
                 unlockedWeapons.Add(item.weaponGridPreset);
-                Debug.Log($"Zbraň {item.itemName} pridaná do arzenálu!");
                 OnWeaponsChanged?.Invoke(); 
-            }
-            else
-            {
-                Debug.LogWarning($"Zbrani {item.itemName} chýba GridPreset!");
             }
         }
         else if (item.itemType == ItemType.Consumable)
         {
             consumables.Add(item);
-            Debug.Log($"Potion {item.itemName} pridaný!");
             OnConsumablesChanged?.Invoke(); 
         }
         else if (item.itemType == ItemType.Relic)
         {
-            // TOTO JE UPRAVENÉ PRE RELIKVIE
             relics.Add(item);
-            Debug.Log($"Relikvia {item.itemName} pridaná!");
-            OnRelicsChanged?.Invoke(); // Pošle signál, aby sa UI relikvií prekreslilo
+            OnRelicsChanged?.Invoke(); 
         }
-        else if (item.itemType == ItemType.Upgrade)
+    }
+
+    public void RemoveWeapon(int index)
+    {
+        if (index >= 0 && index < unlockedWeapons.Count)
         {
-            Debug.Log($"Aplikovaný upgrade: {item.itemName}");
+            unlockedWeapons.RemoveAt(index); 
+            OnWeaponsChanged?.Invoke();      
         }
     }
 }
