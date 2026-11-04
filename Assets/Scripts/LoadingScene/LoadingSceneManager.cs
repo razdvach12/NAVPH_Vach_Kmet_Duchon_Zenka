@@ -14,4 +14,16 @@ public class LoadingSceneManager : MonoBehaviour
         LoadingScene.Instance.SwitchToScene(2); 
     }
 
+    public void OnClickExitShop()
+    {
+        // Zmeňte číslo 4 na presný Build Index scény (napr. Mapy), do ktorej sa chcete vrátiť
+        LoadingScene.Instance.SwitchToScene(5); //
+    }
+
+    public void OnClickTreasureScene()
+    {
+        // Zmeňte číslo 4 na presný Build Index scény (napr. Mapy), do ktorej sa chcete vrátiť
+        LoadingScene.Instance.SwitchToScene(6); //
+    }
+
 }

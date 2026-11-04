@@ -20,3 +20,4 @@ MonoBehaviour:
   elementType: 0
   staminaCost: 2
   effectValue: 0
+  weaponGridPreset: {fileID: 11400000, guid: 689ce3c7e476b7c4bb030bb4aae9d171, type: 2}

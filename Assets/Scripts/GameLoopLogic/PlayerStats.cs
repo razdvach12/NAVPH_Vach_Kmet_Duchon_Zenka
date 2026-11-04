@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,12 +6,24 @@ public class PlayerStats : MonoBehaviour
 {
     public static PlayerStats Instance;
 
+    // --- UDALOSTI (SIGNÁLY) PRE UI ---
+    public event Action OnMoneyChanged;
+    public event Action OnWeaponsChanged;
+    public event Action OnConsumablesChanged; 
+    public event Action OnRelicsChanged; 
+
     [Header("Aktuálny stav hráča")]
     public int money = 0;
     public int maxStamina = 5; // Dá sa zvyšovať počas hry (napr. odmena za bossa)
     public int encountersDefeated = 0;
-    public List<string> relics = new List<string>();
+    
+    // --- OBRÁZOK POSTAVY ---
+    public Sprite playerSprite; 
+
+    [Header("Inventár")]
+    public List<ItemData> relics = new List<ItemData>(); 
     public List<GridPreset> unlockedWeapons = new List<GridPreset>();
+
     public GridPreset playerHealthPreset;
 
     [Header("Inventár consumables")]
@@ -30,7 +43,6 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    // --- TÚTO METÓDU ZAVOLÁŠ PRI KLIKNUTÍ NA START ---
     public void InitializeCharacter(CharacterData character)
     {
         if (character == null) return;
@@ -39,7 +51,10 @@ public class PlayerStats : MonoBehaviour
         maxStamina = character.startingStamina;
         playerHealthPreset = character.healthGridPreset;
         
-        // Vyčistíme a naplníme počiatočné zbrane
+        // --- ULOŽENIE OBRÁZKA POSTAVY ---
+        // Ak sa v tvojom CharacterData volá premenná inak, zmeň slovo "characterSprite"
+        playerSprite = character.characterSprite; 
+        
         unlockedWeapons.Clear();
         if (character.startingWeapons != null)
         {
@@ -50,6 +65,61 @@ public class PlayerStats : MonoBehaviour
         consumables.Clear();
 
         Debug.Log($"Postava {character.characterName} úspešne uložená! Goldy: {money}, Zbrane: {unlockedWeapons.Count}");
+
+        OnMoneyChanged?.Invoke();
+        OnWeaponsChanged?.Invoke();
+        OnConsumablesChanged?.Invoke();
+        OnRelicsChanged?.Invoke();
+    }
+
+    public bool TrySpendMoney(int amount)
+    {
+        if (money >= amount)
+        {
+            money -= amount;
+            OnMoneyChanged?.Invoke(); 
+            return true;
+        }
+        return false;
+    }
+
+    public void AddMoney(int amount)
+    {
+        money += amount;
+        OnMoneyChanged?.Invoke(); 
+    }
+
+    public void AddPurchasedItem(ItemData item)
+    {
+        if (item == null) return;
+
+        if (item.itemType == ItemType.Weapon)
+        {
+            if (item.weaponGridPreset != null)
+            {
+                unlockedWeapons.Add(item.weaponGridPreset);
+                OnWeaponsChanged?.Invoke(); 
+            }
+        }
+        else if (item.itemType == ItemType.Consumable)
+        {
+            // Consumable musí byť ConsumableData asset (TryAddConsumable už zavolá OnConsumablesChanged)
+            if (item is ConsumableData consumable) TryAddConsumable(consumable);
+        }
+        else if (item.itemType == ItemType.Relic)
+        {
+            relics.Add(item);
+            OnRelicsChanged?.Invoke(); 
+        }
+    }
+
+    public void RemoveWeapon(int index)
+    {
+        if (index >= 0 && index < unlockedWeapons.Count)
+        {
+            unlockedWeapons.RemoveAt(index); 
+            OnWeaponsChanged?.Invoke();
+        }
     }
 
     // Vráti false, ak je inventár plný (napr. obchod potom nákup nepovolí)
@@ -58,12 +128,13 @@ public class PlayerStats : MonoBehaviour
         if (consumable == null || consumables.Count >= maxConsumables) return false;
 
         consumables.Add(consumable);
+        OnConsumablesChanged?.Invoke();
         return true;
     }
 
     // Zavolá sa po použití consumable v súboji
     public void RemoveConsumable(ConsumableData consumable)
     {
-        consumables.Remove(consumable);
+        if (consumables.Remove(consumable)) OnConsumablesChanged?.Invoke();
     }
 }
