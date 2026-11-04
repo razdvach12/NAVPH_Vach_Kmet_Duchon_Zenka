@@ -48,11 +48,39 @@ public class SlotValue : MonoBehaviour
         UpdateVisual();
     }
 
+    // Šanca, že Rock / Nature políčko na konci kola vykoná svoju schopnosť
+    public const float RockGrowChance = 0.5f;
+    public const float NatureSpreadChance = 0.5f;
+
+    // Ice políčko má šancu uhnúť sa zásahu podľa svojej hrúbky (1 = 30 %, 2 = 50 %, 3 = 70 %)
+    public static float GetIceDodgeChance(int thickness)
+    {
+        return thickness switch
+        {
+            1 => 0.3f,
+            2 => 0.5f,
+            >= 3 => 0.7f,
+            _ => 0f
+        };
+    }
+
     public void TakeDamage(int damage)
+    {
+        if (!IsAlive || damage <= 0) return;
+
+        if (element == BlockElement.Ice && Random.value < GetIceDodgeChance(thickness)) return;
+
+        thickness = Mathf.Max(0, thickness - damage);
+        UpdateVisual();
+    }
+
+    // Zvýši hodnotu políčka (max 3) - ak prekročí maximum, zvýši sa aj maximum (Rock, Nature)
+    public void Grow(int amount)
     {
         if (!IsAlive) return;
 
-        thickness = Mathf.Max(0, thickness - damage);
+        thickness = Mathf.Min(3, thickness + amount);
+        maxThickness = Mathf.Max(maxThickness, thickness);
         UpdateVisual();
     }
 
@@ -63,6 +91,13 @@ public class SlotValue : MonoBehaviour
         thickness = Mathf.Min(maxThickness, thickness + amount);
         UpdateVisual();
         return true;
+    }
+
+    // Nastaví aktuálnu hrúbku (napr. pri výmene živlu, aby políčko neprišlo o poškodenie)
+    public void SetCurrentThickness(int value)
+    {
+        thickness = Mathf.Clamp(value, 0, maxThickness);
+        UpdateVisual();
     }
 
     public void UpgradeMaxThickness(int addMax)

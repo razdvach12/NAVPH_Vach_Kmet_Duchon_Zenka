@@ -8,6 +8,7 @@ public class CharacterData : ScriptableObject
     
     [Header("Počiatočné hodnoty")]
     public int startingGold = 100;
+    public int startingStamina = 5;
 
     [Header("Grid a Zbrane")]
     public GridPreset healthGridPreset;       // Počiatočný Grid postavy

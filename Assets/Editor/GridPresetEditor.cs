@@ -15,6 +15,8 @@ public class GridPresetEditor : Editor
 
         EditorGUILayout.Space(5);
         preset.weaponIcon = (Sprite)EditorGUILayout.ObjectField("Weapon Icon", preset.weaponIcon, typeof(Sprite), false);
+        preset.actionType = (CellSetup.Gridtype)EditorGUILayout.EnumPopup("Grid Type", preset.actionType);
+        preset.staminaCost = EditorGUILayout.IntSlider("Stamina Cost", preset.staminaCost, 1, 3);
         // -------------------------------------
 
         int targetSize = preset.width * preset.height;

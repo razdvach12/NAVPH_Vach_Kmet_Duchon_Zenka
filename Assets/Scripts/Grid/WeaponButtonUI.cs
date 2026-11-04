@@ -25,6 +25,12 @@ public class WeaponButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     private void ShowWeaponGridTooltip()
     {
+        // Cena zbrane sa ukáže pri stamine hráča
+        if (targetingController != null && targetingController.turnManager != null && weaponPreset != null)
+        {
+            targetingController.turnManager.ShowStaminaCost(targetingController.turnManager.GetStaminaCost(weaponPreset));
+        }
+
         if (weaponTooltipGrid == null || weaponPreset == null) return;
 
         weaponTooltipGrid.gameObject.SetActive(true);
@@ -36,11 +42,17 @@ public class WeaponButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     private void HideWeaponGridTooltip()
     {
+        if (targetingController != null && targetingController.turnManager != null)
+        {
+            targetingController.turnManager.HideStaminaCost();
+        }
+
         if (weaponTooltipGrid == null) return;
         weaponTooltipGrid.gameObject.SetActive(false);
     }
 
-    private void SelectThisWeapon()
+    // Volá sa po kliknutí na ikonu alebo stlačení klávesy slotu (1-4)
+    public void SelectThisWeapon()
     {
         if (targetingController != null && weaponPreset != null)
         {
