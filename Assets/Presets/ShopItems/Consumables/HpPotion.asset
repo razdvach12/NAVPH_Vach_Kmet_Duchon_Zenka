@@ -22,4 +22,7 @@ MonoBehaviour:
   effectValue: 0
   weaponGridPreset: {fileID: 0}
   consumableEffect: 2
-  consumableShape: {fileID: 0}
+  consumableShapes:
+  - {fileID: 11400000, guid: 98b309533fd00dc4b91751bc5d654ef2, type: 2}
+  - {fileID: 11400000, guid: 4865e5e0dc7c8284aa46fda6f69adbbc, type: 2}
+  - {fileID: 11400000, guid: 2a6896e08b4d1f44bacd35a484194192, type: 2}

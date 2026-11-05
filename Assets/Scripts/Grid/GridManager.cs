@@ -94,6 +94,50 @@ public class GridManager : MonoBehaviour
                 }
             }
         }
+
+        // HP grid hráča: obnoví stratené HP z predchádzajúcich encounterov (náhľady zbraní sa nemenia)
+        if (isPlayerGrid && PlayerStats.Instance != null && preset == PlayerStats.Instance.playerHealthPreset)
+        {
+            ApplySavedHp(PlayerStats.Instance.playerCurrentHp);
+        }
+    }
+
+    // --- PRENÁŠANIE STRATENÉHO HP MEDZI ENCOUNTERMI ---
+
+    // Aktuálne HP každého políčka podľa presetu (index = y * width + x)
+    // Rast z Rock/Nature sa neukladá - HP je obmedzené max HP z presetu a nové políčka sa ignorujú
+    public int[] GetHpSnapshot(GridPreset preset)
+    {
+        if (slots == null || preset == null) return null;
+
+        int[] hp = new int[preset.width * preset.height];
+        for (int x = 0; x < preset.width && x < totalWidth; x++)
+        {
+            for (int y = 0; y < preset.height && y < totalHeight; y++)
+            {
+                CellSetup cell = preset.GetCell(x, y);
+                SlotValue block = slots[x, y] != null ? slots[x, y].currentBlock : null;
+                if (cell.element == BlockElement.None || block == null) continue;
+
+                hp[y * preset.width + x] = Mathf.Min(block.thickness, cell.thickness);
+            }
+        }
+        return hp;
+    }
+
+    // Nastaví aktuálne HP políčok podľa uloženého stavu (null = plné HP)
+    private void ApplySavedHp(int[] hp)
+    {
+        if (hp == null || slots == null || hp.Length != totalWidth * totalHeight) return;
+
+        for (int x = 0; x < totalWidth; x++)
+        {
+            for (int y = 0; y < totalHeight; y++)
+            {
+                SlotValue block = slots[x, y] != null ? slots[x, y].currentBlock : null;
+                if (block != null) block.SetCurrentThickness(hp[y * totalWidth + x]);
+            }
+        }
     }
 
     // --- GENEROVANIE FIXNÉHO VEĽKÉHO GRIDU PRE NEPRIATEĽOV Z ROOM ---

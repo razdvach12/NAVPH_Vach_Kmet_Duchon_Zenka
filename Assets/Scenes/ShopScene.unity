@@ -3101,10 +3101,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f1c6bebcfda7807429880f5ce553f0ef, type: 2}
   - {fileID: 11400000, guid: b0e811c05d2bf564596243a39378c7a7, type: 2}
   allConsumableItems:
-  - {fileID: 11400000, guid: c5d13983e97ad3f4ea94e6d3bca5ccfe, type: 2}
-  - {fileID: 11400000, guid: 854df8e50e6114c479a7a1da056cb36c, type: 2}
+  - {fileID: 11400000, guid: 68ff715e74c2e454786224fb492fe2f8, type: 2}
   - {fileID: 11400000, guid: c6d289b3ad20fc44da1e80e1c8293748, type: 2}
   - {fileID: 11400000, guid: a49a3236517e1324dbd986a2d83ea1bb, type: 2}
+  - {fileID: 11400000, guid: 587157dfcab16bf4e9b2c24a4d628ee8, type: 2}
   allRelicItems:
   - {fileID: 11400000, guid: 34f1ae455c83f0745aa0125941d4d8b5, type: 2}
   - {fileID: 11400000, guid: 5bb38027372780f4e96ae28533071ea9, type: 2}

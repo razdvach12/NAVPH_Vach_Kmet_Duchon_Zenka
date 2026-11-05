@@ -9,6 +9,7 @@ public class ConsumableButtonUI : MonoBehaviour, IPointerClickHandler
 
     [Header("References")]
     public TurnManager turnManager;
+    public WeaponTargetingController targetingController; // Ak nie je nastavený, nájde sa automaticky
 
     private SpriteRenderer spriteRenderer;
     private Image uiImage;
@@ -47,7 +48,28 @@ public class ConsumableButtonUI : MonoBehaviour, IPointerClickHandler
                 turnManager.SpendStamina(consumable.staminaCost);
                 break;
 
-            // TODO: ostatné efekty (DamageEnemy, HealPlayer, Flee)
+            // Consumables s tvarom: Health Potion (lieči vlastný grid) a Bomba (zasiahne nepriateľa)
+            case ConsumableEffect.HealPlayer:
+            case ConsumableEffect.DamageEnemy:
+                if (!turnManager.HasStamina(consumable.staminaCost)) return;
+                if (targetingController == null) targetingController = FindAnyObjectByType<WeaponTargetingController>();
+                if (targetingController == null) return;
+
+                // Tvar sa vylosuje raz pri kliknutí, aby náhľad aj samotný efekt použili ten istý
+                GridPreset shape = consumable.GetRandomShape();
+                if (shape == null)
+                {
+                    Debug.LogWarning($"Consumable '{consumable.name}' nemá nastavené žiadne consumableShapes.");
+                    return;
+                }
+                targetingController.SelectConsumable(shape, this);
+                break;
+
+            case ConsumableEffect.Flee:
+                if (!turnManager.HasStamina(consumable.staminaCost)) return;
+                ConsumeItem(); // Najprv spotrebujeme, aby sa smoke bomb odobrala z inventára ešte pred zmenou scény
+                turnManager.TryFlee();
+                break;
         }
     }
 
@@ -56,10 +78,14 @@ public class ConsumableButtonUI : MonoBehaviour, IPointerClickHandler
     {
         if (consumable == null) return;
 
-        // PlayerStats nemusí existovať, ak sa Encounter spustí priamo v editore
-        if (PlayerStats.Instance != null) PlayerStats.Instance.RemoveConsumable(consumable);
-
+        // Najprv vyprázdnime slot a až potom odoberieme predmet z inventára.
+        // RemoveConsumable spustí OnConsumablesChanged a ShopUIController posunie ostatné predmety
+        // do uvoľnených slotov - keby sme slot vynulovali až po tom, zmazali by sme predmet, ktorý sa sem práve posunul.
+        ConsumableData used = consumable;
         consumable = null;
         Refresh();
+
+        // PlayerStats nemusí existovať, ak sa Encounter spustí priamo v editore
+        if (PlayerStats.Instance != null) PlayerStats.Instance.RemoveConsumable(used);
     }
 }
