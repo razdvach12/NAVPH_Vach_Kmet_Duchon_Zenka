@@ -6089,7 +6089,7 @@ GameObject:
   - component: {fileID: 8966407628269997541}
   - component: {fileID: 3248304758983532293}
   m_Layer: 0
-  m_Name: ShopUIController
+  m_Name: PlayerLayoutController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6147,6 +6147,9 @@ MonoBehaviour:
   - {fileID: 8580320177737059076}
   - {fileID: 7301149955805719191}
   - {fileID: 1991090984359163677}
+  targetingController: {fileID: 0}
+  weaponTooltipGrid: {fileID: 0}
+  turnManager: {fileID: 0}
 --- !u!1 &7854976153288494681
 GameObject:
   m_ObjectHideFlags: 0
