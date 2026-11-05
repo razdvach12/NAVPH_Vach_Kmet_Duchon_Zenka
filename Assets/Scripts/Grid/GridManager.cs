@@ -678,7 +678,16 @@ public class GridManager : MonoBehaviour
     {
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
-            DestroyImmediate(transform.GetChild(i).gameObject);
+            GameObject child = transform.GetChild(i).gameObject;
+            if (Application.isPlaying)
+            {
+                child.transform.SetParent(null);
+                Destroy(child);
+            }
+            else
+            {
+                DestroyImmediate(child);
+            }
         }
     }
 

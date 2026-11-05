@@ -1,6 +1,8 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class ConsumableButtonUI : MonoBehaviour
+public class ConsumableButtonUI : MonoBehaviour, IPointerClickHandler
 {
     [Header("Consumable v tomto slote (null = prázdny slot)")]
     public ConsumableData consumable;
@@ -9,18 +11,25 @@ public class ConsumableButtonUI : MonoBehaviour
     public TurnManager turnManager;
 
     private SpriteRenderer spriteRenderer;
+    private Image uiImage;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        uiImage = GetComponent<Image>();
         Refresh();
     }
 
     // Nastaví ikonu podľa priradeného predmetu
     public void Refresh()
     {
-        spriteRenderer.sprite = consumable != null ? consumable.icon : null;
+        Sprite icon = consumable != null ? consumable.icon : null;
+        if (spriteRenderer != null) spriteRenderer.sprite = icon;
+        if (uiImage != null && icon != null) uiImage.sprite = icon;
     }
+
+    // Pre UI objekty v Canvase (napr. PotionSlot v PlayerSection)
+    public void OnPointerClick(PointerEventData eventData) => UseConsumable();
 
     // Pre 2D sprity v scéne (potrebný collider)
     private void OnMouseDown() => UseConsumable();
