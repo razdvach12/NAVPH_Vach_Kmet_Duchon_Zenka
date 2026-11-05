@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 353f369517694b05b6c8d920ac5faeb0, type: 3}
+  m_Name: HpPotion
+  m_EditorClassIdentifier: Assembly-CSharp::ConsumableData
+  itemName: 'Health Potion '
+  description: 
+  icon: {fileID: -8485995304713028149, guid: 19af43055076dcd4b9588a73da2cd2fa, type: 3}
+  price: 50
+  itemType: 1
+  elementType: 0
+  staminaCost: 1
+  effectValue: 0
+  weaponGridPreset: {fileID: 0}

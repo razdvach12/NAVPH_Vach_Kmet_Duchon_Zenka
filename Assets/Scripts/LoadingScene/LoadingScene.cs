@@ -9,13 +9,16 @@ public class LoadingScene : MonoBehaviour
     public GameObject loadingScreen;
     public Slider ProgressBar;
     
+    [Header("Nastavenie scény")]
+    [Tooltip("Index scény (Build Index), ktorá sa má načítať.")]
+    public int targetSceneID; 
 
     public RectTransform loadingSpinner;
-    public float baseSpinSpeed = 300f; // Základná rýchlosť otáčania
+    public float baseSpinSpeed = 300f;
 
     [Header("Nastavenia nepravidelného otáčania")]
-    public float wobbleAmount = 200f;  // O koľko sa môže rýchlosť navyšovať/znižovať
-    public float wobbleFrequency = 3f; // Ako rýchlo sa mení cyklus (rýchly/pomalý)
+    public float wobbleAmount = 200f;  
+    public float wobbleFrequency = 3f; 
 
     private void Awake()
     {
@@ -35,12 +38,17 @@ public class LoadingScene : MonoBehaviour
     {
         if (loadingScreen.activeSelf && loadingSpinner != null)
         {
-            // Vypočítame aktuálnu rýchlosť pomocou sínusu, aby plynulo kolísala
+
             float currentSpeed = baseSpinSpeed + Mathf.Sin(Time.time * wobbleFrequency) * wobbleAmount;
 
-            // Aplikujeme rotáciu
             loadingSpinner.Rotate(0f, 0f, -currentSpeed * Time.deltaTime);
         }
+    }
+
+   
+    public void SwitchToTargetScene()
+    {
+        SwitchToScene(targetSceneID);
     }
 
     public void SwitchToScene(int id)
@@ -56,7 +64,7 @@ public class LoadingScene : MonoBehaviour
         asyncLoad.allowSceneActivation = false; 
 
         float elapsedTime = 0f;
-        float minimumLoadTime = 5f; 
+        float minimumLoadTime = 1f; 
 
         while (asyncLoad.progress < 0.9f || elapsedTime < minimumLoadTime)
         {

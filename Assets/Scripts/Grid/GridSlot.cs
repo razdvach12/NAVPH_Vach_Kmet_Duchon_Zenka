@@ -1,17 +1,21 @@
 using UnityEngine;
 
-
-// tu absolutne netusim co sa deje zatial
-
-
 public class GridSlot : MonoBehaviour
 {
     public int x { get; private set; }
     public int y { get; private set; }
     public GridManager parentGrid { get; private set; }
-    
-    // Referencia na aktuálne políčko života, ktoré sedí na tomto slote
+
     public SlotValue currentBlock;
+
+    // Políčko je odomknuté v Max HP (aj keď je práve zničené na 0)
+    public bool IsUnlockedMaxHp => currentBlock != null;
+
+    // Políčko má aktuálne život > 0
+    public bool HasAliveBlock => currentBlock != null && currentBlock.IsAlive;
+
+    // Políčko sa dá liečiť potionom (je súčasťou Max HP a nemá plnú hrúbku)
+    public bool CanBeHealed => currentBlock != null && currentBlock.thickness < currentBlock.maxThickness;
 
     [SerializeField] private SpriteRenderer slotRenderer;
     private Color defaultColor;
@@ -26,10 +30,16 @@ public class GridSlot : MonoBehaviour
         if (slotRenderer != null) defaultColor = slotRenderer.color;
     }
 
-    // Rozsvietenie políčka pri mierení zbraňou/potionom
     public void SetHighlight(bool active, Color highlightColor)
     {
-        if (slotRenderer == null) return;
-        slotRenderer.color = active ? highlightColor : defaultColor;
+        if (slotRenderer != null)
+        {
+            slotRenderer.color = active ? highlightColor : defaultColor;
+        }
+
+        if (currentBlock != null)
+        {
+            currentBlock.SetHighlight(active, highlightColor);
+        }
     }
 }

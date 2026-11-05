@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00cb3b41816447e08b453271704cab18, type: 3}
+  m_Name: LivingVineData
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
+  enemyName: Living Vine
+  tier: 1
+  bodyPreset: {fileID: 11400000, guid: 1d766bcc88804daca3c60f5918bd1c4b, type: 2}
+  attacks:
+  - pattern: {fileID: 11400000, guid: 448d2f481c7379e49890cd776e5139cf, type: 2}
+    targeting: 0
+  - pattern: {fileID: 11400000, guid: 30f46b3e998940509a7d16871986e77f, type: 2}
+    targeting: 0
+  goldReward: 10

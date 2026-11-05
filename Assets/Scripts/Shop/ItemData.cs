@@ -1,0 +1,38 @@
+using UnityEngine;
+
+public enum ItemType 
+{ 
+    Weapon,
+    Consumable,
+    Relic,
+    Upgrade
+}
+
+public enum ElementType 
+{ 
+    None, 
+    Lava, 
+    Ice, 
+    Nature, 
+    Rock 
+}
+
+[CreateAssetMenu(fileName = "NewItem", menuName = "Shop/ItemData")]
+public class ItemData : ScriptableObject 
+{
+    public string itemName;
+    [TextArea] public string description;
+    public Sprite icon;
+    public int price;
+    
+    public ItemType itemType;
+    public ElementType elementType;
+
+    [Range(0, 3)] // 0 = zadarmo (napr. mystický prášok)
+    public int staminaCost = 1;
+    public int effectValue;
+
+    [Header("Prepojenie na PlayerStats")]
+    // TOTO JE NOVÉ: Sem v Unity priradíš konkrétny GridPreset zbrane
+    public GridPreset weaponGridPreset; 
+}
