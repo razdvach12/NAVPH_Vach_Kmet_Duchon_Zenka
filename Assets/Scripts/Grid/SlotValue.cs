@@ -48,9 +48,8 @@ public class SlotValue : MonoBehaviour
         UpdateVisual();
     }
 
-    // Šanca, že Rock / Nature políčko na konci kola vykoná svoju schopnosť
+    // Šanca, že Rock políčko na konci kola vykoná svoju schopnosť
     public const float RockGrowChance = 0.5f;
-    public const float NatureSpreadChance = 0.5f;
 
     // Ice políčko má šancu uhnúť sa zásahu podľa svojej hrúbky (1 = 30 %, 2 = 50 %, 3 = 70 %)
     public static float GetIceDodgeChance(int thickness)

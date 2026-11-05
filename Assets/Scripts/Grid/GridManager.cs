@@ -510,7 +510,8 @@ public class GridManager : MonoBehaviour
     // --- SCHOPNOSTI ŽIVLOVÝCH POLÍČOK (NA KONCI KOLA) ---
     // Lava: 1 poškodenie náhodnému živému políčku súpera (platí bonus živlov), cieľ sa krátko ukáže
     // Rock: so šancou +1 hodnota (max 3)
-    // Nature: so šancou sa rozrastie na 1 náhodného suseda (prázdne alebo Basic políčko), inak +1 sama sebe
+    // Nature: každé kolo sa pre každého vlastníka vyberie 1 Nature políčko a rozrastie sa na 1 náhodného suseda
+    //         (prázdne -> nové Nature s 1 HP, Basic -> zmení sa na Nature, Nature -> +1 HP)
     // Ice: uhýbanie sa rieši priamo pri zásahu (SlotValue.TakeDamage)
     public IEnumerator ApplyElementEffects(GridManager opponentGrid, float lavaPreviewTime)
     {
@@ -537,10 +538,26 @@ public class GridManager : MonoBehaviour
                 case BlockElement.Rock:
                     if (Random.value < SlotValue.RockGrowChance) block.Grow(1);
                     break;
-                case BlockElement.Nature:
-                    if (Random.value < SlotValue.NatureSpreadChance) SpreadNature(slot);
-                    break;
             }
+        }
+
+        // Nature: každý vlastník (hráč / každý nepriateľ) rozrastie jedno náhodné Nature políčko
+        var natureByOwner = new Dictionary<int, List<GridSlot>>();
+        foreach (GridSlot slot in aliveSlots)
+        {
+            SlotValue block = slot.currentBlock;
+            if (block == null || !block.IsAlive || block.element != BlockElement.Nature) continue;
+
+            if (!natureByOwner.TryGetValue(block.ownerEnemyIndex, out var list))
+            {
+                list = new List<GridSlot>();
+                natureByOwner[block.ownerEnemyIndex] = list;
+            }
+            list.Add(slot);
+        }
+        foreach (var natureSlots in natureByOwner.Values)
+        {
+            SpreadNature(natureSlots[Random.Range(0, natureSlots.Count)]);
         }
 
         if (lavaHits > 0 && opponentGrid != null)
@@ -593,26 +610,27 @@ public class GridManager : MonoBehaviour
 
             GridSlot neighbour = slots[nx, ny];
 
-            // Prázdne políčko alebo živé Basic políčko toho istého vlastníka (nie iného nepriateľa)
+            // Prázdne políčko alebo živé Basic / Nature políčko toho istého vlastníka (nie iného nepriateľa)
             bool isEmpty = neighbour.currentBlock == null;
-            bool isOwnBasic = neighbour.HasAliveBlock
-                && neighbour.currentBlock.element == BlockElement.Basic
+            bool isOwnBasicOrNature = neighbour.HasAliveBlock
+                && (neighbour.currentBlock.element == BlockElement.Basic || neighbour.currentBlock.element == BlockElement.Nature)
                 && neighbour.currentBlock.ownerEnemyIndex == nature.ownerEnemyIndex;
 
-            if (isEmpty || isOwnBasic) candidates.Add(neighbour);
+            if (isEmpty || isOwnBasicOrNature) candidates.Add(neighbour);
         }
 
-        if (candidates.Count == 0)
-        {
-            nature.Grow(1);
-            return;
-        }
+        // Žiadny vhodný sused - v tomto kole sa nič nestane
+        if (candidates.Count == 0) return;
 
-        // Rozrastie sa iba na jedno políčko; jeho hodnota sa nezvyšuje
+        // Rozrastie sa na jednu stranu o jedno políčko
         GridSlot target = candidates[Random.Range(0, candidates.Count)];
         if (target.currentBlock == null)
         {
             SpawnSlotValueOnSlot(target, new CellSetup { element = BlockElement.Nature, thickness = 1 }, nature.ownerEnemyIndex);
+        }
+        else if (target.currentBlock.element == BlockElement.Nature)
+        {
+            target.currentBlock.Grow(1);
         }
         else
         {

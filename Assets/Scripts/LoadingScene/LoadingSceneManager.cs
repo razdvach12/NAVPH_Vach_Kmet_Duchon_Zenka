@@ -26,10 +26,25 @@ public class LoadingSceneManager : MonoBehaviour
         LoadingScene.Instance.SwitchToScene(6); //
     }
     
-    public void OnClickEncounter()
+    // Normal encounter: 80 % Easy, 20 % Medium
+    public void OnClickNormalEncounter()
     {
-        // Zmeňte číslo 4 na presný Build Index scény (napr. Mapy), do ktorej sa chcete vrátiť
-        LoadingScene.Instance.SwitchToScene(7); //
+        EncounterSelection.NextDifficulty = Random.value < 0.8f ? RoomDifficulty.Easy : RoomDifficulty.Medium;
+        LoadingScene.Instance.SwitchToScene(7);
+    }
+
+    // Challenging encounter: vždy Medium
+    public void OnClickChallengingEncounter()
+    {
+        EncounterSelection.NextDifficulty = RoomDifficulty.Medium;
+        LoadingScene.Instance.SwitchToScene(7);
+    }
+
+    // Encounter v konkrétnej room (napr. BossRoom1) - room sa priradí v On Click tlačidla
+    public void OnClickRoomEncounter(RoomData room)
+    {
+        EncounterSelection.NextRoom = room;
+        LoadingScene.Instance.SwitchToScene(7);
     }
 
 }

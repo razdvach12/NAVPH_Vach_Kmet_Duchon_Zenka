@@ -21,3 +21,5 @@ MonoBehaviour:
   staminaCost: 1
   effectValue: 0
   weaponGridPreset: {fileID: 0}
+  consumableEffect: 2
+  consumableShape: {fileID: 0}
