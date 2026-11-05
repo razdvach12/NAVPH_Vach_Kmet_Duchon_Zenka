@@ -23,6 +23,8 @@ public class WeaponButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     private void OnMouseExit()  => HideWeaponGridTooltip();
     private void OnMouseDown()  => SelectThisWeapon();
 
+    private void OnDisable() => HideWeaponGridTooltip();
+
     private void ShowWeaponGridTooltip()
     {
         // Cena zbrane sa ukáže pri stamine hráča
@@ -34,8 +36,10 @@ public class WeaponButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (weaponTooltipGrid == null || weaponPreset == null) return;
 
         weaponTooltipGrid.gameObject.SetActive(true);
-        // Presunie náhľadový grid hneď vedľa tejto ikony zbrane
-        weaponTooltipGrid.transform.position = transform.position + tooltipOffset;
+        // Presunie náhľadový grid hneď vedľa tejto ikony zbrane (Z = 0, aby nebol schovaný za UI/pozadím)
+        Vector3 tooltipPos = transform.position + tooltipOffset;
+        tooltipPos.z = 0f;
+        weaponTooltipGrid.transform.position = tooltipPos;
         weaponTooltipGrid.isPlayerGrid = true; // Aby náhľadový grid nereagoval na útoky
         weaponTooltipGrid.GenerateSingleGrid(weaponPreset);
     }

@@ -50,6 +50,20 @@ public class TurnManager : MonoBehaviour
 
     private void Awake()
     {
+        // Ak playerGrid nie je priradený alebo je vo vypnutom objekte, nájdeme aktívny hráčov grid v scéne
+        if (playerGrid == null || !playerGrid.gameObject.activeInHierarchy)
+        {
+            GridManager[] allGrids = FindObjectsByType<GridManager>(FindObjectsSortMode.None);
+            foreach (GridManager gm in allGrids)
+            {
+                if (gm != null && gm.isPlayerGrid && gm.gameObject.name != "WeaponGrid")
+                {
+                    playerGrid = gm;
+                    break;
+                }
+            }
+        }
+
         // Ak hráč prišiel z výberu postavy, použijeme jeho grid životov
         if (playerGrid != null && PlayerStats.Instance != null && PlayerStats.Instance.playerHealthPreset != null)
         {
@@ -157,7 +171,9 @@ public class TurnManager : MonoBehaviour
         }
 
         // Grid hráča sa môže zväčšiť (upgrady), preto pozíciu prepočítame vždy
-        staminaText.transform.position = playerGrid.GetTopCenterWorld(staminaTextOffset);
+        Vector3 pos = playerGrid.GetTopCenterWorld(staminaTextOffset);
+        pos.z = 0f;
+        staminaText.transform.position = pos;
         staminaText.text = $"Stamina {currentStamina}/{maxStamina}";
         if (previewStaminaCost > 0) staminaText.text += $" <color=#FF5555>-{previewStaminaCost}</color>";
     }
@@ -255,7 +271,7 @@ public class TurnManager : MonoBehaviour
 
         foreach (var enemy in enemyGrid.Enemies)
         {
-            if (enemy != null) PlayerStats.Instance.money += enemy.goldReward;
+            if (enemy != null) PlayerStats.Instance.AddMoney(enemy.goldReward);
         }
         PlayerStats.Instance.encountersDefeated++;
     }
