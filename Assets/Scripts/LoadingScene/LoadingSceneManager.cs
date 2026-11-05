@@ -25,5 +25,11 @@ public class LoadingSceneManager : MonoBehaviour
         // Zmeňte číslo 4 na presný Build Index scény (napr. Mapy), do ktorej sa chcete vrátiť
         LoadingScene.Instance.SwitchToScene(6); //
     }
+    
+    public void OnClickEncounter()
+    {
+        // Zmeňte číslo 4 na presný Build Index scény (napr. Mapy), do ktorej sa chcete vrátiť
+        LoadingScene.Instance.SwitchToScene(7); //
+    }
 
 }

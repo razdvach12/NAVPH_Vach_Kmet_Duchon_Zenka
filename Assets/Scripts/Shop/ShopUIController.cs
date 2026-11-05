@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using TMPro;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement;
 
 public class ShopUIController : MonoBehaviour
 {
@@ -22,6 +23,29 @@ public class ShopUIController : MonoBehaviour
     [Header("Relikvie hráča v UI (Ikonky / Sloty)")]
     [SerializeField] private GameObject[] relicSlots; 
 
+    [Header("Combat Odkazy (automaticky sa nájdu v bojovej scéne)")]
+    [SerializeField] private WeaponTargetingController targetingController;
+    [SerializeField] private GridManager weaponTooltipGrid;
+    [SerializeField] private TurnManager turnManager;
+
+    private bool IsInCombat => targetingController != null && turnManager != null;
+
+    private void Awake()
+    {
+        ResolveCombatReferences();
+
+        if (turnManager != null && playerHealthGrid != null)
+        {
+            turnManager.playerGrid = playerHealthGrid;
+        }
+
+        if (PlayerStats.Instance != null && playerHealthGrid != null && PlayerStats.Instance.playerHealthPreset != null)
+        {
+            playerHealthGrid.isPlayerGrid = true;
+            playerHealthGrid.SetSinglePreset(PlayerStats.Instance.playerHealthPreset);
+        }
+    }
+
     private void Start()
     {
         UpdateShopUI();
@@ -32,6 +56,55 @@ public class ShopUIController : MonoBehaviour
             PlayerStats.Instance.OnWeaponsChanged += UpdateWeaponSlots;
             PlayerStats.Instance.OnConsumablesChanged += UpdateConsumableSlots;
             PlayerStats.Instance.OnRelicsChanged += UpdateRelicSlots; 
+        }
+    }
+
+    private void Update()
+    {
+        // V bojovej miestnosti umožníme výber zbrane aj klávesami 1-4
+        if (!IsInCombat || Keyboard.current == null) return;
+
+        if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectWeaponSlot(0);
+        else if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectWeaponSlot(1);
+        else if (Keyboard.current.digit3Key.wasPressedThisFrame) SelectWeaponSlot(2);
+        else if (Keyboard.current.digit4Key.wasPressedThisFrame) SelectWeaponSlot(3);
+    }
+
+    private void SelectWeaponSlot(int index)
+    {
+        if (weaponSlots == null || index < 0 || index >= weaponSlots.Length || weaponSlots[index] == null) return;
+        if (!weaponSlots[index].activeInHierarchy) return;
+
+        WeaponButtonUI weaponBtn = weaponSlots[index].GetComponent<WeaponButtonUI>();
+        if (weaponBtn != null)
+        {
+            weaponBtn.SelectThisWeapon();
+        }
+    }
+
+    private void ResolveCombatReferences()
+    {
+        if (turnManager == null)
+        {
+            turnManager = FindFirstObjectByType<TurnManager>();
+        }
+
+        if (targetingController == null)
+        {
+            targetingController = FindFirstObjectByType<WeaponTargetingController>();
+        }
+
+        if (weaponTooltipGrid == null && (turnManager != null || targetingController != null))
+        {
+            GridManager[] allGrids = FindObjectsByType<GridManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (GridManager gm in allGrids)
+            {
+                if (gm != null && gm != playerHealthGrid && gm.gameObject.name == "WeaponGrid" && gm.transform.root.gameObject.activeInHierarchy)
+                {
+                    weaponTooltipGrid = gm;
+                    break;
+                }
+            }
         }
     }
 
@@ -74,9 +147,34 @@ public class ShopUIController : MonoBehaviour
 
     private void UpdateWeaponSlots()
     {
-        if (PlayerStats.Instance == null) return;
-
         bool isInShopScene = (SceneManager.GetActiveScene().buildIndex == 2);
+
+        if (PlayerStats.Instance == null)
+        {
+            if (!isInShopScene && removeWeaponButtons != null)
+            {
+                foreach (Button removeBtn in removeWeaponButtons)
+                {
+                    if (removeBtn != null) removeBtn.gameObject.SetActive(false);
+                }
+            }
+
+            // Ak sa bojová scéna spustí priamo v editore bez PlayerStats, prepojíme aspoň existujúce sloty
+            if (IsInCombat && weaponSlots != null)
+            {
+                foreach (GameObject slot in weaponSlots)
+                {
+                    if (slot == null) continue;
+                    WeaponButtonUI weaponBtn = slot.GetComponent<WeaponButtonUI>();
+                    if (weaponBtn != null)
+                    {
+                        weaponBtn.targetingController = targetingController;
+                        weaponBtn.weaponTooltipGrid = weaponTooltipGrid;
+                    }
+                }
+            }
+            return;
+        }
 
         for (int i = 0; i < weaponSlots.Length; i++)
         {
@@ -91,6 +189,26 @@ public class ShopUIController : MonoBehaviour
                 if (slotImage != null && weapon != null && weapon.weaponIcon != null)
                 {
                     slotImage.sprite = weapon.weaponIcon; 
+                }
+
+                // V bojovej miestnosti pripojíme WeaponButtonUI pre náhľad gridu a útočenie
+                if (IsInCombat)
+                {
+                    WeaponButtonUI weaponBtn = weaponSlots[i].GetComponent<WeaponButtonUI>();
+                    if (weaponBtn == null) weaponBtn = weaponSlots[i].AddComponent<WeaponButtonUI>();
+
+                    weaponBtn.weaponPreset = weapon;
+                    weaponBtn.targetingController = targetingController;
+                    weaponBtn.weaponTooltipGrid = weaponTooltipGrid;
+                }
+                else
+                {
+                    WeaponButtonUI weaponBtn = weaponSlots[i].GetComponent<WeaponButtonUI>();
+                    if (weaponBtn != null)
+                    {
+                        weaponBtn.targetingController = null;
+                        weaponBtn.weaponTooltipGrid = null;
+                    }
                 }
 
                 if (removeWeaponButtons != null && i < removeWeaponButtons.Length && removeWeaponButtons[i] != null)
@@ -130,14 +248,29 @@ public class ShopUIController : MonoBehaviour
             if (i < PlayerStats.Instance.consumables.Count)
             {
                 consumableSlots[i].SetActive(true); 
+                ItemData potion = PlayerStats.Instance.consumables[i];
                 Image slotImage = consumableSlots[i].GetComponent<Image>();
                 
-                if (slotImage != null)
+                if (slotImage != null && potion != null && potion.icon != null)
                 {
-                    ItemData potion = PlayerStats.Instance.consumables[i];
-                    if (potion != null && potion.icon != null)
+                    slotImage.sprite = potion.icon;       
+                }
+
+                if (IsInCombat)
+                {
+                    ConsumableButtonUI consumableBtn = consumableSlots[i].GetComponent<ConsumableButtonUI>();
+                    if (consumableBtn == null) consumableBtn = consumableSlots[i].AddComponent<ConsumableButtonUI>();
+
+                    consumableBtn.consumable = potion as ConsumableData;
+                    consumableBtn.turnManager = turnManager;
+                    consumableBtn.Refresh();
+                }
+                else
+                {
+                    ConsumableButtonUI consumableBtn = consumableSlots[i].GetComponent<ConsumableButtonUI>();
+                    if (consumableBtn != null)
                     {
-                        slotImage.sprite = potion.icon;       
+                        consumableBtn.turnManager = null;
                     }
                 }
             }
