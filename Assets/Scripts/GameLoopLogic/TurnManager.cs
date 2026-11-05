@@ -70,9 +70,21 @@ public class TurnManager : MonoBehaviour
             playerGrid.SetSinglePreset(PlayerStats.Instance.playerHealthPreset);
         }
 
+        // Výber z mapy má prednosť pred hodnotou z inšpektora (použije sa iba raz)
+        RoomData selectedRoom = EncounterSelection.NextRoom;
+        EncounterSelection.NextRoom = null;
+
+        if (EncounterSelection.NextDifficulty.HasValue)
+        {
+            difficulty = EncounterSelection.NextDifficulty.Value;
+            EncounterSelection.NextDifficulty = null;
+        }
+
+        if (selectedRoom != null) difficulty = selectedRoom.difficulty;
+
         if (enemyGrid != null)
         {
-            RoomData room = PickRandomRoom();
+            RoomData room = selectedRoom != null ? selectedRoom : PickRandomRoom();
             if (room != null) enemyGrid.SetRoomEnemies(room.PickEnemies(enemyPool));
         }
     }
