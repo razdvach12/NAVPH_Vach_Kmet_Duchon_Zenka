@@ -32,5 +32,5 @@ MonoBehaviour:
     thickness: 1
   - element: 0
     thickness: 0
-  - element: 3
+  - element: 1
     thickness: 1

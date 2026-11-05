@@ -28,7 +28,11 @@ public class ItemData : ScriptableObject
     public ItemType itemType;
     public ElementType elementType;
 
-    [Range(1, 3)]
+    [Range(0, 3)] // 0 = zadarmo (napr. mystický prášok)
     public int staminaCost = 1;
     public int effectValue;
+
+    [Header("Prepojenie na PlayerStats")]
+    // TOTO JE NOVÉ: Sem v Unity priradíš konkrétny GridPreset zbrane
+    public GridPreset weaponGridPreset; 
 }

@@ -43,6 +43,30 @@ public class GridPreset : ScriptableObject
         return new CellSetup { element = BlockElement.None, thickness = 1 };
     }
 
+    // Vytvorí dočasnú kópiu otočenú o 90° v smere hodinových ručičiek (originálny asset sa nemení)
+    public GridPreset CreateRotatedClockwise()
+    {
+        GridPreset rotated = CreateInstance<GridPreset>();
+        rotated.name = name;
+        rotated.width = height;
+        rotated.height = width;
+        rotated.weaponIcon = weaponIcon;
+        rotated.actionType = actionType;
+        rotated.staminaCost = staminaCost;
+        rotated.cells = new CellSetup[width * height];
+
+        // (x, y) -> (height - 1 - y, x); riadky idú zhora nadol
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                rotated.cells[x * rotated.width + (height - 1 - y)] = GetCell(x, y);
+            }
+        }
+
+        return rotated;
+    }
+
     // Automaticky upraví veľkosť poľa, keď v Inspectore zmeníš width alebo height
     private void OnValidate()
     {

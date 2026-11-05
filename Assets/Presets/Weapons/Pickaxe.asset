@@ -18,11 +18,11 @@ MonoBehaviour:
   actionType: 0
   staminaCost: 1
   cells:
-  - element: 4
+  - element: 1
     thickness: 1
-  - element: 4
+  - element: 1
     thickness: 1
-  - element: 4
+  - element: 1
     thickness: 1
   - element: 0
     thickness: 0

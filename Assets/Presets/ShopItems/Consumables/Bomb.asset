@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 353f369517694b05b6c8d920ac5faeb0, type: 3}
+  m_Name: Bomb
+  m_EditorClassIdentifier: Assembly-CSharp::ConsumableData
+  itemName: Bomb
+  description: 
+  icon: {fileID: -2613247888821195678, guid: f8d92ad66b9399945a73c6f41f0ad3cf, type: 3}
+  price: 68
+  itemType: 1
+  elementType: 0
+  staminaCost: 1
+  effectValue: 0
+  consumableEffect: 0
+  consumableShape: {fileID: 0}

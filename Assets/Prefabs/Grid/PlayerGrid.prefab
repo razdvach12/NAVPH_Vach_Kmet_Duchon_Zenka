@@ -50,8 +50,6 @@ MonoBehaviour:
   singlePreset: {fileID: 0}
   boardWidth: 20
   boardHeight: 8
-  enemyPresets: []
-  gapBetweenEnemies: 1
   basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
   lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}

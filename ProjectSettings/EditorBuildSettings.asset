@@ -23,5 +23,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MapTemplate.unity
     guid: 29031d489f82b1f43a2d7c764ec2920e
+  - enabled: 1
+    path: Assets/Scenes/ChestScene.unity
+    guid: 2c0264668d06c86409a2e9dc66348ef7
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

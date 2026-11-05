@@ -18,5 +18,6 @@ MonoBehaviour:
   price: 150
   itemType: 0
   elementType: 0
-  staminaCost: 3
+  staminaCost: 2
   effectValue: 0
+  weaponGridPreset: {fileID: 11400000, guid: e772ebc45bdc829499e99dababa2136b, type: 2}
