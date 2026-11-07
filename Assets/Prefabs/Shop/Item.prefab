@@ -89,7 +89,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!1 &2183193004234965710
@@ -427,7 +427,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!1001 &23619254196842482
@@ -569,7 +569,7 @@ PrefabInstance:
     - target: {fileID: 5752973396741826057, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -8987809590498007947, guid: 846c534e19b1b3c438bab2e18afc6c37, type: 3}
+      objectReference: {fileID: 666855092564498837, guid: 0e49f2b0d64d072438d6e39062b016e5, type: 3}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -644,7 +644,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -361.3
+      value: -352
       objectReference: {fileID: 0}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1398,7 +1398,7 @@ PrefabInstance:
     - target: {fileID: 5752973396741826057, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 4128410498931111884, guid: 3e9208b91b830f04e8ac20b61b333b5d, type: 3}
+      objectReference: {fileID: -7027857901685636282, guid: 594cdec53d73b964aa70c92723a0952e, type: 3}
     - target: {fileID: 8015834604522509903, guid: ecf6b208acfd93f40951b3e2e7b432fe, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
