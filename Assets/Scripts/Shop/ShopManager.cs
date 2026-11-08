@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.UI; // Potrebné kvôli práci s komponentom Button
 using System.Collections.Generic;
 
 public class ShopManager : MonoBehaviour 
 {
-    public static ShopManager Instance; // Pridané pre ľahké prepojenie so slotmi
+    public static ShopManager Instance;
 
     [Header("Databáza všetkých predmetov")]
     public List<ItemData> allWeaponItems;
@@ -17,11 +18,16 @@ public class ShopManager : MonoBehaviour
     public List<ShopSlotUI> relicSlots; 
     public List<ShopSlotUI> upgradeSlots; 
 
-    // --- NOVÉ POLIA PRE TEXTY VYPREDANIA ---
     [Header("Texty pri vypredaní (UI)")]
     public GameObject emptyWeaponsText;
     public GameObject emptyConsumablesText;
     public GameObject emptyRelicsText;
+
+    // --- NOVÉ: Tlačidlá jednotlivých sekcií pre prepínanie ---
+    [Header("Tlačidlá sekcií v menu obchodu")]
+    public Button weaponTabButton;
+    public Button consumableTabButton;
+    public Button relicTabButton;
 
     void Awake()
     {
@@ -31,6 +37,13 @@ public class ShopManager : MonoBehaviour
     void Start() 
     {
         GenerateShopStock();
+    }
+
+    // Volajte túto metódu vždy, keď sa niečo v obchode kúpi (napr. zo ShopSlotUI)
+    void Update()
+    {
+        // Preventívne priebežne kontrolujeme stav sekcií (prípadne to môžete volať len priamo pri nákupe)
+        CheckIfSectionsAreEmpty();
     }
 
     public void GenerateShopStock() 
@@ -44,7 +57,6 @@ public class ShopManager : MonoBehaviour
 
         FillSlotsRandomly(relicsAndUpgradesCombined, relicSlots);
 
-        // Hneď po vygenerovaní skontrolujeme, či náhodou nie je niečo okamžite vypredané
         CheckIfSectionsAreEmpty();
     }
 
@@ -52,7 +64,6 @@ public class ShopManager : MonoBehaviour
     {
         if (sourceDatabase == null || sourceDatabase.Count == 0) 
         {
-            // Ak je databáza prázdna, vyčistíme všetky sloty
             foreach(var slot in targetSlots) if (slot != null) slot.SetItem(null);
             return;
         }
@@ -77,29 +88,41 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    // --- TÁTO FUNKCIA SKONTROLUJE, ČI SA MAJÚ UKÁZAŤ TEXTY ---
+    // --- KONTROLA VYPREDANIA A ZNEFUNKČNENIE TLAČIDIEL ---
     public void CheckIfSectionsAreEmpty()
     {
+        // 1. Sekcia Zbraní
+        bool weaponsEmpty = IsSectionEmpty(weaponSlots);
         if (emptyWeaponsText != null) 
-            emptyWeaponsText.SetActive(IsSectionEmpty(weaponSlots));
-            
+            emptyWeaponsText.SetActive(weaponsEmpty);
+        if (weaponTabButton != null) 
+            weaponTabButton.interactable = !weaponsEmpty; // Ak je vypredané, interactor vypneme (false)
+
+        // 2. Sekcia Spotrebného materiálu
+        bool consumablesEmpty = IsSectionEmpty(consumableSlots);
         if (emptyConsumablesText != null) 
-            emptyConsumablesText.SetActive(IsSectionEmpty(consumableSlots));
-            
+            emptyConsumablesText.SetActive(consumablesEmpty);
+        if (consumableTabButton != null) 
+            consumableTabButton.interactable = !consumablesEmpty;
+
+        // 3. Sekcia Relikvií
+        bool relicsEmpty = IsSectionEmpty(relicSlots);
         if (emptyRelicsText != null) 
-            emptyRelicsText.SetActive(IsSectionEmpty(relicSlots));
+            emptyRelicsText.SetActive(relicsEmpty);
+        if (relicTabButton != null) 
+            relicTabButton.interactable = !relicsEmpty;
     }
 
-    // Zistí, či sú všetky sloty v danej sekcii prázdne (assignedItem == null)
     private bool IsSectionEmpty(List<ShopSlotUI> slots)
     {
         if (slots == null || slots.Count == 0) return true;
         
         foreach (ShopSlotUI slot in slots)
         {
-            if (slot.assignedItem != null) 
+            // Ak slot existuje, má priradený predmet A ZÁROVEŇ ešte nie je kupujúci/predmet minutý (predpokladáme, že po nákupe sa item zmaže alebo nastaví na null)
+            if (slot != null && slot.assignedItem != null) 
             {
-                return false; // Ak aspoň jeden slot má predmet, sekcia NIE JE prázdna
+                return false; 
             }
         }
         return true; 
