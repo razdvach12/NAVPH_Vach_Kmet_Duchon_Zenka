@@ -2350,8 +2350,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MusicLibrary
   tracks:
-  - trackName: Menu
+  - trackName: MenuBackground
     clip: {fileID: 8300000, guid: 28eb179573a37984385caee6a6f2a042, type: 3}
+  - trackName: LoadingBackground
+    clip: {fileID: 8300000, guid: 3a4765066dab3d24cbecc3eb6f45342e, type: 3}
+  - trackName: ShopBackground
+    clip: {fileID: 8300000, guid: 6b95b7f4991b1844b93a88634ab584ff, type: 3}
 --- !u!1 &1797505930
 GameObject:
   m_ObjectHideFlags: 0
