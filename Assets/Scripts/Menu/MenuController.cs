@@ -8,7 +8,7 @@ public class MenuController : MonoBehaviour
     // Táto metóda sa spustí automaticky hneď po načítaní scény
     private void Start()
     {
-        MusicManager.Instance.PlayMusic("Menu");
+        MusicManager.Instance.PlayMusic("MenuBackground");
         Debug.Log("Hra sa zapla: Spúšťam 'Menu' hudbu cez Start metódu.");
     }
 
