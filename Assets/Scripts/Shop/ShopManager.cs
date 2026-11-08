@@ -46,6 +46,7 @@ public class ShopManager : MonoBehaviour
         Instance = this;
     }
 
+
     void Start() 
     {
         // Automaticky naviažeme prepínanie sekcií na tlačidlá v obchode
@@ -55,6 +56,10 @@ public class ShopManager : MonoBehaviour
             consumableTabButton.onClick.AddListener(() => SelectSection(ShopSection.Consumables));
         if (relicTabButton != null)
             relicTabButton.onClick.AddListener(() => SelectSection(ShopSection.Relics));
+
+        if (MusicManager.Instance != null) {
+            MusicManager.Instance.PlayMusic("ShopBackground");
+        }
 
         DetectInitialActiveSection();
         GenerateShopStock();
