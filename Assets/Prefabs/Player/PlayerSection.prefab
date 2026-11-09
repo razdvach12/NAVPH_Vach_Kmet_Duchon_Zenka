@@ -6163,6 +6163,7 @@ MonoBehaviour:
   playerHealthGrid: {fileID: 8801340676525208493}
   characterPortrait: {fileID: 0}
   enemyPortraits: []
+  merchantSprite: {fileID: 5720647481860210691, guid: 0a7cecfdb2babeb4488864a2a85ba676, type: 3}
   weaponSlots:
   - {fileID: 5651850173005968942}
   - {fileID: 5383341815897120886}

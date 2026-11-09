@@ -15,6 +15,9 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private Image characterPortrait;
     [SerializeField] private Image[] enemyPortraits;
 
+    [Header("Obrázky pre ne-bojové scény (Shop / Chest)")]
+    [SerializeField] private Sprite merchantSprite;
+
     [Header("Zbrane hráča v UI (Ikonky / Sloty)")]
     [SerializeField] private GameObject[] weaponSlots;       
     [SerializeField] private Button[] removeWeaponButtons;
@@ -39,6 +42,21 @@ public class ShopUIController : MonoBehaviour
         ResolveCombatReferences();
         ResolveUpperPartReferences();
 
+#if UNITY_EDITOR
+        if (merchantSprite == null)
+        {
+            var assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath("Assets/UI/Characters/Merchant2.png");
+            foreach (var asset in assets)
+            {
+                if (asset is Sprite s)
+                {
+                    merchantSprite = s;
+                    break;
+                }
+            }
+        }
+#endif
+
         if (turnManager != null && playerHealthGrid != null)
         {
             turnManager.playerGrid = playerHealthGrid;
@@ -49,6 +67,9 @@ public class ShopUIController : MonoBehaviour
             playerHealthGrid.isPlayerGrid = true;
             playerHealthGrid.SetSinglePreset(PlayerStats.Instance.playerHealthPreset);
         }
+
+        // Nastavíme portréty podľa scény hneď v Awake (ShopScene = Merchant2, ChestScene = nikto, Encounter = nepriatelia)
+        UpdateEnemyPortraits();
     }
 
     private void Start()
@@ -150,10 +171,10 @@ public class ShopUIController : MonoBehaviour
     {
         if (PlayerStats.Instance != null)
         {
-            PlayerStats.Instance.OnMoneyChanged -= UpdateMoneyText;
-            PlayerStats.Instance.OnWeaponsChanged -= UpdateWeaponSlots;
-            PlayerStats.Instance.OnConsumablesChanged -= UpdateConsumableSlots;
-            PlayerStats.Instance.OnRelicsChanged -= UpdateRelicSlots; 
+            PlayerStats.Instance.OnMoneyChanged += UpdateMoneyText;
+            PlayerStats.Instance.OnWeaponsChanged += UpdateWeaponSlots;
+            PlayerStats.Instance.OnConsumablesChanged += UpdateConsumableSlots;
+            PlayerStats.Instance.OnRelicsChanged += UpdateRelicSlots; 
         }
     }
 
@@ -178,7 +199,7 @@ public class ShopUIController : MonoBehaviour
             characterPortrait.sprite = PlayerStats.Instance.playerSprite;
         }
 
-        // --- AKTUALIZÁCIA OBRÁZKOV NEPRIATEĽOV V ENCOUNTERI ---
+        // --- AKTUALIZÁCIA OBRÁZKOV NEPRIATEĽOV / MERCHANT2 V HORNOM PÁSE ---
         UpdateEnemyPortraits();
     }
 
@@ -187,9 +208,42 @@ public class ShopUIController : MonoBehaviour
         ResolveCombatReferences();
         ResolveUpperPartReferences();
 
-        if (turnManager == null || turnManager.enemyGrid == null || enemyPortraits == null || enemyPortraits.Length == 0)
+        if (enemyPortraits == null || enemyPortraits.Length == 0)
             return;
 
+        // Ak nie sme v súboji (turnManager alebo enemyGrid chýba - napr. ShopScene alebo ChestScene)
+        if (turnManager == null || turnManager.enemyGrid == null)
+        {
+            string sceneName = SceneManager.GetActiveScene().name;
+            int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+            bool isShop = (sceneName == "ShopScene" || sceneIndex == 2);
+
+            for (int i = 0; i < enemyPortraits.Length; i++)
+            {
+                Image portrait = enemyPortraits[i];
+                if (portrait == null) continue;
+
+                SetAttackIndicator(portrait, false);
+
+                // V ShopScene sa zobrazí iba prvý portrét s Merchant2, ostatné sa skryjú
+                // V ChestScene (alebo iných scénach) sa skryjú všetky (nevykreslí sa nikto)
+                if (isShop && i == 0)
+                {
+                    portrait.gameObject.SetActive(true);
+                    if (merchantSprite != null)
+                    {
+                        portrait.sprite = merchantSprite;
+                    }
+                }
+                else
+                {
+                    portrait.gameObject.SetActive(false);
+                }
+            }
+            return;
+        }
+
+        // Sme v súboji (Encounter):
         // Zoznam indexov skutočných nepriateľov v encounteri (zachová priradenie k príslušnému NPCSprite slotu)
         var validEnemyIndices = new List<int>();
         for (int idx = 0; idx < turnManager.enemyGrid.Enemies.Count; idx++)
