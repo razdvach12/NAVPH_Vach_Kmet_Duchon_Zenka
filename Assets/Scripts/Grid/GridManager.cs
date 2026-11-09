@@ -26,6 +26,7 @@ public class GridManager : MonoBehaviour
     private readonly List<RectInt> enemyAreas = new List<RectInt>();
 
     public IReadOnlyList<EnemyData> Enemies => enemies;
+    public bool HasGeneratedSlots => slots != null;
 
     [Header("SlotValue Prefab Variants")]
     [SerializeField] private GameObject basicHpPrefab;
@@ -39,12 +40,15 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject destroyedHpPrefab;
 
     [Header("Max HP Outline Settings")]
-    [Tooltip("Zobrazí bielu čiaru po obvode všetkých Max HP políčok hráča")]
+    [Tooltip("Zobrazí bielu čiaru po obvode všetkých Max HP políčok hráča a nepriateľov")]
     [SerializeField] private bool showMaxHpOutline = true;
     [SerializeField] private Color maxHpOutlineColor = Color.white;
+    [SerializeField] private Color attackingEnemyOutlineColor = new Color(1f, 0.15f, 0.15f, 1f);
     [SerializeField] private float maxHpOutlineThickness = 0.05f;
 
-    private bool ShouldShowMaxHpOutline => isPlayerGrid && showMaxHpOutline && gameObject.name != "WeaponGrid";
+    private int attackingEnemyIndex = -1;
+
+    private bool ShouldShowMaxHpOutline => showMaxHpOutline && gameObject.name != "WeaponGrid";
 
     private GridSlot[,] slots;
     private int totalWidth;
@@ -77,6 +81,13 @@ public class GridManager : MonoBehaviour
     public void SetShowMaxHpOutline(bool show)
     {
         showMaxHpOutline = show;
+    }
+
+    // Zvýrazní obrys Max HP práve útočiaceho nepriateľa červenou farbou (-1 = žiadny nepriateľ neútočí)
+    public void SetAttackingEnemy(int enemyIndex)
+    {
+        attackingEnemyIndex = enemyIndex;
+        UpdateMaxHpOutline();
     }
 
     // Nastaví nepriateľov z room ešte pred generovaním v Start()
@@ -125,12 +136,29 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // Vykreslí bielu čiaru po obvode všetkých Max HP políčok hráča
+    // Vykreslí čiaru po obvode všetkých Max HP políčok hráča alebo živých nepriateľov
     public void UpdateMaxHpOutline()
     {
         if (slots == null) return;
 
         bool showOutline = ShouldShowMaxHpOutline;
+
+        HashSet<int> aliveEnemies = null;
+        if (showOutline && !isPlayerGrid)
+        {
+            aliveEnemies = new HashSet<int>();
+            for (int x = 0; x < totalWidth; x++)
+            {
+                for (int y = 0; y < totalHeight; y++)
+                {
+                    GridSlot s = slots[x, y];
+                    if (s != null && s.HasAliveBlock && s.currentBlock.ownerEnemyIndex >= 0)
+                    {
+                        aliveEnemies.Add(s.currentBlock.ownerEnemyIndex);
+                    }
+                }
+            }
+        }
 
         for (int x = 0; x < totalWidth; x++)
         {
@@ -145,20 +173,34 @@ public class GridManager : MonoBehaviour
                     continue;
                 }
 
-                bool top = !IsMaxHpAt(x, y - 1);
-                bool bottom = !IsMaxHpAt(x, y + 1);
-                bool left = !IsMaxHpAt(x - 1, y);
-                bool right = !IsMaxHpAt(x + 1, y);
+                int owner = slot.currentBlock.ownerEnemyIndex;
 
-                slot.SetMaxHpOutline(top, bottom, left, right, spacing, maxHpOutlineThickness, maxHpOutlineColor);
+                // Ak ide o grid nepriateľov a daný nepriateľ je už mŕtvy, jeho obrys Max HP zmizne
+                if (!isPlayerGrid && (owner < 0 || !aliveEnemies.Contains(owner)))
+                {
+                    slot.SetMaxHpOutline(false, false, false, false, spacing, maxHpOutlineThickness, maxHpOutlineColor);
+                    continue;
+                }
+
+                bool top = !IsMaxHpAt(x, y - 1, owner);
+                bool bottom = !IsMaxHpAt(x, y + 1, owner);
+                bool left = !IsMaxHpAt(x - 1, y, owner);
+                bool right = !IsMaxHpAt(x + 1, y, owner);
+
+                Color outlineColor = (!isPlayerGrid && owner >= 0 && owner == attackingEnemyIndex)
+                    ? attackingEnemyOutlineColor
+                    : maxHpOutlineColor;
+
+                slot.SetMaxHpOutline(top, bottom, left, right, spacing, maxHpOutlineThickness, outlineColor);
             }
         }
     }
 
-    private bool IsMaxHpAt(int x, int y)
+    private bool IsMaxHpAt(int x, int y, int ownerEnemyIndex)
     {
         if (x < 0 || y < 0 || x >= totalWidth || y >= totalHeight) return false;
-        return slots[x, y] != null && slots[x, y].IsUnlockedMaxHp;
+        GridSlot slot = slots[x, y];
+        return slot != null && slot.IsUnlockedMaxHp && slot.currentBlock.ownerEnemyIndex == ownerEnemyIndex;
     }
 
     // --- PRENÁŠANIE STRATENÉHO HP MEDZI ENCOUNTERMI ---
@@ -205,6 +247,7 @@ public class GridManager : MonoBehaviour
         ClearGrid();
         enemies.Clear();
         enemyAreas.Clear();
+        attackingEnemyIndex = -1;
 
         totalWidth = boardWidth;
         totalHeight = boardHeight;
@@ -220,7 +263,11 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        if (placedEnemies == null) return;
+        if (placedEnemies == null)
+        {
+            UpdateMaxHpOutline();
+            return;
+        }
 
         for (int enemyIndex = 0; enemyIndex < placedEnemies.Count; enemyIndex++)
         {
@@ -260,10 +307,12 @@ public class GridManager : MonoBehaviour
                         continue;
                     }
 
-                    SpawnSlotValueOnSlot(slots[targetX, targetY], cellData, enemyIndex);
+                    SpawnSlotValueOnSlot(slots[targetX, targetY], cellData, enemyIndex, isMaxHp: true);
                 }
             }
         }
+
+        UpdateMaxHpOutline();
     }
 
     // --- LOGIKA ZÁSAHU ZBRAŇOU (PREVIEW + DAMAGE) ---
@@ -345,6 +394,11 @@ public class GridManager : MonoBehaviour
                     slot.currentBlock.TakeDamage(finalDamage);
                 }
             }
+        }
+
+        if (!isPlayerGrid)
+        {
+            UpdateMaxHpOutline();
         }
     }
 
@@ -557,7 +611,7 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        var moved = new List<(SlotValue block, int x, int y)>();
+        var moved = new List<(SlotValue block, bool isMaxHp, int x, int y)>();
         for (int x = area.xMin; x < area.xMax; x++)
         {
             for (int y = area.yMin; y < area.yMax; y++)
@@ -568,18 +622,22 @@ public class GridManager : MonoBehaviour
                 // Lokálne (lx, ly) -> (veľkosť - 1 - ly, lx); riadky idú zhora nadol
                 int lx = x - area.xMin;
                 int ly = y - area.yMin;
-                moved.Add((slot.currentBlock, area.xMin + area.height - 1 - ly, area.yMin + lx));
+                moved.Add((slot.currentBlock, slot.isMaxHp, area.xMin + area.height - 1 - ly, area.yMin + lx));
                 slot.currentBlock = null;
+                slot.SetMaxHp(false);
             }
         }
 
-        foreach (var (block, x, y) in moved)
+        foreach (var (block, isMaxHp, x, y) in moved)
         {
             GridSlot target = slots[x, y];
             target.currentBlock = block;
+            target.SetMaxHp(isMaxHp);
             block.transform.SetParent(target.transform, false);
             block.transform.localPosition = new Vector3(0, 0, -0.1f);
         }
+
+        UpdateMaxHpOutline();
     }
 
     // Zmení živel všetkých živlových políčok nepriateľa (Basic ostáva), hrúbka sa zachová
@@ -704,6 +762,11 @@ public class GridManager : MonoBehaviour
 
             int damage = Mathf.Max(0, 1 + GetElementBonus(BlockElement.Lava, target.currentBlock.element));
             target.currentBlock.TakeDamage(damage);
+        }
+
+        if (!isPlayerGrid)
+        {
+            UpdateMaxHpOutline();
         }
     }
 
