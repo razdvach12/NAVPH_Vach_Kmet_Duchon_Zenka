@@ -83,6 +83,14 @@ public class GridManager : MonoBehaviour
     public void SetRoomEnemies(List<PlacedEnemy> placedEnemies)
     {
         roomEnemies = placedEnemies;
+        enemies.Clear();
+        if (placedEnemies != null)
+        {
+            foreach (PlacedEnemy placed in placedEnemies)
+            {
+                enemies.Add(placed?.enemy);
+            }
+        }
     }
 
     // --- GENEROVANIE OBYČAJNÉHO GRIDU (PRE HRÁČA ALEBO NÁHĽAD ZBRANE) ---

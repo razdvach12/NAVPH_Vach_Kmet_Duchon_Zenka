@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -10,8 +11,9 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI coinText;       
     [SerializeField] private GridManager playerHealthGrid;   
     
-    // --- ODKAZ NA OBRÁZOK V UI ---
+    // --- ODKAZY NA OBRÁZKY V UPPERPART UI ---
     [SerializeField] private Image characterPortrait;
+    [SerializeField] private Image[] enemyPortraits;
 
     [Header("Zbrane hráča v UI (Ikonky / Sloty)")]
     [SerializeField] private GameObject[] weaponSlots;       
@@ -33,6 +35,7 @@ public class ShopUIController : MonoBehaviour
     private void Awake()
     {
         ResolveCombatReferences();
+        ResolveUpperPartReferences();
 
         if (turnManager != null && playerHealthGrid != null)
         {
@@ -108,6 +111,39 @@ public class ShopUIController : MonoBehaviour
         }
     }
 
+    private void ResolveUpperPartReferences()
+    {
+        GameObject upperPart = GameObject.Find("UpperPart");
+        if (upperPart == null) return;
+
+        if (characterPortrait == null)
+        {
+            Transform playerSpriteTr = upperPart.transform.Find("PlayerSprite");
+            if (playerSpriteTr != null)
+            {
+                characterPortrait = playerSpriteTr.GetComponent<Image>();
+            }
+        }
+
+        if (enemyPortraits == null || enemyPortraits.Length == 0)
+        {
+            var foundNpcImages = new List<Image>();
+            for (int i = 0; i < upperPart.transform.childCount; i++)
+            {
+                Transform child = upperPart.transform.GetChild(i);
+                if (child != null && child.name.StartsWith("NPCSprite"))
+                {
+                    Image img = child.GetComponent<Image>();
+                    if (img != null) foundNpcImages.Add(img);
+                }
+            }
+
+            // Zoradíme zľava doprava podľa X pozície v UpperPart
+            foundNpcImages.Sort((a, b) => a.rectTransform.anchoredPosition.x.CompareTo(b.rectTransform.anchoredPosition.x));
+            enemyPortraits = foundNpcImages.ToArray();
+        }
+    }
+
     private void OnDestroy()
     {
         if (PlayerStats.Instance != null)
@@ -121,6 +157,8 @@ public class ShopUIController : MonoBehaviour
 
     public void UpdateShopUI()
     {
+        ResolveUpperPartReferences();
+
         UpdateMoneyText();
         UpdateWeaponSlots();
         UpdateConsumableSlots();
@@ -136,6 +174,44 @@ public class ShopUIController : MonoBehaviour
         if (PlayerStats.Instance != null && characterPortrait != null && PlayerStats.Instance.playerSprite != null)
         {
             characterPortrait.sprite = PlayerStats.Instance.playerSprite;
+        }
+
+        // --- AKTUALIZÁCIA OBRÁZKOV NEPRIATEĽOV V ENCOUNTERI ---
+        UpdateEnemyPortraits();
+    }
+
+    public void UpdateEnemyPortraits()
+    {
+        ResolveCombatReferences();
+        ResolveUpperPartReferences();
+
+        if (turnManager == null || turnManager.enemyGrid == null || enemyPortraits == null || enemyPortraits.Length == 0)
+            return;
+
+        var activeEnemies = new List<EnemyData>();
+        foreach (EnemyData enemy in turnManager.enemyGrid.Enemies)
+        {
+            if (enemy != null) activeEnemies.Add(enemy);
+        }
+
+        for (int i = 0; i < enemyPortraits.Length; i++)
+        {
+            Image portrait = enemyPortraits[i];
+            if (portrait == null) continue;
+
+            if (i < activeEnemies.Count)
+            {
+                portrait.gameObject.SetActive(true);
+                Sprite enemySprite = activeEnemies[i].GetEnemySprite();
+                if (enemySprite != null)
+                {
+                    portrait.sprite = enemySprite;
+                }
+            }
+            else
+            {
+                portrait.gameObject.SetActive(false);
+            }
         }
     }
 

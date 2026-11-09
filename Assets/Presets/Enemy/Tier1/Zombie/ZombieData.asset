@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ZombieData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Zombie
+  enemySprite: {fileID: -7271447231263516123, guid: 21efbcb1ff527db498a22fcfa6452501, type: 3}
   tier: 1
   bodyPreset: {fileID: 11400000, guid: 2ffea8541b99c4b498a3967c43750596, type: 2}
   attacks:
