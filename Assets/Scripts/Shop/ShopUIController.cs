@@ -184,7 +184,8 @@ public class ShopUIController : MonoBehaviour
             {
                 weaponSlots[i].SetActive(true); 
                 GridPreset weapon = PlayerStats.Instance.unlockedWeapons[i];
-                Image slotImage = weaponSlots[i].GetComponent<Image>();
+                Transform itemSlotTr = weaponSlots[i].transform.Find("ItemSlot");
+                Image slotImage = itemSlotTr != null ? itemSlotTr.GetComponent<Image>() : weaponSlots[i].GetComponentInChildren<Image>();
                 
                 if (slotImage != null && weapon != null && weapon.weaponIcon != null)
                 {
