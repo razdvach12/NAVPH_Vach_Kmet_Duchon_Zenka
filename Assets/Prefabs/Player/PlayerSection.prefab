@@ -6281,6 +6281,9 @@ MonoBehaviour:
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
   destroyedHpPrefab: {fileID: 0}
+  showMaxHpOutline: 1
+  maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  maxHpOutlineThickness: 0.05
 --- !u!1 &8039220600562339979
 GameObject:
   m_ObjectHideFlags: 0
