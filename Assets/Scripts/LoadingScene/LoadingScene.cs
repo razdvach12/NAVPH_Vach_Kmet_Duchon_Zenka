@@ -48,7 +48,7 @@ public class LoadingScene : MonoBehaviour
         {
             float currentSpeed = baseSpinSpeed + Mathf.Sin(Time.time * wobbleFrequency) * wobbleAmount;
 
-            loadingSpinner.Rotate(0f, 0f, currentSpeed * Time.deltaTime);
+            loadingSpinner.Rotate(0f, 0f, -currentSpeed * Time.deltaTime);
         }
     }
 
