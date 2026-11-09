@@ -102,7 +102,7 @@ public class ShopUIController : MonoBehaviour
         if (!weaponSlots[index].activeInHierarchy) return;
 
         WeaponButtonUI weaponBtn = weaponSlots[index].GetComponent<WeaponButtonUI>();
-        if (weaponBtn != null)
+        if (weaponBtn != null && weaponBtn.enabled && weaponBtn.weaponPreset != null)
         {
             weaponBtn.SelectThisWeapon();
         }
@@ -162,7 +162,7 @@ public class ShopUIController : MonoBehaviour
             }
 
             // Zoradíme zľava doprava podľa X pozície v UpperPart
-            foundNpcImages.Sort((a, b) => a.rectTransform.anchoredPosition.x.CompareTo(b.rectTransform.anchoredPosition.x));
+            foundNpcImages.Sort((b, a) => b.rectTransform.anchoredPosition.x.CompareTo(a.rectTransform.anchoredPosition.x));
             enemyPortraits = foundNpcImages.ToArray();
         }
     }
@@ -361,7 +361,7 @@ public class ShopUIController : MonoBehaviour
 
     private void UpdateWeaponSlots()
     {
-        bool isInShopScene = (SceneManager.GetActiveScene().buildIndex == 2);
+        bool isInShopScene = (SceneManager.GetActiveScene().buildIndex == 2 || SceneManager.GetActiveScene().name == "ShopScene");
 
         if (PlayerStats.Instance == null)
         {
@@ -379,6 +379,7 @@ public class ShopUIController : MonoBehaviour
                 foreach (GameObject slot in weaponSlots)
                 {
                     if (slot == null) continue;
+                    slot.SetActive(true);
                     WeaponButtonUI weaponBtn = slot.GetComponent<WeaponButtonUI>();
                     if (weaponBtn != null)
                     {
@@ -394,16 +395,27 @@ public class ShopUIController : MonoBehaviour
         {
             if (weaponSlots[i] == null) continue;
 
+            // Všetky sloty zostávajú aktívne na svojich fixných miestach (nerozťahujú sa)
+            weaponSlots[i].SetActive(true);
+
+            Transform itemSlotTr = weaponSlots[i].transform.Find("ItemSlot");
+            Image slotImage = itemSlotTr != null ? itemSlotTr.GetComponent<Image>() : weaponSlots[i].GetComponentInChildren<Image>();
+
             if (i < PlayerStats.Instance.unlockedWeapons.Count)
             {
-                weaponSlots[i].SetActive(true); 
                 GridPreset weapon = PlayerStats.Instance.unlockedWeapons[i];
-                Transform itemSlotTr = weaponSlots[i].transform.Find("ItemSlot");
-                Image slotImage = itemSlotTr != null ? itemSlotTr.GetComponent<Image>() : weaponSlots[i].GetComponentInChildren<Image>();
-                
-                if (slotImage != null && weapon != null && weapon.weaponIcon != null)
+
+                if (itemSlotTr != null)
                 {
-                    slotImage.sprite = weapon.weaponIcon; 
+                    itemSlotTr.gameObject.SetActive(true);
+                }
+                if (slotImage != null)
+                {
+                    slotImage.enabled = true;
+                    if (weapon != null && weapon.weaponIcon != null)
+                    {
+                        slotImage.sprite = weapon.weaponIcon;
+                    }
                 }
 
                 // V bojovej miestnosti pripojíme WeaponButtonUI pre náhľad gridu a útočenie
@@ -412,6 +424,7 @@ public class ShopUIController : MonoBehaviour
                     WeaponButtonUI weaponBtn = weaponSlots[i].GetComponent<WeaponButtonUI>();
                     if (weaponBtn == null) weaponBtn = weaponSlots[i].AddComponent<WeaponButtonUI>();
 
+                    weaponBtn.enabled = true;
                     weaponBtn.weaponPreset = weapon;
                     weaponBtn.targetingController = targetingController;
                     weaponBtn.weaponTooltipGrid = weaponTooltipGrid;
@@ -443,8 +456,25 @@ public class ShopUIController : MonoBehaviour
             }
             else
             {
-                weaponSlots[i].SetActive(false); 
-                
+                // Prázdny slot: ikonka zbrane sa skryje, ale samotný rámik slotu ostáva zobrazený na pevnom mieste
+                if (itemSlotTr != null)
+                {
+                    itemSlotTr.gameObject.SetActive(false);
+                }
+                else if (slotImage != null && slotImage.gameObject != weaponSlots[i] && slotImage.gameObject.name != "bg")
+                {
+                    slotImage.gameObject.SetActive(false);
+                }
+
+                WeaponButtonUI weaponBtn = weaponSlots[i].GetComponent<WeaponButtonUI>();
+                if (weaponBtn != null)
+                {
+                    weaponBtn.weaponPreset = null;
+                    weaponBtn.targetingController = null;
+                    weaponBtn.weaponTooltipGrid = null;
+                    weaponBtn.enabled = false;
+                }
+
                 if (removeWeaponButtons != null && i < removeWeaponButtons.Length && removeWeaponButtons[i] != null)
                 {
                     removeWeaponButtons[i].gameObject.SetActive(false);
