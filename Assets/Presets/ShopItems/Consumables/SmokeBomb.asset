@@ -21,4 +21,4 @@ MonoBehaviour:
   staminaCost: 1
   effectValue: 0
   consumableEffect: 3
-  consumableShape: {fileID: 0}
+  consumableShapes: []

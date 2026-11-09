@@ -14,11 +14,30 @@ public class WeaponTargetingController : MonoBehaviour
     // Dočasná otočená kópia zbrane (originálny asset sa pri otáčaní nemení)
     private GridPreset rotatedWeapon;
 
+    // Ak je nastavený, vybraný tvar patrí consumable s tvarom (Health Potion -> grid hráča, Bomba -> grid nepriateľa)
+    private ConsumableButtonUI pendingConsumable;
+
+    // Health Potion lieči vlastný grid, ostatné tvarové consumables (Bomba) útočia na nepriateľa
+    private bool IsHealSelected => pendingConsumable != null && pendingConsumable.consumable != null
+        && pendingConsumable.consumable.consumableEffect == ConsumableEffect.HealPlayer;
+
+    // Zavolá sa po kliknutí na consumable s tvarom (Health Potion, Bomba) - tvar je už náhodne vybraný
+    public void SelectConsumable(GridPreset shape, ConsumableButtonUI source)
+    {
+        ClearLastPreview();
+        DiscardRotatedWeapon();
+        lastHoveredSlot = null;
+
+        selectedWeapon = shape;
+        pendingConsumable = source;
+    }
+
     // Zavolá sa po kliknutí na ikonu zbrane
     public void SelectWeapon(GridPreset weaponPreset)
     {
         ClearLastPreview();
         DiscardRotatedWeapon();
+        pendingConsumable = null;
 
         if (turnManager != null && !turnManager.HasStaminaFor(weaponPreset))
         {
@@ -35,7 +54,15 @@ public class WeaponTargetingController : MonoBehaviour
         ClearLastPreview();
         DiscardRotatedWeapon();
         selectedWeapon = null;
+        pendingConsumable = null;
         lastHoveredSlot = null;
+    }
+
+    // Náhľad podľa toho, či je vybraná zbraň alebo potion
+    private void ShowPreview(GridSlot slot)
+    {
+        if (IsHealSelected) slot.parentGrid.ShowPotionPreview(slot, selectedWeapon);
+        else slot.parentGrid.ShowWeaponPreview(slot, selectedWeapon);
     }
 
     // Otočí vybranú zbraň o 90° v smere hodinových ručičiek a prekreslí náhľad
@@ -49,7 +76,7 @@ public class WeaponTargetingController : MonoBehaviour
         ClearLastPreview();
         if (lastHoveredSlot != null && lastHoveredSlot.parentGrid != null)
         {
-            lastHoveredSlot.parentGrid.ShowWeaponPreview(lastHoveredSlot, selectedWeapon);
+            ShowPreview(lastHoveredSlot);
         }
     }
 
@@ -96,9 +123,35 @@ public class WeaponTargetingController : MonoBehaviour
             ClearLastPreview();
             if (currentSlot != null && currentSlot.parentGrid != null)
             {
-                currentSlot.parentGrid.ShowWeaponPreview(currentSlot, selectedWeapon);
+                ShowPreview(currentSlot);
             }
             lastHoveredSlot = currentSlot;
+        }
+
+        // Ľavý klik s vybraným consumable: Health Potion = LIEČENIE vlastného gridu, Bomba = ZÁSAH nepriateľa
+        if (pendingConsumable != null)
+        {
+            if (Mouse.current.leftButton.wasPressedThisFrame && currentSlot != null && currentSlot.parentGrid != null)
+            {
+                bool success = IsHealSelected
+                    ? currentSlot.parentGrid.ApplyPotionHeal(currentSlot, selectedWeapon)
+                    : currentSlot.parentGrid.ApplyWeaponDamage(currentSlot, selectedWeapon);
+
+                if (success)
+                {
+                    ConsumableButtonUI used = pendingConsumable;
+                    int cost = used.consumable != null ? used.consumable.staminaCost : 0;
+                    selectedWeapon = null;
+                    pendingConsumable = null;
+                    lastHoveredSlot = null;
+                    DiscardRotatedWeapon();
+
+                    // Predmet sa spotrebuje až po úspešnom použití (minutie = predmet ostáva)
+                    used.ConsumeItem();
+                    if (turnManager != null) turnManager.OnPlayerUsedConsumable(cost);
+                }
+            }
+            return;
         }
 
         // Ľavý klik myšou nad políčkom nepriateľa = ÚTOK (Damage)

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
-public enum TurnState { PlayerTurn, EnemyTurn, Victory, Defeat }
+public enum TurnState { PlayerTurn, EnemyTurn, Victory, Defeat, Fled }
 
 public class TurnManager : MonoBehaviour
 {
@@ -33,6 +34,19 @@ public class TurnManager : MonoBehaviour
     public UnityEvent onPlayerTurnStart;
     public UnityEvent onVictory;
     public UnityEvent onDefeat;
+    public UnityEvent onFlee;
+
+    [Header("Koniec súboja (výhra / útek cez Smoke Bomb)")]
+    [Tooltip("Build Index scény, kam sa hráč vráti po výbere odmeny alebo po úteku (mapa)")]
+    [FormerlySerializedAs("fleeSceneBuildIndex")]
+    [SerializeField] private int mapSceneBuildIndex = 5;
+
+    [Tooltip("Popup s výberom odmeny po výhre - ak nie je priradený, nájde sa automaticky")]
+    [SerializeField] private VictoryRewardUI victoryReward;
+
+    // Zlato za porazených nepriateľov - pridá sa iba ak si ho hráč vyberie v popupe
+    private int pendingGoldReward;
+    private bool rewardChosen; // Ochrana proti dvojkliku na tlačidlá
 
     [Header("Zobrazenie staminy nad gridom hráča")]
     [Tooltip("Ak nie je priradený, vytvorí sa automaticky")]
@@ -63,6 +77,8 @@ public class TurnManager : MonoBehaviour
                 }
             }
         }
+
+        CreateStaminaTextIfMissing();
 
         // Ak hráč prišiel z výberu postavy, použijeme jeho grid životov
         if (playerGrid != null && PlayerStats.Instance != null && PlayerStats.Instance.playerHealthPreset != null)
@@ -151,6 +167,17 @@ public class TurnManager : MonoBehaviour
         if (currentStamina <= 0) EndPlayerTurn();
     }
 
+    // Zavolá WeaponTargetingController po úspešnom použití consumable s tvarom (Bomba, Health Potion)
+    // Na rozdiel od zbrane nevyužije mystický prášok, ale skontroluje koniec súboja (bomba môže zabiť posledného nepriateľa)
+    public void OnPlayerUsedConsumable(int cost)
+    {
+        currentStamina = Mathf.Max(0, currentStamina - Mathf.Max(0, cost));
+        UpdateStaminaText();
+        if (CheckCombatEnd()) return;
+
+        if (currentStamina <= 0) EndPlayerTurn();
+    }
+
     public void EndPlayerTurn()
     {
         if (!CanPlayerAct) return;
@@ -168,19 +195,23 @@ public class TurnManager : MonoBehaviour
         onPlayerTurnStart?.Invoke();
     }
 
+    // Vytvorí text staminy iba raz na začiatku (nie v UpdateStaminaText - to sa volá aj pri zatváraní scény
+    // cez OnDisable tlačidiel zbraní a vytváralo by nové objekty, ktoré Unity hlási ako neupratané)
+    private void CreateStaminaTextIfMissing()
+    {
+        if (staminaText != null) return;
+
+        var go = new GameObject("StaminaText");
+        staminaText = go.AddComponent<TextMeshPro>();
+        staminaText.alignment = TextAlignmentOptions.Center;
+        staminaText.fontSize = 4;
+        staminaText.color = Color.white;
+        staminaText.sortingOrder = 100;
+    }
+
     private void UpdateStaminaText()
     {
-        if (playerGrid == null) return;
-
-        if (staminaText == null)
-        {
-            var go = new GameObject("StaminaText");
-            staminaText = go.AddComponent<TextMeshPro>();
-            staminaText.alignment = TextAlignmentOptions.Center;
-            staminaText.fontSize = 4;
-            staminaText.color = Color.white;
-            staminaText.sortingOrder = 100;
-        }
+        if (playerGrid == null || staminaText == null) return;
 
         // Grid hráča sa môže zväčšiť (upgrady), preto pozíciu prepočítame vždy
         Vector3 pos = playerGrid.GetTopCenterWorld(staminaTextOffset);
@@ -268,8 +299,8 @@ public class TurnManager : MonoBehaviour
         if (!enemyGrid.HasAnyAliveBlock())
         {
             State = TurnState.Victory;
-            GiveRewards();
             Debug.Log("Výhra - všetci nepriatelia sú porazení.");
+            OnVictory();
             onVictory?.Invoke();
             return true;
         }
@@ -277,14 +308,78 @@ public class TurnManager : MonoBehaviour
         return false;
     }
 
-    private void GiveRewards()
+    // Po výhre si hráč v popupe vyberie odmenu: vyliečenie na max HP ALEBO zlato za nepriateľov
+    private void OnVictory()
     {
-        if (PlayerStats.Instance == null) return;
-
+        pendingGoldReward = 0;
         foreach (var enemy in enemyGrid.Enemies)
         {
-            if (enemy != null) PlayerStats.Instance.AddMoney(enemy.goldReward);
+            if (enemy != null) pendingGoldReward += enemy.goldReward;
         }
-        PlayerStats.Instance.encountersDefeated++;
+
+        if (PlayerStats.Instance != null) PlayerStats.Instance.encountersDefeated++;
+        rewardChosen = false;
+
+        if (victoryReward == null) victoryReward = FindAnyObjectByType<VictoryRewardUI>(FindObjectsInactive.Include); // Nájde ho aj vo vypnutom Canvase
+        if (victoryReward != null)
+        {
+            victoryReward.Show(pendingGoldReward);
+        }
+        else
+        {
+            // Bez popupu v scéne (napr. testovanie) sa zachová pôvodné správanie: zlato automaticky, hráč ostane v scéne
+            Debug.LogWarning("V scéne chýba VictoryRewardUI - zlato sa pridá automaticky.");
+            SavePlayerHp();
+            if (PlayerStats.Instance != null) PlayerStats.Instance.AddMoney(pendingGoldReward);
+            rewardChosen = true;
+        }
+    }
+
+    // Tlačidlo "Vyliečiť" v popupe - všetky políčka HP gridu sa vrátia na max, zlato sa nepridá
+    public void ChooseHealReward()
+    {
+        if (State != TurnState.Victory || rewardChosen) return;
+        rewardChosen = true;
+
+        if (PlayerStats.Instance != null) PlayerStats.Instance.playerCurrentHp = null; // null = plné HP
+        ReturnToMap();
+    }
+
+    // Tlačidlo "Zlato" v popupe - pridá zlato za nepriateľov, stratené HP sa prenesie ďalej
+    public void ChooseGoldReward()
+    {
+        if (State != TurnState.Victory || rewardChosen) return;
+        rewardChosen = true;
+
+        SavePlayerHp();
+        if (PlayerStats.Instance != null) PlayerStats.Instance.AddMoney(pendingGoldReward);
+        ReturnToMap();
+    }
+
+    private void ReturnToMap()
+    {
+        if (LoadingScene.Instance != null) LoadingScene.Instance.SwitchToScene(mapSceneBuildIndex);
+        else UnityEngine.SceneManagement.SceneManager.LoadScene(mapSceneBuildIndex);
+    }
+
+    // Stratené HP sa prenesie do ďalšieho encountru
+    private void SavePlayerHp()
+    {
+        if (PlayerStats.Instance == null || playerGrid == null) return;
+        PlayerStats.Instance.playerCurrentHp = playerGrid.GetHpSnapshot(PlayerStats.Instance.playerHealthPreset);
+    }
+
+    // Smoke Bomb - hráč utečie zo súboja bez odmeny, stratené HP sa zachová
+    public bool TryFlee()
+    {
+        if (!CanPlayerAct) return false;
+
+        State = TurnState.Fled;
+        SavePlayerHp();
+        Debug.Log("Útek - hráč utiekol zo súboja.");
+        onFlee?.Invoke();
+
+        ReturnToMap();
+        return true;
     }
 }

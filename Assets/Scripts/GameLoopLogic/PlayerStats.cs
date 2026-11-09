@@ -26,6 +26,9 @@ public class PlayerStats : MonoBehaviour
 
     public GridPreset playerHealthPreset;
 
+    [Tooltip("Aktuálne HP políčok HP gridu (index = y * width + x), prenáša sa medzi encountermi. Prázdne = plné HP")]
+    public int[] playerCurrentHp;
+
     [Header("Inventár consumables")]
     public int maxConsumables = 4; // Toľko, koľko je slotov consumables v encountri
     public List<ConsumableData> consumables = new List<ConsumableData>();
@@ -50,6 +53,7 @@ public class PlayerStats : MonoBehaviour
         money = character.startingGold;
         maxStamina = character.startingStamina;
         playerHealthPreset = character.healthGridPreset;
+        playerCurrentHp = null; // Nový run začína s plnými životmi
         
         // --- ULOŽENIE OBRÁZKA POSTAVY ---
         // Ak sa v tvojom CharacterData volá premenná inak, zmeň slovo "characterSprite"
