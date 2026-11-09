@@ -12,17 +12,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7194fc99f2d95ee41b98d3ab8505c32b, type: 3}
   m_Name: IceWizzard
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
-  width: 4
-  height: 4
+  width: 6
+  height: 6
+  weaponIcon: {fileID: 0}
   actionType: 0
   staminaCost: 1
   cells:
   - element: 0
     thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
   - element: 1
     thickness: 1
   - element: 3
     thickness: 1
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
   - element: 0
     thickness: 0
   - element: 3
@@ -33,6 +52,10 @@ MonoBehaviour:
     thickness: 2
   - element: 1
     thickness: 1
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
   - element: 1
     thickness: 1
   - element: 3
@@ -43,9 +66,27 @@ MonoBehaviour:
     thickness: 1
   - element: 0
     thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
   - element: 3
     thickness: 1
   - element: 1
     thickness: 1
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
   - element: 0
     thickness: 0

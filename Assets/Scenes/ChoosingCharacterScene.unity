@@ -3526,7 +3526,7 @@ MonoBehaviour:
   isPlayerGrid: 1
   gridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
   spacing: 0.65
-  singlePreset: {fileID: 11400000, guid: 12bee7e6408b73b48ba3dd84bcced309, type: 2}
+  singlePreset: {fileID: 11400000, guid: eb6c6a9db6fecfe4197886043ddab729, type: 2}
   boardWidth: 20
   boardHeight: 8
   basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
@@ -3535,6 +3535,9 @@ MonoBehaviour:
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
   destroyedHpPrefab: {fileID: 0}
+  showMaxHpOutline: 1
+  maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  maxHpOutlineThickness: 0.05
 --- !u!114 &1437410097 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5268529839998259365, guid: 467c923430eb7054cbfeb88868fe3726, type: 3}
@@ -5122,6 +5125,9 @@ MonoBehaviour:
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
   destroyedHpPrefab: {fileID: 0}
+  showMaxHpOutline: 1
+  maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  maxHpOutlineThickness: 0.05
 --- !u!1 &1870077147
 GameObject:
   m_ObjectHideFlags: 0
@@ -5178,6 +5184,9 @@ MonoBehaviour:
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
   destroyedHpPrefab: {fileID: 0}
+  showMaxHpOutline: 1
+  maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  maxHpOutlineThickness: 0.05
 --- !u!1 &1880560825
 GameObject:
   m_ObjectHideFlags: 0
@@ -6451,6 +6460,9 @@ MonoBehaviour:
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
   destroyedHpPrefab: {fileID: 0}
+  showMaxHpOutline: 1
+  maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  maxHpOutlineThickness: 0.05
 --- !u!1001 &6323616840404291861
 PrefabInstance:
   m_ObjectHideFlags: 0

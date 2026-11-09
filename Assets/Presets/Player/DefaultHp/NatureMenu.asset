@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7194fc99f2d95ee41b98d3ab8505c32b, type: 3}
-  m_Name: NatureRouge
+  m_Name: NatureMenu
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
   width: 4
   height: 4
