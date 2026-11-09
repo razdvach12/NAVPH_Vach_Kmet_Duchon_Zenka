@@ -6,12 +6,12 @@ public class CharacterSelectionManager : MonoBehaviour
     public CharacterData selectedCharacter;
 
     private void Start()
-{
-    if (MusicManager.Instance != null)
     {
-        MusicManager.Instance.PlayMusic("CharacterSelBackground");
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlayMusic("CharacterSelBackground");
+        }
     }
-}
 
     // Univerzálna metóda pre hociktorú postavu
     public void SelectCharacter(CharacterData character)
@@ -37,6 +37,14 @@ public class CharacterSelectionManager : MonoBehaviour
         if (LoadingScene.Instance != null)
         {
             LoadingScene.Instance.SwitchToScene(5); 
+        }
+    }
+
+    public void OnClickBackToMenuButton()
+    {
+        if (LoadingScene.Instance != null)
+        {
+            LoadingScene.Instance.SwitchToScene(0);
         }
     }
 }

@@ -21,12 +21,14 @@ public class LoadingScene : MonoBehaviour
     public float wobbleFrequency = 3f; 
 
     private GameObject blackBackgroundObj;
+    private bool isLoading;
 
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this.gameObject);
+            SetLoadingVisualsActive(false);
+            return;
         }
         else
         {
@@ -57,6 +59,18 @@ public class LoadingScene : MonoBehaviour
 
     public void SwitchToScene(int id)
     {
+        if (Instance != null && Instance != this)
+        {
+            Instance.SwitchToScene(id);
+            return;
+        }
+
+        if (isLoading)
+        {
+            return;
+        }
+
+        isLoading = true;
         SetLoadingVisualsActive(true);
         if (ProgressBar != null)
         {
@@ -174,5 +188,6 @@ public class LoadingScene : MonoBehaviour
         asyncLoad.allowSceneActivation = true; 
         yield return new WaitForSeconds(0.2f);
         SetLoadingVisualsActive(false);
+        isLoading = false;
     }
 }

@@ -2087,6 +2087,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WeaponGrid
       objectReference: {fileID: 0}
+    - target: {fileID: 4622285480344632319, guid: 5d674926d84814f488e174eb7a73a837, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2798,6 +2802,26 @@ PrefabInstance:
       propertyPath: targetingController
       value: 
       objectReference: {fileID: 43236632}
+    - target: {fileID: 4731985984315122149, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 56
+      objectReference: {fileID: 0}
+    - target: {fileID: 4731985984315122149, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 56
+      objectReference: {fileID: 0}
+    - target: {fileID: 4731985984315122149, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 4731985984315122149, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 4731985984315122149, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.72
+      objectReference: {fileID: 0}
     - target: {fileID: 5280158152765816056, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
