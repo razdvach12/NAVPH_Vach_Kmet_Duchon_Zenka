@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SlimeData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Slime
+  enemySprite: {fileID: 5918969403182775018, guid: 158d9af0533c4b844a95e536ea33edb5, type: 3}
   tier: 2
   bodyPreset: {fileID: 11400000, guid: 2e0d5039bb1a4dc89f273a8a25d64099, type: 2}
   attacks:

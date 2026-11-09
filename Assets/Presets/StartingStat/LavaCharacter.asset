@@ -16,7 +16,7 @@ MonoBehaviour:
   characterSprite: {fileID: -214115308120325660, guid: 9086c70e9500c1442bca513465485cae, type: 3}
   startingGold: 2000
   startingStamina: 5
-  healthGridPreset: {fileID: 11400000, guid: 5711eb65147535949b016962e130939b, type: 2}
+  healthGridPreset: {fileID: 11400000, guid: de56635d67382234eb2a328c900284ae, type: 2}
   startingWeapons:
   - {fileID: 11400000, guid: 0072c14c6ecff614fa52bf54931be248, type: 2}
   - {fileID: 11400000, guid: fb8b1758cc9e41c4ab55304bc48ef4a2, type: 2}

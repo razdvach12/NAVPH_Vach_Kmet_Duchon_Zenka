@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SkeletonData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Skeleton
+  enemySprite: {fileID: 5129822599188613302, guid: a0e2fcbb52243634e9c0da56d217f544, type: 3}
   tier: 2
   bodyPreset: {fileID: 11400000, guid: 9113b90af3fd4cc58ffff363f2736b85, type: 2}
   attacks:

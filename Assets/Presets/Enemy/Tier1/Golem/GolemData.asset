@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GolemData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Golem
+  enemySprite: {fileID: -104181354921426385, guid: 8ef98a9d2f6d0704b939ec056aab319a, type: 3}
   tier: 1
   bodyPreset: {fileID: 11400000, guid: 909e6fd1bc8e4ecabccdf85a605f8c4e, type: 2}
   attacks:

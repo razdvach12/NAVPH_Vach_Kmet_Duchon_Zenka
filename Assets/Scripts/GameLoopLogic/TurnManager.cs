@@ -120,6 +120,10 @@ public class TurnManager : MonoBehaviour
     {
         // Počkáme jeden frame, aby gridy stihli vygenerovať svoje políčka
         yield return null;
+
+        ShopUIController shopUI = FindFirstObjectByType<ShopUIController>();
+        if (shopUI != null) shopUI.UpdateEnemyPortraits();
+
         StartPlayerTurn();
     }
 
