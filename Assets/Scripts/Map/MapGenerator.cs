@@ -151,28 +151,28 @@ public class MapGenerator : MonoBehaviour
 			}
 		}
 
-		// STEP B: Enforce PathCountRules (e.g., at least 1 Shop on every path)
+		// STEP B: Enforce PathCountRules (minPerPath & maxPerPath)
 		foreach (var rule in pathCountRules)
 		{
 			foreach (var path in allPaths)
 			{
-				// Count how many times this node type already appears on this path
 				int currentCount = path.FindAll(n => n.type == rule.nodeType).Count;
 
-				// If count is below minPerPath, inject missing nodes
 				int safetyCounter = 0;
 				while (currentCount < rule.minPerPath && safetyCounter < 20)
 				{
 					safetyCounter++;
-					// Find suitable nodes on the path within the allowed floor range
+
+					// Find suitable nodes that also don't push ANY sharing path over maxPerPath
 					List<MapNodeData> candidates = path.FindAll(n =>
 						n.y >= rule.minFloor &&
 						n.y <= rule.maxFloor &&
-						n.type == NodeType.Encounter && // Only overwrite basic encounters, not other special rooms
-						MapRuleValidator.CanPlaceNodeType(n, rule.nodeType, cooldownRules, allNodesList)
+						n.type == NodeType.Encounter &&
+						MapRuleValidator.CanPlaceNodeType(n, rule.nodeType, cooldownRules, allNodesList) &&
+						!WouldExceedMaxOnAnyPath(n, rule.nodeType, rule.maxPerPath)
 					);
 
-					// Fallback: if strict cooldown left no candidates, allow any Encounter within floor range
+					// Fallback if strict rules left no candidates
 					if (candidates.Count == 0)
 					{
 						candidates = path.FindAll(n => n.y >= rule.minFloor && n.y <= rule.maxFloor && n.type == NodeType.Encounter);
@@ -187,6 +187,21 @@ public class MapGenerator : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	// Checks if placing 'type' on 'targetNode' would cause ANY path passing through it to exceed 'maxPerPath'
+	private bool WouldExceedMaxOnAnyPath(MapNodeData targetNode, NodeType type, int maxPerPath)
+	{
+		foreach (var path in allPaths)
+		{
+			if (path.Contains(targetNode))
+			{
+				int countOnThisPath = path.FindAll(n => n.type == type).Count;
+				if (countOnThisPath >= maxPerPath)
+					return true; // This path already has the maximum allowed!
+			}
+		}
+		return false;
 	}
 
 	private NodeType PickRandomValidType(MapNodeData node)

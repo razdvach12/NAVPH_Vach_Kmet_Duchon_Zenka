@@ -119,6 +119,81 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &273148644
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 273148645}
+  - component: {fileID: 273148647}
+  - component: {fileID: 273148646}
+  m_Layer: 5
+  m_Name: Background
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &273148645
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 273148644}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1500426472}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &273148646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 273148644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.7803922, g: 0.72156864, b: 0.5568628, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &273148647
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 273148644}
+  m_CullTransparentMesh: 1
 --- !u!1 &674187031
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,8 +262,29 @@ MonoBehaviour:
   nodesContainer: {fileID: 1461658006}
   nodePrefab: {fileID: 1003400679995675902, guid: 24cbd9ef58441d5488224dc6358db227, type: 3}
   linePrefab: {fileID: 5134415875380769477, guid: bb062e3dd2655e4499fabd5784efe657, type: 3}
+  nodeVisuals:
+  - nodeType: 0
+    iconSprite: {fileID: 0}
+    tintColor: {r: 1, g: 1, b: 1, a: 1}
+  - nodeType: 1
+    iconSprite: {fileID: 0}
+    tintColor: {r: 1, g: 1, b: 1, a: 1}
+  - nodeType: 2
+    iconSprite: {fileID: 0}
+    tintColor: {r: 1, g: 1, b: 1, a: 1}
+  - nodeType: 3
+    iconSprite: {fileID: 0}
+    tintColor: {r: 1, g: 1, b: 1, a: 1}
+  - nodeType: 4
+    iconSprite: {fileID: 0}
+    tintColor: {r: 1, g: 1, b: 1, a: 1}
+  - nodeType: 5
+    iconSprite: {fileID: 0}
+    tintColor: {r: 1, g: 1, b: 1, a: 1}
+  fogOfWarSprite: {fileID: 0}
   lineThickness: 5
   lineColor: {r: 1, g: 1, b: 1, a: 0.3}
+  lineSprite: {fileID: 0}
 --- !u!114 &674187035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -546,6 +642,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 273148645}
   - {fileID: 1142982824}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
