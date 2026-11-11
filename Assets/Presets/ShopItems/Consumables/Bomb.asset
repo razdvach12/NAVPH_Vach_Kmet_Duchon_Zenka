@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConsumableData
   itemName: Bomb
   description: 
-  icon: {fileID: -2613247888821195678, guid: f8d92ad66b9399945a73c6f41f0ad3cf, type: 3}
+  icon: {fileID: 1589276796324118985, guid: f0aa2f33ae807e540b3bcdc624991557, type: 3}
   price: 68
   itemType: 1
   elementType: 0

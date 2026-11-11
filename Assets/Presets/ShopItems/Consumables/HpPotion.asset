@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConsumableData
   itemName: 'Health Potion '
   description: 
-  icon: {fileID: -8485995304713028149, guid: 19af43055076dcd4b9588a73da2cd2fa, type: 3}
+  icon: {fileID: 3861579366159045020, guid: 304fd8dd945e76442adde34d24b01361, type: 3}
   price: 50
   itemType: 1
   elementType: 0

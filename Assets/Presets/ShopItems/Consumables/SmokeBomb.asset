@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConsumableData
   itemName: Smoke Bomb
   description: 
-  icon: {fileID: -5267904105250679215, guid: 74325dcb2a301c4459e4685c30012332, type: 3}
+  icon: {fileID: -6449965642854024004, guid: be47f31fee42c0e479c82a405f7d1c62, type: 3}
   price: 1000
   itemType: 1
   elementType: 0
   staminaCost: 1
   effectValue: 0
+  weaponGridPreset: {fileID: 0}
   consumableEffect: 3
   consumableShapes: []
