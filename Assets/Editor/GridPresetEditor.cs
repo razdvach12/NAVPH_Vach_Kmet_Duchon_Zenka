@@ -14,7 +14,8 @@ public class GridPresetEditor : Editor
         preset.height = EditorGUILayout.IntSlider("Height", preset.height, 1, 7);
 
         EditorGUILayout.Space(5);
-        preset.weaponIcon = (Sprite)EditorGUILayout.ObjectField("Weapon Icon", preset.weaponIcon, typeof(Sprite), false);
+        string iconLabel = preset.actionType == CellSetup.Gridtype.Character ? "Character / Enemy Icon" : "Weapon Icon";
+        preset.weaponIcon = (Sprite)EditorGUILayout.ObjectField(iconLabel, preset.weaponIcon, typeof(Sprite), false);
         preset.actionType = (CellSetup.Gridtype)EditorGUILayout.EnumPopup("Grid Type", preset.actionType);
         preset.staminaCost = EditorGUILayout.IntSlider("Stamina Cost", preset.staminaCost, 1, 3);
         // -------------------------------------

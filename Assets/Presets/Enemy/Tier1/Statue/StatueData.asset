@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: StatueData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Statue
+  enemySprite: {fileID: 6804807191054158518, guid: c989ccf68940d764aa8b8f37ee82adf2, type: 3}
   tier: 1
   bodyPreset: {fileID: 11400000, guid: cb65fde20e644f7cb0adcb239bac7240, type: 2}
   attacks:

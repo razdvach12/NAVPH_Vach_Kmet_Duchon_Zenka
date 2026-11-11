@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: LivingVineData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Living Vine
+  enemySprite: {fileID: 8120803753698116671, guid: a093e50c88950b34b948111fe2f1c9bc, type: 3}
   tier: 1
   bodyPreset: {fileID: 11400000, guid: 1d766bcc88804daca3c60f5918bd1c4b, type: 2}
   attacks:

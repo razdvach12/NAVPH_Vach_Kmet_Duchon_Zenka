@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: de96cdf99fbb15143aa012cbaa8ef755
+guid: 0c23736a98a068143a4842e08f64b8e9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8832167503239892954
-    second: pngwing.com_0
+      213: -1583747767221624543
+    second: Earth_Flower_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -24,7 +24,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: pngwing.com_0
+      name: Earth_Flower_0
       rect:
         serializedVersion: 2
-        x: 110
-        y: 67
-        width: 420
-        height: 486
+        x: 7
+        y: 0
+        width: 56
+        height: 61
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: adfcc53ac89229a70800000000000000
-      internalID: 8832167503239892954
+      spriteID: 121efe8fbc5650ae0800000000000000
+      internalID: -1583747767221624543
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      pngwing.com_0: 8832167503239892954
+      Earth_Flower_0: -1583747767221624543
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

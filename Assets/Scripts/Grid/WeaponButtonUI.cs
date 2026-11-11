@@ -41,6 +41,7 @@ public class WeaponButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         tooltipPos.z = 0f;
         weaponTooltipGrid.transform.position = tooltipPos;
         weaponTooltipGrid.isPlayerGrid = true; // Aby náhľadový grid nereagoval na útoky
+        weaponTooltipGrid.SetShowMaxHpOutline(false); // Náhľad zbrane nezobrazuje obvod Max HP
         weaponTooltipGrid.GenerateSingleGrid(weaponPreset);
     }
 

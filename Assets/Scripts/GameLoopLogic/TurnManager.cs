@@ -59,6 +59,8 @@ public class TurnManager : MonoBehaviour
     // Mystický prášok - najbližší útok zbraňou je zadarmo (platí, kým sa nevyužije)
     private bool nextAttackFree;
 
+    private ShopUIController shopUI;
+
     public TurnState State { get; private set; }
     public bool CanPlayerAct => State == TurnState.PlayerTurn;
 
@@ -120,7 +122,15 @@ public class TurnManager : MonoBehaviour
     {
         // Počkáme jeden frame, aby gridy stihli vygenerovať svoje políčka
         yield return null;
+
+        RefreshUpperPartEnemies(-1);
         StartPlayerTurn();
+    }
+
+    private void RefreshUpperPartEnemies(int attackingEnemyIndex = -1)
+    {
+        if (shopUI == null) shopUI = FindFirstObjectByType<ShopUIController>();
+        if (shopUI != null) shopUI.UpdateEnemyPortraits(attackingEnemyIndex);
     }
 
     public bool HasStaminaFor(GridPreset preset)
@@ -249,11 +259,19 @@ public class TurnManager : MonoBehaviour
             GridSlot target = playerGrid.FindEnemyAttackTarget(attack.pattern, attack.targeting);
             if (target == null) continue;
 
+            // Zvýrazníme práve útočiaceho nepriateľa červeným obrysom Max HP a červenou guličkou nad portrétom
+            enemyGrid.SetAttackingEnemy(i);
+            RefreshUpperPartEnemies(i);
+
             playerGrid.ShowEnemyAttackPreview(target, attack.pattern);
             yield return new WaitForSeconds(attackPreviewTime);
 
             playerGrid.ApplyEnemyAttack(target, attack.pattern);
             Debug.Log($"{enemy.enemyName} útočí: {attack.pattern.name}");
+
+            // Po útoku vrátime obrys nepriateľa späť na bielo a skryjeme červenú guličku
+            enemyGrid.SetAttackingEnemy(-1);
+            RefreshUpperPartEnemies(-1);
 
             if (CheckCombatEnd()) yield break;
             yield return new WaitForSeconds(delayBetweenAttacks);
@@ -288,6 +306,9 @@ public class TurnManager : MonoBehaviour
     // Vráti true, ak súboj skončil
     private bool CheckCombatEnd()
     {
+        // Aktualizujeme portréty nepriateľov (ak bol niektorý nepriateľ zabitý, jeho obrázok zmizne)
+        RefreshUpperPartEnemies(-1);
+
         if (!playerGrid.HasAnyAliveBlock())
         {
             State = TurnState.Defeat;

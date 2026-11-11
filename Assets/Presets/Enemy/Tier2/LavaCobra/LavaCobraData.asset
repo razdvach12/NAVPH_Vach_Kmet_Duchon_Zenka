@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: LavaCobraData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Lava Cobra
+  enemySprite: {fileID: 4652240121998092130, guid: c145144ef9691564c95a94cf5b9b8d16, type: 3}
   tier: 2
   bodyPreset: {fileID: 11400000, guid: e3de2d19401b422fbbcfec9ec9fa4e13, type: 2}
   attacks:

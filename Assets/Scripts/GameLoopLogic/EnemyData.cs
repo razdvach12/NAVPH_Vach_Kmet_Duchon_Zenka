@@ -19,6 +19,9 @@ public class EnemyData : ScriptableObject
 {
     public string enemyName;
 
+    [Header("Vizuál nepriateľa v UI")]
+    public Sprite enemySprite;
+
     [Tooltip("Tier nepriateľa - miestnosti (rooms) sa skladajú z nepriateľov daného tieru")]
     [Range(1, 3)]
     public int tier = 1;
@@ -37,6 +40,13 @@ public class EnemyData : ScriptableObject
 
     [Header("Odmena")]
     public int goldReward = 10;
+
+    public Sprite GetEnemySprite()
+    {
+        if (enemySprite != null) return enemySprite;
+        if (bodyPreset != null && bodyPreset.weaponIcon != null) return bodyPreset.weaponIcon;
+        return null;
+    }
 
     public EnemyAttack GetRandomAttack()
     {
