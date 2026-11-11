@@ -119,6 +119,114 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &674187031
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 674187032}
+  - component: {fileID: 674187035}
+  - component: {fileID: 674187034}
+  - component: {fileID: 674187033}
+  m_Layer: 0
+  m_Name: MapManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &674187032
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 674187031}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.296, y: -0.52864, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &674187033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 674187031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98bd2ff0f6fb0e24fa49656c6e21078c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapController
+  mapGenerator: {fileID: 674187035}
+  mapRenderer: {fileID: 674187034}
+  mapContent: {fileID: 1142982824}
+  visionRange: 3
+  introPanDuration: 3
+  verticalScreenOffset: -250
+--- !u!114 &674187034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 674187031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40c73f72570d7a046933f5f9a21c860d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapRenderer
+  linesContainer: {fileID: 2007583980}
+  nodesContainer: {fileID: 1461658006}
+  nodePrefab: {fileID: 1003400679995675902, guid: 24cbd9ef58441d5488224dc6358db227, type: 3}
+  linePrefab: {fileID: 5134415875380769477, guid: bb062e3dd2655e4499fabd5784efe657, type: 3}
+  lineThickness: 5
+  lineColor: {r: 1, g: 1, b: 1, a: 0.3}
+--- !u!114 &674187035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 674187031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 434c609a1efb5724589f2fba0b6b1803, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
+  mapWidth: 7
+  mapHeight: 12
+  numberOfPaths: 5
+  xSpacing: 130
+  ySpacing: 140
+  jitter: 25
+  pathCountRules:
+  - nodeType: 1
+    minPerPath: 1
+    maxPerPath: 2
+    minFloor: 2
+    maxFloor: 10
+  cooldownRules:
+  - nodeType: 4
+    minDistanceBetween: 2
+  - nodeType: 1
+    minDistanceBetween: 2
+  randomWeights:
+  - nodeType: 0
+    weight: 50
+  - nodeType: 3
+    weight: 25
+  - nodeType: 4
+    weight: 15
+  - nodeType: 2
+    weight: 10
 --- !u!1 &1023589851
 GameObject:
   m_ObjectHideFlags: 0
@@ -551,4 +659,5 @@ SceneRoots:
   m_Roots:
   - {fileID: 1023589854}
   - {fileID: 1239765065}
+  - {fileID: 674187032}
   - {fileID: 1500426472}
