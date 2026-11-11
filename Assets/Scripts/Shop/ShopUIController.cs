@@ -15,6 +15,9 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private Image characterPortrait;
     [SerializeField] private Image[] enemyPortraits;
 
+    [Header("Obrázky pre ne-bojové scény (Shop / Chest)")]
+    [SerializeField] private Sprite merchantSprite;
+
     [Header("Zbrane hráča v UI (Ikonky / Sloty)")]
     [SerializeField] private GameObject[] weaponSlots;       
     [SerializeField] private Button[] removeWeaponButtons;
@@ -30,12 +33,29 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private GridManager weaponTooltipGrid;
     [SerializeField] private TurnManager turnManager;
 
+    private static Sprite cachedCircleSprite;
+
     private bool IsInCombat => targetingController != null && turnManager != null;
 
     private void Awake()
     {
         ResolveCombatReferences();
         ResolveUpperPartReferences();
+
+#if UNITY_EDITOR
+        if (merchantSprite == null)
+        {
+            var assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath("Assets/UI/Characters/Merchant2.png");
+            foreach (var asset in assets)
+            {
+                if (asset is Sprite s)
+                {
+                    merchantSprite = s;
+                    break;
+                }
+            }
+        }
+#endif
 
         if (turnManager != null && playerHealthGrid != null)
         {
@@ -47,6 +67,9 @@ public class ShopUIController : MonoBehaviour
             playerHealthGrid.isPlayerGrid = true;
             playerHealthGrid.SetSinglePreset(PlayerStats.Instance.playerHealthPreset);
         }
+
+        // Nastavíme portréty podľa scény hneď v Awake (ShopScene = Merchant2, ChestScene = nikto, Encounter = nepriatelia)
+        UpdateEnemyPortraits();
     }
 
     private void Start()
@@ -79,7 +102,7 @@ public class ShopUIController : MonoBehaviour
         if (!weaponSlots[index].activeInHierarchy) return;
 
         WeaponButtonUI weaponBtn = weaponSlots[index].GetComponent<WeaponButtonUI>();
-        if (weaponBtn != null)
+        if (weaponBtn != null && weaponBtn.enabled && weaponBtn.weaponPreset != null)
         {
             weaponBtn.SelectThisWeapon();
         }
@@ -139,7 +162,7 @@ public class ShopUIController : MonoBehaviour
             }
 
             // Zoradíme zľava doprava podľa X pozície v UpperPart
-            foundNpcImages.Sort((a, b) => a.rectTransform.anchoredPosition.x.CompareTo(b.rectTransform.anchoredPosition.x));
+            foundNpcImages.Sort((b, a) => b.rectTransform.anchoredPosition.x.CompareTo(a.rectTransform.anchoredPosition.x));
             enemyPortraits = foundNpcImages.ToArray();
         }
     }
@@ -148,10 +171,10 @@ public class ShopUIController : MonoBehaviour
     {
         if (PlayerStats.Instance != null)
         {
-            PlayerStats.Instance.OnMoneyChanged -= UpdateMoneyText;
-            PlayerStats.Instance.OnWeaponsChanged -= UpdateWeaponSlots;
-            PlayerStats.Instance.OnConsumablesChanged -= UpdateConsumableSlots;
-            PlayerStats.Instance.OnRelicsChanged -= UpdateRelicSlots; 
+            PlayerStats.Instance.OnMoneyChanged += UpdateMoneyText;
+            PlayerStats.Instance.OnWeaponsChanged += UpdateWeaponSlots;
+            PlayerStats.Instance.OnConsumablesChanged += UpdateConsumableSlots;
+            PlayerStats.Instance.OnRelicsChanged += UpdateRelicSlots; 
         }
     }
 
@@ -176,22 +199,59 @@ public class ShopUIController : MonoBehaviour
             characterPortrait.sprite = PlayerStats.Instance.playerSprite;
         }
 
-        // --- AKTUALIZÁCIA OBRÁZKOV NEPRIATEĽOV V ENCOUNTERI ---
+        // --- AKTUALIZÁCIA OBRÁZKOV NEPRIATEĽOV / MERCHANT2 V HORNOM PÁSE ---
         UpdateEnemyPortraits();
     }
 
-    public void UpdateEnemyPortraits()
+    public void UpdateEnemyPortraits(int attackingEnemyIndex = -1)
     {
         ResolveCombatReferences();
         ResolveUpperPartReferences();
 
-        if (turnManager == null || turnManager.enemyGrid == null || enemyPortraits == null || enemyPortraits.Length == 0)
+        if (enemyPortraits == null || enemyPortraits.Length == 0)
             return;
 
-        var activeEnemies = new List<EnemyData>();
-        foreach (EnemyData enemy in turnManager.enemyGrid.Enemies)
+        // Ak nie sme v súboji (turnManager alebo enemyGrid chýba - napr. ShopScene alebo ChestScene)
+        if (turnManager == null || turnManager.enemyGrid == null)
         {
-            if (enemy != null) activeEnemies.Add(enemy);
+            string sceneName = SceneManager.GetActiveScene().name;
+            int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+            bool isShop = (sceneName == "ShopScene" || sceneIndex == 2);
+
+            for (int i = 0; i < enemyPortraits.Length; i++)
+            {
+                Image portrait = enemyPortraits[i];
+                if (portrait == null) continue;
+
+                SetAttackIndicator(portrait, false);
+
+                // V ShopScene sa zobrazí iba prvý portrét s Merchant2, ostatné sa skryjú
+                // V ChestScene (alebo iných scénach) sa skryjú všetky (nevykreslí sa nikto)
+                if (isShop && i == 0)
+                {
+                    portrait.gameObject.SetActive(true);
+                    if (merchantSprite != null)
+                    {
+                        portrait.sprite = merchantSprite;
+                    }
+                }
+                else
+                {
+                    portrait.gameObject.SetActive(false);
+                }
+            }
+            return;
+        }
+
+        // Sme v súboji (Encounter):
+        // Zoznam indexov skutočných nepriateľov v encounteri (zachová priradenie k príslušnému NPCSprite slotu)
+        var validEnemyIndices = new List<int>();
+        for (int idx = 0; idx < turnManager.enemyGrid.Enemies.Count; idx++)
+        {
+            if (turnManager.enemyGrid.Enemies[idx] != null)
+            {
+                validEnemyIndices.Add(idx);
+            }
         }
 
         for (int i = 0; i < enemyPortraits.Length; i++)
@@ -199,20 +259,98 @@ public class ShopUIController : MonoBehaviour
             Image portrait = enemyPortraits[i];
             if (portrait == null) continue;
 
-            if (i < activeEnemies.Count)
+            if (i < validEnemyIndices.Count)
             {
-                portrait.gameObject.SetActive(true);
-                Sprite enemySprite = activeEnemies[i].GetEnemySprite();
-                if (enemySprite != null)
+                int enemyIndex = validEnemyIndices[i];
+                EnemyData enemy = turnManager.enemyGrid.Enemies[enemyIndex];
+                bool isAlive = !turnManager.enemyGrid.HasGeneratedSlots || turnManager.enemyGrid.IsEnemyAlive(enemyIndex);
+
+                if (isAlive)
                 {
-                    portrait.sprite = enemySprite;
+                    portrait.gameObject.SetActive(true);
+                    Sprite enemySprite = enemy.GetEnemySprite();
+                    if (enemySprite != null)
+                    {
+                        portrait.sprite = enemySprite;
+                    }
+                    SetAttackIndicator(portrait, enemyIndex == attackingEnemyIndex);
+                }
+                else
+                {
+                    SetAttackIndicator(portrait, false);
+                    portrait.gameObject.SetActive(false);
                 }
             }
             else
             {
+                SetAttackIndicator(portrait, false);
                 portrait.gameObject.SetActive(false);
             }
         }
+    }
+
+    // Zobrazí alebo skryje červenú guličku nad portrétom práve útočiaceho nepriateľa
+    private void SetAttackIndicator(Image portrait, bool active)
+    {
+        if (portrait == null) return;
+
+        Transform indicatorTr = portrait.transform.Find("AttackIndicator");
+        if (!active && indicatorTr == null) return;
+
+        Image indicatorImg;
+        if (indicatorTr == null)
+        {
+            GameObject go = new GameObject("AttackIndicator");
+            go.transform.SetParent(portrait.transform, false);
+            indicatorImg = go.AddComponent<Image>();
+            indicatorImg.sprite = GetCircleSprite();
+            indicatorImg.color = new Color(1f, 0.15f, 0.15f, 1f);
+            indicatorImg.raycastTarget = false;
+
+            RectTransform rt = indicatorImg.rectTransform;
+            rt.anchorMin = new Vector2(0.5f, 1f);
+            rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(0f, 16f);
+            rt.sizeDelta = new Vector2(28f, 28f);
+
+            // Kompenzácia mierky rodičovského NPCSprite, aby gulička zostala guľatá
+            Vector3 parentScale = portrait.rectTransform.localScale;
+            float sx = Mathf.Abs(parentScale.x) > 0.001f ? 1f / Mathf.Abs(parentScale.x) : 1f;
+            float sy = Mathf.Abs(parentScale.y) > 0.001f ? 1f / Mathf.Abs(parentScale.y) : 1f;
+            rt.localScale = new Vector3(sx, sy, 1f);
+
+            indicatorTr = go.transform;
+        }
+
+        indicatorTr.gameObject.SetActive(active);
+    }
+
+    private static Sprite GetCircleSprite()
+    {
+        if (cachedCircleSprite != null) return cachedCircleSprite;
+
+        const int size = 64;
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        float center = (size - 1) * 0.5f;
+        float radius = size * 0.45f;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                float alpha = Mathf.Clamp01(radius - dist + 0.5f);
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+        }
+
+        tex.Apply();
+        cachedCircleSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+        return cachedCircleSprite;
     }
 
     private void UpdateMoneyText()
@@ -223,7 +361,7 @@ public class ShopUIController : MonoBehaviour
 
     private void UpdateWeaponSlots()
     {
-        bool isInShopScene = (SceneManager.GetActiveScene().buildIndex == 2);
+        bool isInShopScene = (SceneManager.GetActiveScene().buildIndex == 2 || SceneManager.GetActiveScene().name == "ShopScene");
 
         if (PlayerStats.Instance == null)
         {
@@ -241,6 +379,7 @@ public class ShopUIController : MonoBehaviour
                 foreach (GameObject slot in weaponSlots)
                 {
                     if (slot == null) continue;
+                    slot.SetActive(true);
                     WeaponButtonUI weaponBtn = slot.GetComponent<WeaponButtonUI>();
                     if (weaponBtn != null)
                     {
@@ -256,16 +395,27 @@ public class ShopUIController : MonoBehaviour
         {
             if (weaponSlots[i] == null) continue;
 
+            // Všetky sloty zostávajú aktívne na svojich fixných miestach (nerozťahujú sa)
+            weaponSlots[i].SetActive(true);
+
+            Transform itemSlotTr = weaponSlots[i].transform.Find("ItemSlot");
+            Image slotImage = itemSlotTr != null ? itemSlotTr.GetComponent<Image>() : weaponSlots[i].GetComponentInChildren<Image>();
+
             if (i < PlayerStats.Instance.unlockedWeapons.Count)
             {
-                weaponSlots[i].SetActive(true); 
                 GridPreset weapon = PlayerStats.Instance.unlockedWeapons[i];
-                Transform itemSlotTr = weaponSlots[i].transform.Find("ItemSlot");
-                Image slotImage = itemSlotTr != null ? itemSlotTr.GetComponent<Image>() : weaponSlots[i].GetComponentInChildren<Image>();
-                
-                if (slotImage != null && weapon != null && weapon.weaponIcon != null)
+
+                if (itemSlotTr != null)
                 {
-                    slotImage.sprite = weapon.weaponIcon; 
+                    itemSlotTr.gameObject.SetActive(true);
+                }
+                if (slotImage != null)
+                {
+                    slotImage.enabled = true;
+                    if (weapon != null && weapon.weaponIcon != null)
+                    {
+                        slotImage.sprite = weapon.weaponIcon;
+                    }
                 }
 
                 // V bojovej miestnosti pripojíme WeaponButtonUI pre náhľad gridu a útočenie
@@ -274,6 +424,7 @@ public class ShopUIController : MonoBehaviour
                     WeaponButtonUI weaponBtn = weaponSlots[i].GetComponent<WeaponButtonUI>();
                     if (weaponBtn == null) weaponBtn = weaponSlots[i].AddComponent<WeaponButtonUI>();
 
+                    weaponBtn.enabled = true;
                     weaponBtn.weaponPreset = weapon;
                     weaponBtn.targetingController = targetingController;
                     weaponBtn.weaponTooltipGrid = weaponTooltipGrid;
@@ -305,8 +456,25 @@ public class ShopUIController : MonoBehaviour
             }
             else
             {
-                weaponSlots[i].SetActive(false); 
-                
+                // Prázdny slot: ikonka zbrane sa skryje, ale samotný rámik slotu ostáva zobrazený na pevnom mieste
+                if (itemSlotTr != null)
+                {
+                    itemSlotTr.gameObject.SetActive(false);
+                }
+                else if (slotImage != null && slotImage.gameObject != weaponSlots[i] && slotImage.gameObject.name != "bg")
+                {
+                    slotImage.gameObject.SetActive(false);
+                }
+
+                WeaponButtonUI weaponBtn = weaponSlots[i].GetComponent<WeaponButtonUI>();
+                if (weaponBtn != null)
+                {
+                    weaponBtn.weaponPreset = null;
+                    weaponBtn.targetingController = null;
+                    weaponBtn.weaponTooltipGrid = null;
+                    weaponBtn.enabled = false;
+                }
+
                 if (removeWeaponButtons != null && i < removeWeaponButtons.Length && removeWeaponButtons[i] != null)
                 {
                     removeWeaponButtons[i].gameObject.SetActive(false);
