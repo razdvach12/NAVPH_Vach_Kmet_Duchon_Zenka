@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConsumableData
   itemName: Mystic Powder
   description: 
-  icon: {fileID: 1378292898705350079, guid: 63c7c2924d199474b89f1896f2c435cf, type: 3}
+  icon: {fileID: -8816829293070778957, guid: cb3b13c683da0bc4ca50a0fce14369c6, type: 3}
   price: 50
   itemType: 1
   elementType: 0
   staminaCost: 0
   effectValue: 0
+  weaponGridPreset: {fileID: 0}
   consumableEffect: 4
   consumableShapes: []

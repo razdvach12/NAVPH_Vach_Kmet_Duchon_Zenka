@@ -8,5 +8,5 @@ public class Relic : ScriptableObject
     [Header("Passive Stats")]
     public float bonusHealth;
     public float bonusDamage;
-    public float dodgeChance; // napr. hodnota 5.0 bude znamenať 5%
+    public float dodgeChance; 
 }
