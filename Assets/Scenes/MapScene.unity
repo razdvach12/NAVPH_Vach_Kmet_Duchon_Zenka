@@ -262,29 +262,15 @@ MonoBehaviour:
   nodesContainer: {fileID: 1461658006}
   nodePrefab: {fileID: 1003400679995675902, guid: 24cbd9ef58441d5488224dc6358db227, type: 3}
   linePrefab: {fileID: 5134415875380769477, guid: bb062e3dd2655e4499fabd5784efe657, type: 3}
-  nodeVisuals:
-  - nodeType: 0
-    iconSprite: {fileID: 0}
-    tintColor: {r: 1, g: 1, b: 1, a: 1}
-  - nodeType: 1
-    iconSprite: {fileID: 0}
-    tintColor: {r: 1, g: 1, b: 1, a: 1}
-  - nodeType: 2
-    iconSprite: {fileID: 0}
-    tintColor: {r: 1, g: 1, b: 1, a: 1}
-  - nodeType: 3
-    iconSprite: {fileID: 0}
-    tintColor: {r: 1, g: 1, b: 1, a: 1}
-  - nodeType: 4
-    iconSprite: {fileID: 0}
-    tintColor: {r: 1, g: 1, b: 1, a: 1}
-  - nodeType: 5
-    iconSprite: {fileID: 0}
-    tintColor: {r: 1, g: 1, b: 1, a: 1}
-  fogOfWarSprite: {fileID: 0}
+  encounterIcon: {fileID: 21300000, guid: 8379266446515784d9cbe26a455f4f21, type: 3}
+  shopIcon: {fileID: 21300000, guid: 6460e01023c7c024f92af2b04bcbf6d3, type: 3}
+  chestIcon: {fileID: 21300000, guid: b98cade5dc33ab146bc40bea3acda44e, type: 3}
+  mysteryIcon: {fileID: 21300000, guid: 90efd7be49dd063439bb2de971ce47a2, type: 3}
+  healIcon: {fileID: 21300000, guid: 1727700435704b348ac093898a1ec420, type: 3}
+  bossIcon: {fileID: 21300000, guid: 98c5dbb9d0533f244af4f0948ac306b0, type: 3}
+  blankIcon: {fileID: 21300000, guid: 4b75e70425f00f44caed9835c2014cd0, type: 3}
   lineThickness: 5
   lineColor: {r: 1, g: 1, b: 1, a: 0.3}
-  lineSprite: {fileID: 0}
 --- !u!114 &674187035
 MonoBehaviour:
   m_ObjectHideFlags: 0
