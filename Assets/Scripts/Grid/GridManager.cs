@@ -665,21 +665,7 @@ public class GridManager : MonoBehaviour
 
         if (!targetSlot.IsUnlockedMaxHp)
         {
-            if (targetSlot.currentBlock != null)
-            {
-                Destroy(targetSlot.currentBlock.gameObject);
-                targetSlot.currentBlock = null;
-            }
-
-            CellSetup newCell = new CellSetup
-            {
-                element = newElement,
-                thickness = Mathf.Clamp(addThickness, 1, 3)
-            };
-            SpawnSlotValueOnSlot(targetSlot, newCell, -1, isMaxHp: true);
-            UpdateMaxHpOutline();
-            SavePlayerHpToStats();
-            return true;
+            return ApplyAddMaxHpCell(targetSlot, newElement, addThickness);
         }
         else if (targetSlot.currentBlock.maxThickness < 3)
         {
@@ -689,6 +675,157 @@ public class GridManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    // --- LOGIKA PRE CHEST / SHOP REWARD TARGETING (ADD MAX HP & CHANGE ELEMENT) ---
+
+    private bool HasUnlockedMaxHpAt(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= totalWidth || y >= totalHeight) return false;
+        GridSlot s = slots[x, y];
+        return s != null && s.IsUnlockedMaxHp;
+    }
+
+    // Pravidlo pre Reward Type A (Add Max HP Cell):
+    // Políčko musí byť prázdne a zdieľať aspoň 1 hranu (Hore, Dole, Vľavo, Vpravo) s existujúcim Max HP políčkom
+    public bool CanAddMaxHpAt(GridSlot slot)
+    {
+        if (!isPlayerGrid || slot == null || slots == null) return false;
+        if (slot.currentBlock != null || slot.IsUnlockedMaxHp) return false;
+
+        return HasUnlockedMaxHpAt(slot.x, slot.y - 1)
+            || HasUnlockedMaxHpAt(slot.x, slot.y + 1)
+            || HasUnlockedMaxHpAt(slot.x - 1, slot.y)
+            || HasUnlockedMaxHpAt(slot.x + 1, slot.y);
+    }
+
+    // Pravidlo pre Reward Type B (Change Cell Element):
+    // Políčko musí byť existujúce Max HP políčko (currentBlock != null)
+    public bool CanChangeElementAt(GridSlot slot)
+    {
+        if (!isPlayerGrid || slot == null || slots == null) return false;
+        return slot.currentBlock != null && slot.IsUnlockedMaxHp;
+    }
+
+    // Náhľad pre Reward Type A (Add Max HP Cell):
+    // Prázdne susediace políčka = zelená (valid), ostatné prázdne políčka = červená (invalid)
+    public void ShowAddMaxHpPreview(GridSlot hoveredSlot)
+    {
+        ClearPreview();
+        if (!isPlayerGrid || slots == null) return;
+
+        foreach (GridSlot s in slots)
+        {
+            if (s == null) continue;
+
+            if (s.currentBlock == null)
+            {
+                bool valid = CanAddMaxHpAt(s);
+                bool isHovered = (s == hoveredSlot);
+                Color color = valid
+                    ? (isHovered ? new Color(0.15f, 1f, 0.15f, 0.95f) : new Color(0.2f, 0.85f, 0.2f, 0.55f))
+                    : (isHovered ? new Color(1f, 0.2f, 0.2f, 0.95f) : new Color(1f, 0.25f, 0.25f, 0.55f));
+
+                s.SetHighlight(true, color);
+            }
+            else if (s == hoveredSlot)
+            {
+                s.SetHighlight(true, new Color(1f, 0.2f, 0.2f, 0.85f));
+            }
+        }
+    }
+
+    // Náhľad pre Reward Type B (Change Cell Element):
+    // Existujúce Max HP políčka = zelená (valid), prázdne políčka = červená (invalid)
+    public void ShowChangeElementPreview(GridSlot hoveredSlot)
+    {
+        ClearPreview();
+        if (!isPlayerGrid || slots == null) return;
+
+        foreach (GridSlot s in slots)
+        {
+            if (s == null) continue;
+
+            bool valid = CanChangeElementAt(s);
+            bool isHovered = (s == hoveredSlot);
+            Color color = valid
+                ? (isHovered ? new Color(0.15f, 1f, 0.15f, 0.95f) : new Color(0.2f, 0.85f, 0.2f, 0.55f))
+                : (isHovered ? new Color(1f, 0.2f, 0.2f, 0.95f) : new Color(1f, 0.25f, 0.25f, 0.55f));
+
+            s.SetHighlight(true, color);
+        }
+    }
+
+    // Aplikovanie Reward Type A (Add Max HP Cell):
+    // Pridá nové Basic políčko na prázdny susediaci slot a prepočíta biely obrys Max HP
+    public bool ApplyAddMaxHpCell(GridSlot targetSlot, BlockElement newElement = BlockElement.Basic, int startThickness = 1)
+    {
+        if (!CanAddMaxHpAt(targetSlot)) return false;
+
+        ClearPreview();
+
+        BlockElement elem = newElement == BlockElement.None ? BlockElement.Basic : newElement;
+        CellSetup newCell = new CellSetup
+        {
+            element = elem,
+            thickness = Mathf.Clamp(startThickness, 1, 3)
+        };
+
+        SpawnSlotValueOnSlot(targetSlot, newCell, -1, isMaxHp: true);
+        UpdateMaxHpOutline();
+
+        if (IsPlayerHealthGrid && Application.isPlaying)
+        {
+            PlayerStats stats = PlayerStats.EnsureInstance();
+            GridPreset runtimePreset = stats.EnsureRuntimeHealthPreset(singlePreset);
+            if (runtimePreset != null && targetSlot.x >= 0 && targetSlot.x < runtimePreset.width && targetSlot.y >= 0 && targetSlot.y < runtimePreset.height)
+            {
+                int idx = targetSlot.y * runtimePreset.width + targetSlot.x;
+                if (runtimePreset.cells != null && idx >= 0 && idx < runtimePreset.cells.Length)
+                {
+                    runtimePreset.cells[idx] = newCell;
+                }
+                singlePreset = runtimePreset;
+            }
+            SavePlayerHpToStats();
+        }
+
+        return true;
+    }
+
+    // Aplikovanie Reward Type B (Change Cell Element):
+    // Zmení živel existujúceho Max HP políčka, pričom zachová jeho aktuálnu thickness aj maxThickness
+    public bool ApplyChangeCellElement(GridSlot targetSlot, BlockElement newElement)
+    {
+        if (!CanChangeElementAt(targetSlot) || newElement == BlockElement.None) return false;
+
+        ClearPreview();
+        ReplaceBlockElement(targetSlot, newElement);
+        UpdateMaxHpOutline();
+
+        if (IsPlayerHealthGrid && Application.isPlaying)
+        {
+            PlayerStats stats = PlayerStats.EnsureInstance();
+            GridPreset runtimePreset = stats.EnsureRuntimeHealthPreset(singlePreset);
+            if (runtimePreset != null && targetSlot.x >= 0 && targetSlot.x < runtimePreset.width && targetSlot.y >= 0 && targetSlot.y < runtimePreset.height)
+            {
+                int idx = targetSlot.y * runtimePreset.width + targetSlot.x;
+                if (runtimePreset.cells != null && idx >= 0 && idx < runtimePreset.cells.Length)
+                {
+                    CellSetup cell = runtimePreset.cells[idx];
+                    cell.element = newElement;
+                    if (cell.thickness <= 0 && targetSlot.currentBlock != null)
+                    {
+                        cell.thickness = Mathf.Clamp(targetSlot.currentBlock.thickness, 1, 3);
+                    }
+                    runtimePreset.cells[idx] = cell;
+                }
+                singlePreset = runtimePreset;
+            }
+            SavePlayerHpToStats();
+        }
+
+        return true;
     }
 
     public static int GetElementBonus(BlockElement attacker, BlockElement defender)
@@ -779,8 +916,8 @@ public class GridManager : MonoBehaviour
         SlotValue block = slot.currentBlock;
         if (block == null || GetVariantPrefab(newElement) == null) return null;
 
-        int maxThickness = block.maxThickness;
-        int currentThickness = block.thickness;
+        int maxThickness = Mathf.Clamp(block.maxThickness, 1, 3);
+        int currentThickness = Mathf.Clamp(block.thickness, 0, 3);
         int owner = block.ownerEnemyIndex;
         bool wasMaxHp = slot.isMaxHp;
 

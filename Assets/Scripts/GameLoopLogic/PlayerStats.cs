@@ -60,13 +60,35 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    private bool isRuntimeHealthPresetInstance;
+
+    public GridPreset EnsureRuntimeHealthPreset(GridPreset fallbackPreset = null)
+    {
+        if (playerHealthPreset == null && fallbackPreset != null)
+        {
+            playerHealthPreset = fallbackPreset;
+            isRuntimeHealthPresetInstance = false;
+        }
+
+        if (playerHealthPreset != null && !isRuntimeHealthPresetInstance)
+        {
+            playerHealthPreset = Instantiate(playerHealthPreset);
+            isRuntimeHealthPresetInstance = true;
+        }
+
+        return playerHealthPreset;
+    }
+
     public void InitializeCharacter(CharacterData character)
     {
         if (character == null) return;
 
         money = character.startingGold;
         maxStamina = character.startingStamina;
-        playerHealthPreset = character.healthGridPreset;
+        playerHealthPreset = character.healthGridPreset != null
+            ? Instantiate(character.healthGridPreset)
+            : null;
+        isRuntimeHealthPresetInstance = playerHealthPreset != null;
         playerCurrentHp = null; // Nový run začína s plnými životmi
         
         // --- ULOŽENIE OBRÁZKA POSTAVY ---
@@ -81,6 +103,7 @@ public class PlayerStats : MonoBehaviour
 
         // Nový run začína s prázdnym inventárom
         consumables.Clear();
+        relics.Clear();
 
         Debug.Log($"Postava {character.characterName} úspešne uložená! Goldy: {money}, Zbrane: {unlockedWeapons.Count}");
 

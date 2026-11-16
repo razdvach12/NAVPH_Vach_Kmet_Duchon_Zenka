@@ -3834,7 +3834,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7ed451c4a13c91d4d8e2a87a3baf7cd6, type: 2}
   - {fileID: 11400000, guid: b0e03544fae8d2a449f3b54124ad23ba, type: 2}
   - {fileID: 11400000, guid: 98c897d1e09285b4a8e36abeccbc33ae, type: 2}
-  - {fileID: 11400000, guid: 382e73ec7d9be1d4299807ab14c54322, type: 2}
   weaponSlots:
   - {fileID: 3970055334624767801}
   - {fileID: 2080651862}
@@ -4616,6 +4615,10 @@ PrefabInstance:
     - target: {fileID: 4635944628351283617, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
       propertyPath: m_Name
       value: ItemSlot4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5215152512093064537, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
+      propertyPath: m_text
+      value: '9999 '
       objectReference: {fileID: 0}
     - target: {fileID: 5280158152765816056, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
       propertyPath: m_Pivot.x

@@ -1521,6 +1521,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1518733204}
+  - component: {fileID: 1518733205}
+  - component: {fileID: 1518733206}
   m_Layer: 0
   m_Name: TreasureSceneManager
   m_TagString: Untagged
@@ -1543,6 +1545,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1518733205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1518733203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83f9b12e4d547169a2b3c4d5e6f7a81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChestRewardManager
+  treasureSection: {fileID: 1891305311}
+  rewardSlots: []
+  leaveButton: {fileID: 0}
+  allUpgradeItems:
+  - {fileID: 11400000, guid: ea11e7f554b88264d86dc76b8b5ccb04, type: 2}
+  - {fileID: 11400000, guid: aec65acdfca0e894ea313c418b704dc2, type: 2}
+  - {fileID: 11400000, guid: 7ed451c4a13c91d4d8e2a87a3baf7cd6, type: 2}
+  - {fileID: 11400000, guid: b0e03544fae8d2a449f3b54124ad23ba, type: 2}
+  - {fileID: 11400000, guid: 98c897d1e09285b4a8e36abeccbc33ae, type: 2}
+  allRelicItems:
+  - {fileID: 11400000, guid: 34f1ae455c83f0745aa0125941d4d8b5, type: 2}
+  - {fileID: 11400000, guid: 5bb38027372780f4e96ae28533071ea9, type: 2}
+  additionalRelicSprites:
+  - {fileID: -5481697883161451914, guid: 6a8e918590c2a7f45be3d5a32362a272, type: 3}
+  - {fileID: 1510457835409856077, guid: d65728af887997f498cacfb259dbe98a, type: 3}
+  - {fileID: -2035053504618312489, guid: 7b0f9f37b535a054b817183961fa14a4, type: 3}
+  - {fileID: 8061813350386338323, guid: 4623ea6922f99d2468c742bb991c4135, type: 3}
+  singleChoiceOnly: 0
+--- !u!114 &1518733206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1518733203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d47e8a91c2b346058f1a2d3c4e5b6a70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RewardTargetingController
+  playerGrid: {fileID: 0}
+  currentMode: 0
+  targetElement: 0
 --- !u!1 &1548839460
 GameObject:
   m_ObjectHideFlags: 0

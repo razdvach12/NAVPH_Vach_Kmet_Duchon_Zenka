@@ -17,6 +17,6 @@ MonoBehaviour:
   icon: {fileID: -7226573138506784439, guid: b121c32a533b5d54ba963ccbff194492, type: 3}
   price: 250
   itemType: 3
-  elementType: 0
+  elementType: 4
   staminaCost: 1
   effectValue: 0

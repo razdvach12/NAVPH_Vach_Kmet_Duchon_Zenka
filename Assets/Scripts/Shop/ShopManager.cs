@@ -44,6 +44,7 @@ public class ShopManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        RewardTargetingController.EnsureInstance();
     }
 
 
@@ -74,6 +75,10 @@ public class ShopManager : MonoBehaviour
 
     public void SelectSection(ShopSection section)
     {
+        if (RewardTargetingController.Instance != null && RewardTargetingController.Instance.IsTargeting)
+        {
+            RewardTargetingController.Instance.CancelTargeting();
+        }
         currentSection = section;
         CheckIfSectionsAreEmpty();
     }
