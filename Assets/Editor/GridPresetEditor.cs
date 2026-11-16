@@ -10,8 +10,8 @@ public class GridPresetEditor : Editor
 
         EditorGUI.BeginChangeCheck();
         
-        preset.width = EditorGUILayout.IntSlider("Width", preset.width, 1, 7);
-        preset.height = EditorGUILayout.IntSlider("Height", preset.height, 1, 7);
+        preset.width = EditorGUILayout.IntSlider("Width", preset.width, 1, 8);
+        preset.height = EditorGUILayout.IntSlider("Height", preset.height, 1, 8);
 
         EditorGUILayout.Space(5);
         string iconLabel = preset.actionType == CellSetup.Gridtype.Character ? "Character / Enemy Icon" : "Weapon Icon";
