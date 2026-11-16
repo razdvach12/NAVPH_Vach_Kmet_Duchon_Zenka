@@ -6,7 +6,6 @@ public class EndTurnButton : MonoBehaviour
 
     private void Awake()
     {
-        // Na kliknutie je potrebný collider
         if (GetComponent<Collider2D>() == null)
         {
             gameObject.AddComponent<BoxCollider2D>();

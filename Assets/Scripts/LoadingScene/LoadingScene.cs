@@ -59,7 +59,13 @@ public class LoadingScene : MonoBehaviour
     // v editore), načíta ju priamo bez loadingu - aby hra nespadla na NullReference.
     public static void Load(int buildIndex)
     {
-        if (Instance != null) Instance.SwitchToScene(buildIndex);
+        Load(buildIndex, false);
+    }
+
+    // keepMusic = true: počas loadingu nehrá loading hudba, aktuálna hudba pokračuje (napr. hudba mapy po výhre)
+    public static void Load(int buildIndex, bool keepMusic)
+    {
+        if (Instance != null) Instance.SwitchToScene(buildIndex, !keepMusic);
         else SceneManager.LoadScene(buildIndex);
     }
 
@@ -68,11 +74,17 @@ public class LoadingScene : MonoBehaviour
         SwitchToScene(targetSceneID);
     }
 
+    // Volá sa aj z On Click tlačidiel v scénach - signatúra (int) musí ostať
     public void SwitchToScene(int id)
+    {
+        SwitchToScene(id, true);
+    }
+
+    private void SwitchToScene(int id, bool playLoadingMusic)
     {
         if (Instance != null && Instance != this)
         {
-            Instance.SwitchToScene(id);
+            Instance.SwitchToScene(id, playLoadingMusic);
             return;
         }
 
@@ -89,7 +101,7 @@ public class LoadingScene : MonoBehaviour
             ProgressBar.gameObject.SetActive(false);
         }
         
-        if (MusicManager.Instance != null)
+        if (playLoadingMusic && MusicManager.Instance != null)
         {
             MusicManager.Instance.PlayMusic("LoadingBackground");
         }

@@ -109,6 +109,21 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+    // Bossfight má vlastnú hudbu, bežný súboj náhodne jeden z dvoch trackov
+    private void PlayEncounterMusic()
+    {
+        if (MusicManager.Instance == null) return;
+
+        if (difficulty == RoomDifficulty.Boss)
+        {
+            MusicManager.Instance.PlayMusic("BossBackground");
+        }
+        else
+        {
+            MusicManager.Instance.PlayMusic(Random.value < 0.5f ? "EncounterBackground1" : "EncounterBackground2");
+        }
+    }
+
     private RoomData PickRandomRoom()
     {
         var candidates = rooms.FindAll(r => r != null && r.difficulty == difficulty);
@@ -122,6 +137,8 @@ public class TurnManager : MonoBehaviour
 
     private IEnumerator Start()
     {
+        PlayEncounterMusic();
+
         // Počkáme jeden frame, aby gridy stihli vygenerovať svoje políčka
         yield return null;
 
@@ -269,6 +286,7 @@ public class TurnManager : MonoBehaviour
             yield return new WaitForSeconds(attackPreviewTime);
 
             playerGrid.ApplyEnemyAttack(target, attack.pattern);
+            if (MusicManager.Instance != null) MusicManager.Instance.PlayHitSound();
             Debug.Log($"{enemy.enemyName} útočí: {attack.pattern.name}");
 
             // Po útoku vrátime obrys nepriateľa späť na bielo a skryjeme červenú guličku
@@ -315,6 +333,11 @@ public class TurnManager : MonoBehaviour
         {
             State = TurnState.Defeat;
             Debug.Log("Prehra - hráč prišiel o všetky životy.");
+            if (MusicManager.Instance != null)
+            {
+                MusicManager.Instance.StopMusic();
+                MusicManager.Instance.PlaySound("Loss");
+            }
             onDefeat?.Invoke();
             return true;
         }
@@ -323,6 +346,11 @@ public class TurnManager : MonoBehaviour
         {
             State = TurnState.Victory;
             Debug.Log("Výhra - všetci nepriatelia sú porazení.");
+            if (MusicManager.Instance != null)
+            {
+                MusicManager.Instance.PlaySound("Win");
+                MusicManager.Instance.PlayMusic("MapBackground"); // Pokračuje plynulo aj po návrate na mapu
+            }
             OnVictory();
             onVictory?.Invoke();
             return true;
@@ -383,7 +411,8 @@ public class TurnManager : MonoBehaviour
 
     private void ReturnToMap()
     {
-        LoadingScene.Load(mapSceneBuildIndex);
+        // Po výhre už hrá hudba mapy - necháme ju hrať aj počas loadingu
+        LoadingScene.Load(mapSceneBuildIndex, State == TurnState.Victory);
     }
 
     // Stratené HP sa prenesie do ďalšieho encountru

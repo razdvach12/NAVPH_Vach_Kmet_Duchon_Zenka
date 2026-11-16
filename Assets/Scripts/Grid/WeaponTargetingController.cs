@@ -139,6 +139,8 @@ public class WeaponTargetingController : MonoBehaviour
 
                 if (success)
                 {
+                    if (MusicManager.Instance != null) MusicManager.Instance.PlaySound(IsHealSelected ? "Gulp" : "Boom");
+
                     ConsumableButtonUI used = pendingConsumable;
                     int cost = used.consumable != null ? used.consumable.staminaCost : 0;
                     selectedWeapon = null;
@@ -160,6 +162,8 @@ public class WeaponTargetingController : MonoBehaviour
             bool attackSuccess = currentSlot.parentGrid.ApplyWeaponDamage(currentSlot, selectedWeapon);
             if (attackSuccess)
             {
+                if (MusicManager.Instance != null) MusicManager.Instance.PlayHitSound();
+
                 GridPreset usedWeapon = selectedWeapon;
                 selectedWeapon = null;
                 lastHoveredSlot = null;

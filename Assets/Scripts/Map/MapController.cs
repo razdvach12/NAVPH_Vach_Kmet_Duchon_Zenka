@@ -26,6 +26,9 @@ public class MapController : MonoBehaviour
 
 	void Start()
 	{
+		// Ak hudba mapy už hrá (napr. po výhre v encounteri), pokračuje bez prerušenia
+		if (MusicManager.Instance != null) MusicManager.Instance.PlayMusic("MapBackground");
+
 		if (!MapRunState.HasActiveMap)
 		{
 			Debug.LogWarning("MapController: mapa ešte nebola vygenerovaná (scéna spustená priamo?) - generujem z Fallback Preset.");

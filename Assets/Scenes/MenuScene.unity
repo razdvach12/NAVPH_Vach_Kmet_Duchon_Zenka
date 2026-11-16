@@ -2649,6 +2649,28 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 6b95b7f4991b1844b93a88634ab584ff, type: 3}
   - trackName: CharacterSelBackground
     clip: {fileID: 8300000, guid: 63e48564c8ab59944916d546b0942746, type: 3}
+  - trackName: MapBackground
+    clip: {fileID: 8300000, guid: d61212c78e1a47248b04fdf0604f16b5, type: 3}
+  - trackName: EncounterBackground1
+    clip: {fileID: 8300000, guid: cb7c38da93692a848809b24db3435fba, type: 3}
+  - trackName: EncounterBackground2
+    clip: {fileID: 8300000, guid: 8664189894ff9eb42bd0e09e8fe5e8ea, type: 3}
+  - trackName: BossBackground
+    clip: {fileID: 8300000, guid: a5bd4ae8c96277442986c18adbcdf777, type: 3}
+  - trackName: Hit1
+    clip: {fileID: 8300000, guid: ebdd5761fe7d34344ac9657d1d550e72, type: 3}
+  - trackName: Hit2
+    clip: {fileID: 8300000, guid: 8322bc20caa6c104ab194a2feb74d518, type: 3}
+  - trackName: Hit3
+    clip: {fileID: 8300000, guid: d0285e82068e78d4c8ce7a9b6aea96c9, type: 3}
+  - trackName: Win
+    clip: {fileID: 8300000, guid: 8e800bbddca32514fbe257b67e2894aa, type: 3}
+  - trackName: Loss
+    clip: {fileID: 8300000, guid: 27381814d66687c49b2506af18d72b1d, type: 3}
+  - trackName: Gulp
+    clip: {fileID: 8300000, guid: 6016a76da889c1b48b754e78ff052313, type: 3}
+  - trackName: Boom
+    clip: {fileID: 8300000, guid: e9994945e416fe74a8a9205258f0fb2e, type: 3}
 --- !u!1 &1878537982
 GameObject:
   m_ObjectHideFlags: 0

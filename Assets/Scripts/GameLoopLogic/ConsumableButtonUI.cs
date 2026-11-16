@@ -48,14 +48,13 @@ public class ConsumableButtonUI : MonoBehaviour, IPointerClickHandler
                 turnManager.SpendStamina(consumable.staminaCost);
                 break;
 
-            // Consumables s tvarom: Health Potion (lieči vlastný grid) a Bomba (zasiahne nepriateľa)
+            // Consumables s tvarom
             case ConsumableEffect.HealPlayer:
             case ConsumableEffect.DamageEnemy:
                 if (!turnManager.HasStamina(consumable.staminaCost)) return;
                 if (targetingController == null) targetingController = FindAnyObjectByType<WeaponTargetingController>();
                 if (targetingController == null) return;
 
-                // Tvar sa vylosuje raz pri kliknutí, aby náhľad aj samotný efekt použili ten istý
                 GridPreset shape = consumable.GetRandomShape();
                 if (shape == null)
                 {
@@ -67,25 +66,21 @@ public class ConsumableButtonUI : MonoBehaviour, IPointerClickHandler
 
             case ConsumableEffect.Flee:
                 if (!turnManager.HasStamina(consumable.staminaCost)) return;
-                ConsumeItem(); // Najprv spotrebujeme, aby sa smoke bomb odobrala z inventára ešte pred zmenou scény
+                ConsumeItem(); 
                 turnManager.TryFlee();
                 break;
         }
     }
 
-    // Spotrebuje predmet - volá sa až po úspešnom efekte (pri bombe až po zásahu, nie pri výbere)
+    // Spotrebuje predmet
     public void ConsumeItem()
     {
         if (consumable == null) return;
 
-        // Najprv vyprázdnime slot a až potom odoberieme predmet z inventára.
-        // RemoveConsumable spustí OnConsumablesChanged a ShopUIController posunie ostatné predmety
-        // do uvoľnených slotov - keby sme slot vynulovali až po tom, zmazali by sme predmet, ktorý sa sem práve posunul.
         ConsumableData used = consumable;
         consumable = null;
         Refresh();
 
-        // PlayerStats nemusí existovať, ak sa Encounter spustí priamo v editore
         if (PlayerStats.Instance != null) PlayerStats.Instance.RemoveConsumable(used);
     }
 }
