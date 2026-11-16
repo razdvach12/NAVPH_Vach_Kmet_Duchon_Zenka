@@ -3256,6 +3256,7 @@ MonoBehaviour:
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  weaponHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
   destroyedHpPrefab: {fileID: 0}
 --- !u!114 &1437410097 stripped
 MonoBehaviour:
@@ -5115,6 +5116,7 @@ MonoBehaviour:
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  weaponHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
   destroyedHpPrefab: {fileID: 0}
 --- !u!1 &1870077147
 GameObject:
@@ -5171,6 +5173,7 @@ MonoBehaviour:
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  weaponHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
   destroyedHpPrefab: {fileID: 0}
 --- !u!1 &1880560825
 GameObject:
@@ -6488,6 +6491,7 @@ MonoBehaviour:
   iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
   rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
   natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  weaponHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
   destroyedHpPrefab: {fileID: 0}
 --- !u!1001 &6323616840404291861
 PrefabInstance:

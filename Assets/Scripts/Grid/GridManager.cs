@@ -34,6 +34,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject iceHpPrefab;
     [SerializeField] private GameObject rockHpPrefab;
     [SerializeField] private GameObject natureHpPrefab;
+    [SerializeField] private GameObject weaponHpPrefab;
 
     [Header("Destroyed Max HP Visual Prefab")]
     [Tooltip("Prefab, ktorý sa zobrazí, keď odomknuté Max HP políčko klesne na 0")]
@@ -49,7 +50,19 @@ public class GridManager : MonoBehaviour
     private int attackingEnemyIndex = -1;
 
     private bool ShouldShowMaxHpOutline => showMaxHpOutline && gameObject.name != "WeaponGrid";
-    public bool IsPlayerHealthGrid => isPlayerGrid && gameObject.name != "WeaponGrid";
+
+    private bool IsCharacterSelectionScene
+    {
+        get
+        {
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            return scene.buildIndex == SceneIds.CharacterSelection
+                || scene.name == "ChoosingCharacterScene"
+                || scene.name == "CharacterSelectionScene";
+        }
+    }
+
+    public bool IsPlayerHealthGrid => isPlayerGrid && gameObject.name != "WeaponGrid" && !IsCharacterSelectionScene;
 
     private GridSlot[,] slots;
     private int totalWidth;
@@ -92,6 +105,20 @@ public class GridManager : MonoBehaviour
         singlePreset = preset;
     }
 
+    public void CopyPrefabsFrom(GridManager other)
+    {
+        if (other == null) return;
+        gridSlotPrefab = other.gridSlotPrefab;
+        spacing = other.spacing;
+        basicHpPrefab = other.basicHpPrefab;
+        lavaHpPrefab = other.lavaHpPrefab;
+        iceHpPrefab = other.iceHpPrefab;
+        rockHpPrefab = other.rockHpPrefab;
+        natureHpPrefab = other.natureHpPrefab;
+        weaponHpPrefab = other.weaponHpPrefab;
+        destroyedHpPrefab = other.destroyedHpPrefab;
+    }
+
     public void SetShowMaxHpOutline(bool show)
     {
         showMaxHpOutline = show;
@@ -122,6 +149,7 @@ public class GridManager : MonoBehaviour
     public void GenerateSingleGrid(GridPreset preset)
     {
         ClearGrid();
+        singlePreset = preset;
         totalWidth = preset.width;
         totalHeight = preset.height;
         slots = new GridSlot[totalWidth, totalHeight];
@@ -992,6 +1020,20 @@ public class GridManager : MonoBehaviour
 
     private GameObject GetVariantPrefab(BlockElement element)
     {
+        bool isWeapon = gameObject.name == "WeaponGrid"
+            || (singlePreset != null && singlePreset.actionType == CellSetup.Gridtype.Weapon);
+
+        if (isWeapon)
+        {
+#if UNITY_EDITOR
+            if (weaponHpPrefab == null)
+            {
+                weaponHpPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Grid/Hp/SlotWeapon.prefab");
+            }
+#endif
+            if (weaponHpPrefab != null) return weaponHpPrefab;
+        }
+
         return element switch
         {
             BlockElement.Basic => basicHpPrefab,

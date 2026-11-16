@@ -755,6 +755,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Relic1
       objectReference: {fileID: 0}
+    - target: {fileID: 3605803094189015500, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4039576077941896010, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
       propertyPath: m_Name
       value: ChooseButton

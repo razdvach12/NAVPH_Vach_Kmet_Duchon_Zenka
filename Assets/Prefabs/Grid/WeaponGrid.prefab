@@ -50,8 +50,9 @@ MonoBehaviour:
   singlePreset: {fileID: 0}
   boardWidth: 20
   boardHeight: 8
-  basicHpPrefab: {fileID: 2740521336432107356, guid: 03080ad6e8924a54582620e82835404c, type: 3}
-  lavaHpPrefab: {fileID: 7457665279133313723, guid: ecd5db1eac2c6a1458a7453840ee64b0, type: 3}
-  iceHpPrefab: {fileID: 3024617648642027485, guid: 5d4a3c834e40da54e8320692d58e45f3, type: 3}
-  rockHpPrefab: {fileID: 3808670048404679554, guid: 54cf29212bce6bc46bbd2de5007d0b05, type: 3}
-  natureHpPrefab: {fileID: 170364843080964087, guid: 07ff5516bf49b514a9e2edf1cf5dd053, type: 3}
+  basicHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
+  lavaHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
+  iceHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
+  rockHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
+  natureHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}
+  weaponHpPrefab: {fileID: 2740521336432107356, guid: a1b2c3d4e5f647899a0b1c2d3e4f5a6b, type: 3}

@@ -15,7 +15,7 @@ MonoBehaviour:
   width: 3
   height: 5
   weaponIcon: {fileID: 1603154981907671658, guid: 092d170f9ec45484990e2104cc4860cf, type: 3}
-  actionType: 0
+  actionType: 1
   staminaCost: 2
   cells:
   - element: 0
