@@ -62,10 +62,14 @@ public class ShopUIController : MonoBehaviour
             turnManager.playerGrid = playerHealthGrid;
         }
 
-        if (PlayerStats.Instance != null && playerHealthGrid != null && PlayerStats.Instance.playerHealthPreset != null)
+        PlayerStats stats = PlayerStats.EnsureInstance();
+        if (playerHealthGrid != null)
         {
             playerHealthGrid.isPlayerGrid = true;
-            playerHealthGrid.SetSinglePreset(PlayerStats.Instance.playerHealthPreset);
+            if (stats.playerHealthPreset != null)
+            {
+                playerHealthGrid.SetSinglePreset(stats.playerHealthPreset);
+            }
         }
 
         // Nastavíme portréty podľa scény hneď v Awake (ShopScene = Merchant2, ChestScene = nikto, Encounter = nepriatelia)
@@ -76,12 +80,34 @@ public class ShopUIController : MonoBehaviour
     {
         UpdateShopUI();
 
+        // Ak je v scéne objekt HealingPot (napr. v scéne Meadow), naviažeme na kliknutie doplnenie životov na max
+        GameObject healingPot = GameObject.Find("HealingPot");
+        if (healingPot != null)
+        {
+            Button potButton = healingPot.GetComponent<Button>();
+            if (potButton != null)
+            {
+                potButton.onClick.RemoveListener(HealPlayerToMax);
+                potButton.onClick.AddListener(HealPlayerToMax);
+            }
+        }
+
         if (PlayerStats.Instance != null)
         {
             PlayerStats.Instance.OnMoneyChanged += UpdateMoneyText;
             PlayerStats.Instance.OnWeaponsChanged += UpdateWeaponSlots;
             PlayerStats.Instance.OnConsumablesChanged += UpdateConsumableSlots;
             PlayerStats.Instance.OnRelicsChanged += UpdateRelicSlots; 
+        }
+    }
+
+    public void HealPlayerToMax()
+    {
+        PlayerStats.EnsureInstance().HealToMax();
+
+        if (playerHealthGrid != null)
+        {
+            playerHealthGrid.HealAllToMax();
         }
     }
 
@@ -171,10 +197,10 @@ public class ShopUIController : MonoBehaviour
     {
         if (PlayerStats.Instance != null)
         {
-            PlayerStats.Instance.OnMoneyChanged += UpdateMoneyText;
-            PlayerStats.Instance.OnWeaponsChanged += UpdateWeaponSlots;
-            PlayerStats.Instance.OnConsumablesChanged += UpdateConsumableSlots;
-            PlayerStats.Instance.OnRelicsChanged += UpdateRelicSlots; 
+            PlayerStats.Instance.OnMoneyChanged -= UpdateMoneyText;
+            PlayerStats.Instance.OnWeaponsChanged -= UpdateWeaponSlots;
+            PlayerStats.Instance.OnConsumablesChanged -= UpdateConsumableSlots;
+            PlayerStats.Instance.OnRelicsChanged -= UpdateRelicSlots; 
         }
     }
 
@@ -187,10 +213,17 @@ public class ShopUIController : MonoBehaviour
         UpdateConsumableSlots();
         UpdateRelicSlots();
 
-        if (PlayerStats.Instance != null && playerHealthGrid != null && PlayerStats.Instance.playerHealthPreset != null)
+        if (playerHealthGrid != null)
         {
             playerHealthGrid.isPlayerGrid = true;
-            playerHealthGrid.GenerateSingleGrid(PlayerStats.Instance.playerHealthPreset);
+            if (PlayerStats.Instance != null && PlayerStats.Instance.playerHealthPreset != null)
+            {
+                playerHealthGrid.GenerateSingleGrid(PlayerStats.Instance.playerHealthPreset);
+            }
+            else
+            {
+                playerHealthGrid.GenerateGrid();
+            }
         }
 
         // --- AKTUALIZÁCIA OBRÁZKA POSTAVY ---

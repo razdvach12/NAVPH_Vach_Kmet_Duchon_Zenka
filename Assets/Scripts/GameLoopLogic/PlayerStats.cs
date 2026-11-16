@@ -33,6 +33,20 @@ public class PlayerStats : MonoBehaviour
     public int maxConsumables = 4; // Toľko, koľko je slotov consumables v encountri
     public List<ConsumableData> consumables = new List<ConsumableData>();
 
+    public static PlayerStats EnsureInstance()
+    {
+        if (Instance == null)
+        {
+            Instance = FindAnyObjectByType<PlayerStats>();
+            if (Instance == null)
+            {
+                GameObject go = new GameObject("PlayerStats");
+                Instance = go.AddComponent<PlayerStats>();
+            }
+        }
+        return Instance;
+    }
+
     private void Awake()
     {
         if (Instance == null)
@@ -40,7 +54,7 @@ public class PlayerStats : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
             Destroy(gameObject);
         }
@@ -140,5 +154,32 @@ public class PlayerStats : MonoBehaviour
     public void RemoveConsumable(ConsumableData consumable)
     {
         if (consumables.Remove(consumable)) OnConsumablesChanged?.Invoke();
+    }
+
+    // Doplní všetky odomknuté Max HP políčka hráča na maximálnu hrúbku (3)
+    public void HealToMax()
+    {
+        if (playerHealthPreset != null)
+        {
+            int width = playerHealthPreset.width;
+            int height = playerHealthPreset.height;
+            playerCurrentHp = new int[width * height];
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    CellSetup cell = playerHealthPreset.GetCell(x, y);
+                    if (cell.element != BlockElement.None)
+                    {
+                        playerCurrentHp[y * width + x] = 3;
+                    }
+                }
+            }
+        }
+        else
+        {
+            playerCurrentHp = null;
+        }
     }
 }

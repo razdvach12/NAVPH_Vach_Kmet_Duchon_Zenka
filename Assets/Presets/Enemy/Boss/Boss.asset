@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7194fc99f2d95ee41b98d3ab8505c32b, type: 3}
   m_Name: Boss
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
-  width: 8
-  height: 8
-  weaponIcon: {fileID: 4652240121998092130, guid: c145144ef9691564c95a94cf5b9b8d16, type: 3}
+  width: 7
+  height: 7
+  weaponIcon: {fileID: -1395785194266166355, guid: 457fd3b826e72524787c230f027d7b8f, type: 3}
   actionType: 0
   staminaCost: 1
   cells:
@@ -113,36 +113,6 @@ MonoBehaviour:
   - element: 0
     thickness: 1
   - element: 2
-    thickness: 1
-  - element: 0
-    thickness: 1
-  - element: 2
-    thickness: 2
-  - element: 0
-    thickness: 1
-  - element: 1
-    thickness: 1
-  - element: 1
-    thickness: 2
-  - element: 1
-    thickness: 1
-  - element: 2
-    thickness: 2
-  - element: 0
-    thickness: 1
-  - element: 0
-    thickness: 1
-  - element: 0
-    thickness: 1
-  - element: 2
-    thickness: 1
-  - element: 1
-    thickness: 1
-  - element: 1
-    thickness: 1
-  - element: 1
-    thickness: 1
-  - element: 0
     thickness: 1
   - element: 0
     thickness: 1

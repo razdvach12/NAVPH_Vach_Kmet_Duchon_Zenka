@@ -49,6 +49,7 @@ public class GridManager : MonoBehaviour
     private int attackingEnemyIndex = -1;
 
     private bool ShouldShowMaxHpOutline => showMaxHpOutline && gameObject.name != "WeaponGrid";
+    public bool IsPlayerHealthGrid => isPlayerGrid && gameObject.name != "WeaponGrid";
 
     private GridSlot[,] slots;
     private int totalWidth;
@@ -62,6 +63,19 @@ public class GridManager : MonoBehaviour
     [ContextMenu("Generate Grid Now")]
     public void GenerateGrid()
     {
+        if (IsPlayerHealthGrid && Application.isPlaying)
+        {
+            PlayerStats stats = PlayerStats.EnsureInstance();
+            if (stats.playerHealthPreset != null)
+            {
+                singlePreset = stats.playerHealthPreset;
+            }
+            else if (singlePreset != null)
+            {
+                stats.playerHealthPreset = singlePreset;
+            }
+        }
+
         if (isPlayerGrid && singlePreset != null)
         {
             GenerateSingleGrid(singlePreset);
@@ -130,9 +144,15 @@ public class GridManager : MonoBehaviour
         UpdateMaxHpOutline();
 
         // HP grid hráča: obnoví stratené HP z predchádzajúcich encounterov (náhľady zbraní sa nemenia)
-        if (isPlayerGrid && PlayerStats.Instance != null && preset == PlayerStats.Instance.playerHealthPreset)
+        if (IsPlayerHealthGrid && Application.isPlaying)
         {
-            ApplySavedHp(PlayerStats.Instance.playerCurrentHp);
+            singlePreset = preset;
+            PlayerStats stats = PlayerStats.EnsureInstance();
+            if (stats.playerHealthPreset == null)
+            {
+                stats.playerHealthPreset = preset;
+            }
+            ApplySavedHp(stats.playerCurrentHp);
         }
     }
 
@@ -206,7 +226,7 @@ public class GridManager : MonoBehaviour
     // --- PRENÁŠANIE STRATENÉHO HP MEDZI ENCOUNTERMI ---
 
     // Aktuálne HP každého políčka podľa presetu (index = y * width + x)
-    // Rast z Rock/Nature sa neukladá - HP je obmedzené max HP z presetu a nové políčka sa ignorujú
+    // Rast z Nature mimo Max HP sa neukladá - ukladajú sa iba políčka z Max HP presetu (hrúbka 0 až 3)
     public int[] GetHpSnapshot(GridPreset preset)
     {
         if (slots == null || preset == null) return null;
@@ -220,13 +240,13 @@ public class GridManager : MonoBehaviour
                 SlotValue block = slots[x, y] != null ? slots[x, y].currentBlock : null;
                 if (cell.element == BlockElement.None || block == null) continue;
 
-                hp[y * preset.width + x] = Mathf.Min(block.thickness, cell.thickness);
+                hp[y * preset.width + x] = Mathf.Clamp(block.thickness, 0, 3);
             }
         }
         return hp;
     }
 
-    // Nastaví aktuálne HP políčok podľa uloženého stavu (null = plné HP)
+    // Nastaví aktuálne HP políčok podľa uloženého stavu (null = východzie HP z presetu)
     private void ApplySavedHp(int[] hp)
     {
         if (hp == null || slots == null || hp.Length != totalWidth * totalHeight) return;
@@ -236,9 +256,34 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < totalHeight; y++)
             {
                 SlotValue block = slots[x, y] != null ? slots[x, y].currentBlock : null;
-                if (block != null) block.SetCurrentThickness(hp[y * totalWidth + x]);
+                if (block != null)
+                {
+                    int targetThickness = Mathf.Clamp(hp[y * totalWidth + x], 0, 3);
+                    if (targetThickness > block.maxThickness)
+                    {
+                        block.maxThickness = targetThickness;
+                    }
+                    block.SetCurrentThickness(targetThickness);
+                }
             }
         }
+    }
+
+    // Uloží aktuálne HP hráčovho gridu do PlayerStats, aby sa prenášalo medzi miestnosťami
+    public void SavePlayerHpToStats()
+    {
+        if (!IsPlayerHealthGrid || slots == null || !Application.isPlaying) return;
+
+        PlayerStats stats = PlayerStats.EnsureInstance();
+        GridPreset preset = stats.playerHealthPreset != null ? stats.playerHealthPreset : singlePreset;
+        if (preset == null) return;
+
+        if (stats.playerHealthPreset == null)
+        {
+            stats.playerHealthPreset = preset;
+        }
+
+        stats.playerCurrentHp = GetHpSnapshot(preset);
     }
 
     // --- GENEROVANIE FIXNÉHO VEĽKÉHO GRIDU PRE NEPRIATEĽOV Z ROOM ---
@@ -400,6 +445,10 @@ public class GridManager : MonoBehaviour
         {
             UpdateMaxHpOutline();
         }
+        else
+        {
+            SavePlayerHpToStats();
+        }
     }
 
     // Zbrane a útoky nemajú živly - poškodenie je hrúbka políčka útoku
@@ -541,7 +590,44 @@ public class GridManager : MonoBehaviour
         }
 
         ClearPreview();
+        if (healedAny)
+        {
+            SavePlayerHpToStats();
+        }
         return healedAny;
+    }
+
+    // Doplní všetky odomknuté Max HP políčka v gride hráča na maximálnu hrúbku (3)
+    public void HealAllToMax()
+    {
+        if (slots != null)
+        {
+            foreach (var slot in slots)
+            {
+                if (slot != null && slot.IsUnlockedMaxHp)
+                {
+                    slot.currentBlock.maxThickness = 3;
+                    slot.currentBlock.SetCurrentThickness(3);
+                }
+            }
+        }
+        else
+        {
+            foreach (var block in GetComponentsInChildren<SlotValue>())
+            {
+                if (block != null)
+                {
+                    block.maxThickness = 3;
+                    block.SetCurrentThickness(3);
+                }
+            }
+        }
+
+        if (IsPlayerHealthGrid && Application.isPlaying)
+        {
+            PlayerStats.EnsureInstance().HealToMax();
+            SavePlayerHpToStats();
+        }
     }
 
     // Pridanie nového políčka do Max HP (na predtým prázdny slot) alebo zvýšenie maxThickness
@@ -564,11 +650,13 @@ public class GridManager : MonoBehaviour
             };
             SpawnSlotValueOnSlot(targetSlot, newCell, -1, isMaxHp: true);
             UpdateMaxHpOutline();
+            SavePlayerHpToStats();
             return true;
         }
         else if (targetSlot.currentBlock.maxThickness < 3)
         {
             targetSlot.currentBlock.UpgradeMaxThickness(addThickness);
+            SavePlayerHpToStats();
             return true;
         }
 
@@ -729,6 +817,11 @@ public class GridManager : MonoBehaviour
             SpreadNature(natureSlots[Random.Range(0, natureSlots.Count)]);
         }
 
+        if (isPlayerGrid)
+        {
+            SavePlayerHpToStats();
+        }
+
         if (lavaHits > 0 && opponentGrid != null)
         {
             yield return opponentGrid.TakeLavaHits(lavaHits, lavaPreviewTime);
@@ -767,6 +860,10 @@ public class GridManager : MonoBehaviour
         if (!isPlayerGrid)
         {
             UpdateMaxHpOutline();
+        }
+        else
+        {
+            SavePlayerHpToStats();
         }
     }
 
@@ -867,6 +964,10 @@ public class GridManager : MonoBehaviour
         {
             // Odovzdáme aj destroyedHpPrefab, aby ho SlotValue vedel zobraziť pri klesnutí na 0
             slotValueScript.Setup(cellData.thickness, ownerIndex, destroyedHpPrefab);
+            if (isMaxHp && isPlayerGrid)
+            {
+                slotValueScript.maxThickness = 3;
+            }
             slot.currentBlock = slotValueScript;
             slot.SetMaxHp(isMaxHp);
         }

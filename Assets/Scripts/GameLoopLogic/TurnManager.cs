@@ -82,10 +82,12 @@ public class TurnManager : MonoBehaviour
 
         CreateStaminaTextIfMissing();
 
+        PlayerStats stats = PlayerStats.EnsureInstance();
+
         // Ak hráč prišiel z výberu postavy, použijeme jeho grid životov
-        if (playerGrid != null && PlayerStats.Instance != null && PlayerStats.Instance.playerHealthPreset != null)
+        if (playerGrid != null && stats.playerHealthPreset != null)
         {
-            playerGrid.SetSinglePreset(PlayerStats.Instance.playerHealthPreset);
+            playerGrid.SetSinglePreset(stats.playerHealthPreset);
         }
 
         // Výber z mapy má prednosť pred hodnotou z inšpektora (použije sa iba raz)
@@ -332,6 +334,8 @@ public class TurnManager : MonoBehaviour
     // Po výhre si hráč v popupe vyberie odmenu: vyliečenie na max HP ALEBO zlato za nepriateľov
     private void OnVictory()
     {
+        SavePlayerHp();
+
         pendingGoldReward = 0;
         foreach (var enemy in enemyGrid.Enemies)
         {
@@ -350,7 +354,6 @@ public class TurnManager : MonoBehaviour
         {
             // Bez popupu v scéne (napr. testovanie) sa zachová pôvodné správanie: zlato automaticky, hráč ostane v scéne
             Debug.LogWarning("V scéne chýba VictoryRewardUI - zlato sa pridá automaticky.");
-            SavePlayerHp();
             if (PlayerStats.Instance != null) PlayerStats.Instance.AddMoney(pendingGoldReward);
             rewardChosen = true;
         }
@@ -362,7 +365,8 @@ public class TurnManager : MonoBehaviour
         if (State != TurnState.Victory || rewardChosen) return;
         rewardChosen = true;
 
-        if (PlayerStats.Instance != null) PlayerStats.Instance.playerCurrentHp = null; // null = plné HP
+        PlayerStats.EnsureInstance().HealToMax();
+        if (playerGrid != null) playerGrid.HealAllToMax();
         ReturnToMap();
     }
 
@@ -383,10 +387,12 @@ public class TurnManager : MonoBehaviour
     }
 
     // Stratené HP sa prenesie do ďalšieho encountru
-    private void SavePlayerHp()
+    public void SavePlayerHp()
     {
-        if (PlayerStats.Instance == null || playerGrid == null) return;
-        PlayerStats.Instance.playerCurrentHp = playerGrid.GetHpSnapshot(PlayerStats.Instance.playerHealthPreset);
+        if (playerGrid != null)
+        {
+            playerGrid.SavePlayerHpToStats();
+        }
     }
 
     // Smoke Bomb - hráč utečie zo súboja bez odmeny, stratené HP sa zachová
