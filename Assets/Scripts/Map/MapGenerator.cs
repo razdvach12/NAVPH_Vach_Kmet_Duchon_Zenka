@@ -1,73 +1,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapGenerator : MonoBehaviour
+// Výsledok generovania - zoznam uzlov a boss na vrchu
+public class GeneratedMap
 {
-	[Header("Map Dimensions")]
-	public int mapWidth = 7;
-	public int mapHeight = 12;
-	public int numberOfPaths = 5;
+	public List<MapNodeData> nodes = new List<MapNodeData>();
+	public MapNodeData bossNode;
+}
 
-	[Header("Canvas Spacing (in pixels)")]
-	public float xSpacing = 130f;
-	public float ySpacing = 140f;
-	public float jitter = 25f;
-
-	[Header("1. Rules: Guaranteed Path Count (Range)")]
-	public List<PathCountRule> pathCountRules = new List<PathCountRule>()
+// Procedurálne vygeneruje mapu podľa MapPresetu.
+// Je statický (nie MonoBehaviour), aby sa dal zavolať z hociktorej scény - napr. pri odchode z výberu postavy.
+public static class MapGenerator
+{
+	public static GeneratedMap Generate(MapPreset preset)
 	{
-        // Default rule: At least 1 and max 2 Shops on every path
-        new PathCountRule { nodeType = NodeType.Shop, minPerPath = 1, maxPerPath = 2, minFloor = 2, maxFloor = 10 }
-	};
+		int width = Mathf.Max(1, preset.mapWidth);
+		int height = Mathf.Max(2, preset.mapHeight);
 
-	[Header("2. Rules: Minimum Distance (Cooldown)")]
-	public List<CooldownRule> cooldownRules = new List<CooldownRule>()
-	{
-        // Default rules: Rest and Shop must have at least 2 other nodes between them
-        new CooldownRule { nodeType = NodeType.Rest, minDistanceBetween = 2 },
-		new CooldownRule { nodeType = NodeType.Shop, minDistanceBetween = 2 }
-	};
+		var grid = new MapNodeData[width, height];
+		var allPaths = new List<List<MapNodeData>>();
+		var map = new GeneratedMap();
 
-	[Header("3. Spawn Weights for Remaining Nodes")]
-	public List<NodeSpawnWeight> randomWeights = new List<NodeSpawnWeight>()
-	{
-		new NodeSpawnWeight { nodeType = NodeType.Encounter, weight = 50 },
-		new NodeSpawnWeight { nodeType = NodeType.Mystery, weight = 25 },
-		new NodeSpawnWeight { nodeType = NodeType.Rest, weight = 15 },
-		new NodeSpawnWeight { nodeType = NodeType.Treasure, weight = 10 }
-	};
-
-	private MapNodeData[,] grid;
-	private List<List<MapNodeData>> allPaths = new List<List<MapNodeData>>();
-
-	[HideInInspector] public List<MapNodeData> allNodesList = new List<MapNodeData>();
-	[HideInInspector] public MapNodeData bossNode;
-
-	public List<MapNodeData> GenerateNewMap()
-	{
-		grid = new MapNodeData[mapWidth, mapHeight];
-		allPaths.Clear();
-		allNodesList.Clear();
-
-		// 1. Generate paths from bottom to top
-		for (int p = 0; p < numberOfPaths; p++)
+		// 1. Cesty zdola nahor
+		for (int p = 0; p < preset.numberOfPaths; p++)
 		{
-			List<MapNodeData> currentPath = new List<MapNodeData>();
-			int currX = Random.Range(0, mapWidth);
+			var currentPath = new List<MapNodeData>();
+			int currX = Random.Range(0, width);
 
-			for (int y = 0; y < mapHeight; y++)
+			for (int y = 0; y < height; y++)
 			{
 				if (grid[currX, y] == null)
-					grid[currX, y] = CreateNodeAt(currX, y);
+					grid[currX, y] = CreateNodeAt(preset, map, currX, y);
 
 				MapNodeData currentNode = grid[currX, y];
 				currentPath.Add(currentNode);
 
-				if (y < mapHeight - 1)
+				if (y < height - 1)
 				{
-					int nextX = GetValidNextX(currX, y);
+					int nextX = GetValidNextX(grid, width, currX, y);
 					if (grid[nextX, y + 1] == null)
-						grid[nextX, y + 1] = CreateNodeAt(nextX, y + 1);
+						grid[nextX, y + 1] = CreateNodeAt(preset, map, nextX, y + 1);
 
 					MapNodeData nextNode = grid[nextX, y + 1];
 					if (!currentNode.nextNodes.Contains(nextNode))
@@ -79,48 +51,47 @@ public class MapGenerator : MonoBehaviour
 			allPaths.Add(currentPath);
 		}
 
-		// Create Boss node at the top center
-		Vector2 bossPos = new Vector2(0, mapHeight * ySpacing + 80f);
-		bossNode = new MapNodeData(mapWidth / 2, mapHeight, bossPos);
-		bossNode.type = NodeType.Boss;
-		allNodesList.Add(bossNode);
+		// 2. Boss hore v strede - posledná miestnosť
+		Vector2 bossPos = new Vector2(0, height * preset.ySpacing + 80f);
+		map.bossNode = new MapNodeData(width / 2, height, bossPos) { type = NodeType.Boss };
+		map.nodes.Add(map.bossNode);
 
-		for (int x = 0; x < mapWidth; x++)
+		for (int x = 0; x < width; x++)
 		{
-			if (grid[x, mapHeight - 1] != null)
-				grid[x, mapHeight - 1].nextNodes.Add(bossNode);
+			if (grid[x, height - 1] != null)
+				grid[x, height - 1].nextNodes.Add(map.bossNode);
 		}
 
-		// 2. Apply rules and seed room types
-		ApplyRulesAndSeedRooms();
+		// 3. Typy miestností podľa pravidiel z presetu
+		AssignRoomTypes(preset, map.nodes, allPaths);
 
-		return allNodesList;
+		return map;
 	}
 
-	private MapNodeData CreateNodeAt(int x, int y)
+	private static MapNodeData CreateNodeAt(MapPreset preset, GeneratedMap map, int x, int y)
 	{
-		float posX = (x - (mapWidth - 1) / 2f) * xSpacing + Random.Range(-jitter, jitter);
-		float posY = y * ySpacing + Random.Range(-jitter, jitter);
-		MapNodeData node = new MapNodeData(x, y, new Vector2(posX, posY));
-		allNodesList.Add(node);
+		float posX = (x - (preset.mapWidth - 1) / 2f) * preset.xSpacing + Random.Range(-preset.jitter, preset.jitter);
+		float posY = y * preset.ySpacing + Random.Range(-preset.jitter, preset.jitter);
+		var node = new MapNodeData(x, y, new Vector2(posX, posY));
+		map.nodes.Add(node);
 		return node;
 	}
 
-	private int GetValidNextX(int currX, int currY)
+	private static int GetValidNextX(MapNodeData[,] grid, int width, int currX, int currY)
 	{
-		List<int> validX = new List<int>();
+		var validX = new List<int>();
 		for (int offset = -1; offset <= 1; offset++)
 		{
 			int candidateX = currX + offset;
-			if (candidateX < 0 || candidateX >= mapWidth) continue;
+			if (candidateX < 0 || candidateX >= width) continue;
 
-			// Prevent paths from crossing in an X shape
+			// Cesty sa nesmú krížiť do X
 			if (offset == -1 && currX > 0 && grid[currX - 1, currY] != null)
 			{
 				if (grid[currX - 1, currY].nextNodes.Exists(n => n.x == currX && n.y == currY + 1))
 					continue;
 			}
-			if (offset == 1 && currX < mapWidth - 1 && grid[currX + 1, currY] != null)
+			if (offset == 1 && currX < width - 1 && grid[currX + 1, currY] != null)
 			{
 				if (grid[currX + 1, currY].nextNodes.Exists(n => n.x == currX && n.y == currY + 1))
 					continue;
@@ -130,107 +101,116 @@ public class MapGenerator : MonoBehaviour
 		return validX[Random.Range(0, validX.Count)];
 	}
 
-	private void ApplyRulesAndSeedRooms()
+	private static void AssignRoomTypes(MapPreset preset, List<MapNodeData> allNodes, List<List<MapNodeData>> allPaths)
 	{
-		// STEP A: Randomly fill the map based on weights and Cooldown rules
-		for (int y = 0; y < mapHeight; y++)
+		// Uzly, ktoré už nesmú zmeniť typ (pevné poschodia)
+		var locked = new HashSet<MapNodeData>();
+
+		// STEP A: všetko je Encounter, okrem bossa
+		foreach (var node in allNodes)
 		{
-			for (int x = 0; x < mapWidth; x++)
+			if (node.type != NodeType.Boss) node.type = NodeType.Encounter;
+		}
+
+		// STEP B: pevné poschodia
+		foreach (var rule in preset.fixedFloors)
+		{
+			if (rule == null || rule.nodeType == NodeType.Boss) continue;
+			foreach (var node in allNodes)
 			{
-				MapNodeData node = grid[x, y];
-				if (node == null) continue;
-
-				// First floor is always a basic Encounter
-				if (y == 0)
-				{
-					node.type = NodeType.Encounter;
-					continue;
-				}
-
-				node.type = PickRandomValidType(node);
+				if (node.type == NodeType.Boss || node.y != rule.floor) continue;
+				node.type = rule.nodeType;
+				locked.Add(node);
 			}
 		}
 
-		// STEP B: Enforce PathCountRules (minPerPath & maxPerPath)
-		foreach (var rule in pathCountRules)
+		// STEP C: garantované miestnosti na každej ceste
+		foreach (var rule in preset.pathCountRules)
 		{
+			if (rule == null || !IsPlaceableType(rule.nodeType)) continue;
+			int totalMax = GetTotalMax(preset, rule.nodeType);
+
 			foreach (var path in allPaths)
 			{
-				int currentCount = path.FindAll(n => n.type == rule.nodeType).Count;
-
-				int safetyCounter = 0;
-				while (currentCount < rule.minPerPath && safetyCounter < 20)
+				while (CountOnPath(path, rule.nodeType) < rule.minPerPath && CountAll(allNodes, rule.nodeType) < totalMax)
 				{
-					safetyCounter++;
+					var candidates = path.FindAll(n =>
+						IsFreeCandidate(n, locked, rule.minFloor, rule.maxFloor) &&
+						MapRuleValidator.CanPlaceNodeType(n, rule.nodeType, preset.cooldownRules, allNodes) &&
+						!WouldExceedMaxOnAnyPath(allPaths, n, rule.nodeType, rule.maxPerPath));
 
-					// Find suitable nodes that also don't push ANY sharing path over maxPerPath
-					List<MapNodeData> candidates = path.FindAll(n =>
-						n.y >= rule.minFloor &&
-						n.y <= rule.maxFloor &&
-						n.type == NodeType.Encounter &&
-						MapRuleValidator.CanPlaceNodeType(n, rule.nodeType, cooldownRules, allNodesList) &&
-						!WouldExceedMaxOnAnyPath(n, rule.nodeType, rule.maxPerPath)
-					);
-
-					// Fallback if strict rules left no candidates
 					if (candidates.Count == 0)
 					{
-						candidates = path.FindAll(n => n.y >= rule.minFloor && n.y <= rule.maxFloor && n.type == NodeType.Encounter);
+						Debug.LogWarning($"[{preset.name}] Na jednej z ciest sa nepodarilo umiestniť {rule.nodeType} (pravidlo 'na každej ceste') - pravidlá sú príliš prísne.");
+						break;
 					}
 
-					if (candidates.Count > 0)
-					{
-						MapNodeData chosen = candidates[Random.Range(0, candidates.Count)];
-						chosen.type = rule.nodeType;
-						currentCount++;
-					}
+					candidates[Random.Range(0, candidates.Count)].type = rule.nodeType;
 				}
+			}
+		}
+
+		// STEP D: počty miestností na celej mape (zvyšok ostane Encounter)
+		foreach (var rule in preset.roomCounts)
+		{
+			if (rule == null || !IsPlaceableType(rule.nodeType)) continue;
+
+			int target = Random.Range(rule.min, rule.max + 1);
+			int maxPerPath = GetMaxPerPath(preset, rule.nodeType);
+			int current = CountAll(allNodes, rule.nodeType);
+
+			while (current < target)
+			{
+				var candidates = allNodes.FindAll(n =>
+					IsFreeCandidate(n, locked, rule.minFloor, rule.maxFloor) &&
+					MapRuleValidator.CanPlaceNodeType(n, rule.nodeType, preset.cooldownRules, allNodes) &&
+					!WouldExceedMaxOnAnyPath(allPaths, n, rule.nodeType, maxPerPath));
+
+				if (candidates.Count == 0)
+				{
+					if (current < rule.min)
+						Debug.LogWarning($"[{preset.name}] {rule.nodeType}: umiestnených iba {current} z minimálne {rule.min} - pravidlá (poschodia/rozostupy) sú príliš prísne.");
+					break;
+				}
+
+				candidates[Random.Range(0, candidates.Count)].type = rule.nodeType;
+				current++;
 			}
 		}
 	}
 
-	// Checks if placing 'type' on 'targetNode' would cause ANY path passing through it to exceed 'maxPerPath'
-	private bool WouldExceedMaxOnAnyPath(MapNodeData targetNode, NodeType type, int maxPerPath)
+	private static bool IsPlaceableType(NodeType type) => type != NodeType.Encounter && type != NodeType.Boss;
+
+	// Voľný uzol = Encounter, ktorý nie je na pevnom poschodí a je v povolenom rozsahu poschodí
+	private static bool IsFreeCandidate(MapNodeData n, HashSet<MapNodeData> locked, int minFloor, int maxFloor)
+	{
+		return n.type == NodeType.Encounter && !locked.Contains(n) && n.y >= minFloor && n.y <= maxFloor;
+	}
+
+	private static int CountAll(List<MapNodeData> nodes, NodeType type) => nodes.FindAll(n => n.type == type).Count;
+
+	private static int CountOnPath(List<MapNodeData> path, NodeType type) => path.FindAll(n => n.type == type).Count;
+
+	private static int GetTotalMax(MapPreset preset, NodeType type)
+	{
+		var rule = preset.roomCounts.Find(r => r != null && r.nodeType == type);
+		return rule != null ? rule.max : int.MaxValue;
+	}
+
+	private static int GetMaxPerPath(MapPreset preset, NodeType type)
+	{
+		var rule = preset.pathCountRules.Find(r => r != null && r.nodeType == type);
+		return rule != null ? rule.maxPerPath : int.MaxValue;
+	}
+
+	// Či by umiestnenie typu na uzol prekročilo maxPerPath na niektorej ceste, ktorá ním prechádza
+	private static bool WouldExceedMaxOnAnyPath(List<List<MapNodeData>> allPaths, MapNodeData targetNode, NodeType type, int maxPerPath)
 	{
 		foreach (var path in allPaths)
 		{
-			if (path.Contains(targetNode))
-			{
-				int countOnThisPath = path.FindAll(n => n.type == type).Count;
-				if (countOnThisPath >= maxPerPath)
-					return true; // This path already has the maximum allowed!
-			}
+			if (path.Contains(targetNode) && CountOnPath(path, type) >= maxPerPath)
+				return true;
 		}
 		return false;
-	}
-
-	private NodeType PickRandomValidType(MapNodeData node)
-	{
-		// Filter only node types that do not violate Cooldown rules at this node
-		List<NodeSpawnWeight> validWeights = new List<NodeSpawnWeight>();
-		int totalWeight = 0;
-
-		foreach (var w in randomWeights)
-		{
-			if (w.weight > 0 && MapRuleValidator.CanPlaceNodeType(node, w.nodeType, cooldownRules, allNodesList))
-			{
-				validWeights.Add(w);
-				totalWeight += w.weight;
-			}
-		}
-
-		if (validWeights.Count == 0 || totalWeight == 0)
-			return NodeType.Encounter; // Default fallback
-
-		int roll = Random.Range(0, totalWeight);
-		int cursor = 0;
-		foreach (var w in validWeights)
-		{
-			cursor += w.weight;
-			if (roll < cursor)
-				return w.nodeType;
-		}
-
-		return NodeType.Encounter;
 	}
 }

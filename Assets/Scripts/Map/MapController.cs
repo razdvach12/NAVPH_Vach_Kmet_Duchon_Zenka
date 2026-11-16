@@ -5,7 +5,8 @@ using UnityEngine;
 public class MapController : MonoBehaviour
 {
 	[Header("References")]
-	public MapGenerator mapGenerator;
+	[Tooltip("Použije sa iba ak mapa ešte nebola vygenerovaná (napr. MapScene spustená priamo v editore). Normálne sa mapa generuje pri odchode z výberu postavy.")]
+	public MapPreset fallbackPreset;
 	public MapRenderer mapRenderer;
 	public RectTransform mapContent; // The scrollable panel containing the map
 
@@ -16,29 +17,48 @@ public class MapController : MonoBehaviour
 	public float introPanDuration = 3.0f;
 	[Tooltip("Vertical offset to keep the current node nicely centered on screen")]
 	public float verticalScreenOffset = -250f;
+	[Tooltip("Ako dlho sa čaká po kliku na uzol (posun mapy), kým sa začne načítavať scéna")]
+	public float enterNodeDelay = 0.5f;
 
-	private List<MapNodeData> allNodes;
-	private MapNodeData currentPlayerNode = null;
 	private bool canPlayerClick = false;
+
+	private List<MapNodeData> AllNodes => MapRunState.Nodes;
 
 	void Start()
 	{
-		StartNewMapLayer();
+		if (!MapRunState.HasActiveMap)
+		{
+			Debug.LogWarning("MapController: mapa ešte nebola vygenerovaná (scéna spustená priamo?) - generujem z Fallback Preset.");
+			MapRunState.StartNewRun(fallbackPreset);
+			if (!MapRunState.HasActiveMap) return;
+		}
+
+		mapRenderer.RenderMap(AllNodes, OnNodeClicked);
+
+		// Hráč sa vrátil po porazení bossa - hra je dohraná
+		if (MapRunState.CurrentNode != null && MapRunState.CurrentNode.type == NodeType.Boss)
+		{
+			StartCoroutine(FinishRunRoutine());
+			return;
+		}
+
+		if (!MapRunState.IntroPlayed)
+		{
+			StartCoroutine(IntroScrollRoutine());
+		}
+		else
+		{
+			// Návrat zo scény - mapa ostáva rovnaká, iba sa nastaví na pozíciu hráča
+			mapContent.anchoredPosition = GetScrollPositionFor(MapRunState.CurrentNode);
+			UpdateFogOfWar();
+			canPlayerClick = true;
+		}
 	}
 
-	public void StartNewMapLayer()
+	private Vector2 GetScrollPositionFor(MapNodeData node)
 	{
-		currentPlayerNode = null;
-
-		// 1. Generate data with rules
-		allNodes = mapGenerator.GenerateNewMap();
-
-		// 2. Render buttons and lines in UI (initially all visible for the intro scroll)
-		mapRenderer.RenderMap(allNodes, OnNodeClicked);
-
-		// 3. Start the intro camera/panel scroll from Boss down to the start
-		StopAllCoroutines();
-		StartCoroutine(IntroScrollRoutine());
+		if (node == null) return new Vector2(0, verticalScreenOffset);
+		return new Vector2(0, -node.uiPosition.y + verticalScreenOffset);
 	}
 
 	private IEnumerator IntroScrollRoutine()
@@ -46,9 +66,9 @@ public class MapController : MonoBehaviour
 		canPlayerClick = false;
 
 		// Start viewing the Boss at the top (move MapContent down)
-		Vector2 startScrollPos = new Vector2(0, -mapGenerator.bossNode.uiPosition.y + 150f);
+		Vector2 startScrollPos = new Vector2(0, -MapRunState.BossNode.uiPosition.y + 150f);
 		// End viewing the 0th floor at the bottom
-		Vector2 endScrollPos = new Vector2(0, verticalScreenOffset);
+		Vector2 endScrollPos = GetScrollPositionFor(null);
 
 		mapContent.anchoredPosition = startScrollPos;
 		yield return new WaitForSeconds(1.0f); // Pause briefly on the Boss
@@ -63,6 +83,7 @@ public class MapController : MonoBehaviour
 		}
 
 		// Once at the bottom, enable Fog of War (2-3 blocks) and allow clicking
+		MapRunState.IntroPlayed = true;
 		UpdateFogOfWar();
 		canPlayerClick = true;
 	}
@@ -71,8 +92,10 @@ public class MapController : MonoBehaviour
 	{
 		if (!canPlayerClick) return;
 
+		MapNodeData current = MapRunState.CurrentNode;
+
 		// First move: must click a node on the 0th floor
-		if (currentPlayerNode == null)
+		if (current == null)
 		{
 			if (clickedNode.y == 0)
 				MovePlayerToNode(clickedNode);
@@ -80,25 +103,88 @@ public class MapController : MonoBehaviour
 		// Subsequent moves: must click a connected node on the next floor
 		else
 		{
-			if (currentPlayerNode.nextNodes.Contains(clickedNode))
+			if (current.nextNodes.Contains(clickedNode))
 				MovePlayerToNode(clickedNode);
 		}
 	}
 
 	private void MovePlayerToNode(MapNodeData targetNode)
 	{
-		currentPlayerNode = targetNode;
-		currentPlayerNode.isVisited = true;
+		canPlayerClick = false; // Ochrana proti dvojkliku počas posunu / loadingu
+
+		MapRunState.CurrentNode = targetNode;
+		targetNode.isVisited = true;
 
 		Debug.Log($"Player entered node: {targetNode.type} at Floor {targetNode.y}");
 
-		// Smoothly scroll the map so the player stays in view
-		StopAllCoroutines();
-		Vector2 targetScrollPos = new Vector2(0, -targetNode.uiPosition.y + verticalScreenOffset);
-		StartCoroutine(SmoothScrollMap(targetScrollPos));
-
 		// Recalculate visibility (2-3 steps ahead)
 		UpdateFogOfWar();
+
+		// Smoothly scroll the map so the player stays in view, then load the room
+		StopAllCoroutines();
+		StartCoroutine(EnterNodeRoutine(targetNode));
+	}
+
+	private IEnumerator EnterNodeRoutine(MapNodeData node)
+	{
+		yield return SmoothScrollMap(GetScrollPositionFor(node));
+
+		float remaining = enterNodeDelay - 0.4f;
+		if (remaining > 0f) yield return new WaitForSeconds(remaining);
+
+		LoadSceneForNode(node);
+	}
+
+	// Typ uzla -> scéna
+	private void LoadSceneForNode(MapNodeData node)
+	{
+		MapPreset preset = MapRunState.Preset;
+
+		switch (node.type)
+		{
+			case NodeType.Encounter:
+				EncounterSelection.NextRoom = null;
+				EncounterSelection.NextDifficulty = preset != null ? preset.GetEncounterDifficulty(node.y) : RoomDifficulty.Easy;
+				LoadingScene.Load(SceneIds.Encounter);
+				break;
+
+			case NodeType.Boss:
+				if (preset != null && preset.bossRoom != null)
+					EncounterSelection.NextRoom = preset.bossRoom;
+				else
+					EncounterSelection.NextDifficulty = RoomDifficulty.Boss;
+				LoadingScene.Load(SceneIds.Encounter);
+				break;
+
+			case NodeType.Shop:
+				LoadingScene.Load(SceneIds.Shop);
+				break;
+
+			case NodeType.Treasure:
+				LoadingScene.Load(SceneIds.Chest);
+				break;
+
+			case NodeType.Rest:
+			case NodeType.Mystery:
+				LoadingScene.Load(SceneIds.Meadow);
+				break;
+		}
+	}
+
+	// Boss porazený - zatiaľ nie je záverečná scéna v Build Settings, tak sa hra ukončí návratom do menu
+	private IEnumerator FinishRunRoutine()
+	{
+		canPlayerClick = false;
+		mapContent.anchoredPosition = GetScrollPositionFor(MapRunState.CurrentNode);
+		UpdateFogOfWar();
+
+		// Počkáme, kým LoadingScene dokončí aktuálne načítanie (inak by nové volanie ignoroval)
+		yield return new WaitWhile(() => LoadingScene.IsBusy);
+		yield return new WaitForSeconds(1.5f);
+
+		Debug.Log("Boss porazený - koniec hry, návrat do menu.");
+		MapRunState.Clear();
+		LoadingScene.Load(SceneIds.Menu);
 	}
 
 	private IEnumerator SmoothScrollMap(Vector2 targetAnchoredPos)
@@ -111,17 +197,19 @@ public class MapController : MonoBehaviour
 			mapContent.anchoredPosition = Vector2.Lerp(startPos, targetAnchoredPos, elapsed / 0.4f);
 			yield return null;
 		}
+		mapContent.anchoredPosition = targetAnchoredPos;
 	}
 
 	private void UpdateFogOfWar()
 	{
-		HashSet<MapNodeData> visibleNodes = new HashSet<MapNodeData>();
-		HashSet<MapNodeData> clickableNodes = new HashSet<MapNodeData>();
+		var visibleNodes = new HashSet<MapNodeData>();
+		var clickableNodes = new HashSet<MapNodeData>();
+		MapNodeData current = MapRunState.CurrentNode;
 
-		if (currentPlayerNode == null)
+		if (current == null)
 		{
 			// Before picking the first node, show the bottom 'visionRange' floors
-			foreach (var node in allNodes)
+			foreach (var node in AllNodes)
 			{
 				if (node.y < visionRange) visibleNodes.Add(node);
 				if (node.y == 0) clickableNodes.Add(node);
@@ -130,22 +218,22 @@ public class MapController : MonoBehaviour
 		else
 		{
 			// Keep already visited nodes visible
-			foreach (var node in allNodes)
+			foreach (var node in AllNodes)
 			{
 				if (node.isVisited) visibleNodes.Add(node);
 			}
 
 			// Reveal connected nodes up to 'visionRange' steps ahead
-			RevealNodesRecursive(currentPlayerNode, visionRange, visibleNodes);
+			RevealNodesRecursive(current, visionRange, visibleNodes);
 
 			// Only direct next nodes are clickable
-			foreach (var next in currentPlayerNode.nextNodes)
+			foreach (var next in current.nextNodes)
 			{
 				clickableNodes.Add(next);
 			}
 		}
 
-		mapRenderer.UpdateAllNodeVisuals(allNodes, visibleNodes, clickableNodes, currentPlayerNode);
+		mapRenderer.UpdateAllNodeVisuals(AllNodes, visibleNodes, clickableNodes, current);
 	}
 
 	private void RevealNodesRecursive(MapNodeData fromNode, int stepsLeft, HashSet<MapNodeData> visibleSet)

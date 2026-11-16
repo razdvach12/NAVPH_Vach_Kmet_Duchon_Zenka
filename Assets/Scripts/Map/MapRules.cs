@@ -23,11 +23,37 @@ public class CooldownRule
 	public int minDistanceBetween = 2;
 }
 
+// Koľko miestností daného typu má byť na CELEJ mape (náhodne medzi min a max)
 [System.Serializable]
-public class NodeSpawnWeight
+public class RoomCountRule
 {
-	public NodeType nodeType;
-	[Range(0, 100)] public int weight = 20;
+	public NodeType nodeType = NodeType.Shop;
+	[Tooltip("Minimálny počet na celej mape")]
+	public int min = 2;
+	[Tooltip("Maximálny počet na celej mape (min = max -> presný počet)")]
+	public int max = 3;
+	[Tooltip("Od ktorého poschodia sa môže objaviť (0 = spodné)")]
+	public int minFloor = 1;
+	[Tooltip("Po ktoré poschodie sa môže objaviť")]
+	public int maxFloor = 11;
+}
+
+// Celé poschodie bude vždy tohto typu (napr. 0 = Encounter, posledné = Rest)
+[System.Serializable]
+public class FixedFloorRule
+{
+	[Tooltip("Číslo poschodia (0 = spodné)")]
+	public int floor = 0;
+	public NodeType nodeType = NodeType.Encounter;
+}
+
+// Akú obtiažnosť majú Encountery na daných poschodiach
+[System.Serializable]
+public class EncounterDifficultyRule
+{
+	public int minFloor = 0;
+	public int maxFloor = 99;
+	public RoomDifficulty difficulty = RoomDifficulty.Easy;
 }
 
 public static class MapRuleValidator

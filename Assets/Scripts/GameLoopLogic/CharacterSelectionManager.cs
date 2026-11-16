@@ -5,6 +5,10 @@ public class CharacterSelectionManager : MonoBehaviour
     [Header("Aktuálne zvolená postava v menu")]
     public CharacterData selectedCharacter;
 
+    [Header("Mapa")]
+    [Tooltip("Z tohto presetu sa po stlačení Start vygeneruje mapa pre celú hru")]
+    public MapPreset mapPreset;
+
     private void Start()
     {
         if (MusicManager.Instance != null)
@@ -34,17 +38,17 @@ public class CharacterSelectionManager : MonoBehaviour
             PlayerStats.Instance.InitializeCharacter(selectedCharacter);
         }
 
-        if (LoadingScene.Instance != null)
-        {
-            LoadingScene.Instance.SwitchToScene(5); 
-        }
+        if (LoadingScene.IsBusy) return; // Dvojklik počas loadingu by vygeneroval mapu znova
+
+        // Nová hra = nová mapa, ostane rovnaká až do konca hry
+        MapRunState.StartNewRun(mapPreset);
+
+        LoadingScene.Load(SceneIds.Map);
     }
 
     public void OnClickBackToMenuButton()
     {
-        if (LoadingScene.Instance != null)
-        {
-            LoadingScene.Instance.SwitchToScene(0);
-        }
+        MapRunState.Clear();
+        LoadingScene.Load(SceneIds.Menu);
     }
 }

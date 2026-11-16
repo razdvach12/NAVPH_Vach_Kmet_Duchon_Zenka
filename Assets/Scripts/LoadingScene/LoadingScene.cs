@@ -52,6 +52,17 @@ public class LoadingScene : MonoBehaviour
         }
     }
 
+    // Či práve prebieha načítanie scény (počas neho sa ďalšie volania ignorujú)
+    public static bool IsBusy => Instance != null && Instance.isLoading;
+
+    // Načíta scénu cez loading obrazovku. Ak LoadingScene v hre nie je (scéna spustená priamo
+    // v editore), načíta ju priamo bez loadingu - aby hra nespadla na NullReference.
+    public static void Load(int buildIndex)
+    {
+        if (Instance != null) Instance.SwitchToScene(buildIndex);
+        else SceneManager.LoadScene(buildIndex);
+    }
+
     public void SwitchToTargetScene()
     {
         SwitchToScene(targetSceneID);

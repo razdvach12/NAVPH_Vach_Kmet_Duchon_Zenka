@@ -3552,6 +3552,7 @@ MonoBehaviour:
   destroyedHpPrefab: {fileID: 0}
   showMaxHpOutline: 1
   maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  attackingEnemyOutlineColor: {r: 1, g: 0.15, b: 0.15, a: 1}
   maxHpOutlineThickness: 0.05
 --- !u!114 &1437410097 stripped
 MonoBehaviour:
@@ -3927,7 +3928,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5414227292386132174, guid: 6306db3622bad8d4985d788fa0ea5cfe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_IntArgument
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5414227292386132174, guid: 6306db3622bad8d4985d788fa0ea5cfe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -4370,6 +4371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterSelectionManager
   selectedCharacter: {fileID: 0}
+  mapPreset: {fileID: 11400000, guid: e233f19c77064ee886ebcc86222006de, type: 2}
 --- !u!1001 &1677796945
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5350,6 +5352,7 @@ MonoBehaviour:
   destroyedHpPrefab: {fileID: 0}
   showMaxHpOutline: 1
   maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  attackingEnemyOutlineColor: {r: 1, g: 0.15, b: 0.15, a: 1}
   maxHpOutlineThickness: 0.05
 --- !u!1 &1870077147
 GameObject:
@@ -5409,6 +5412,7 @@ MonoBehaviour:
   destroyedHpPrefab: {fileID: 0}
   showMaxHpOutline: 1
   maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  attackingEnemyOutlineColor: {r: 1, g: 0.15, b: 0.15, a: 1}
   maxHpOutlineThickness: 0.05
 --- !u!1 &1880560825
 GameObject:
@@ -6685,6 +6689,7 @@ MonoBehaviour:
   destroyedHpPrefab: {fileID: 0}
   showMaxHpOutline: 1
   maxHpOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  attackingEnemyOutlineColor: {r: 1, g: 0.15, b: 0.15, a: 1}
   maxHpOutlineThickness: 0.05
 --- !u!1001 &6323616840404291861
 PrefabInstance:

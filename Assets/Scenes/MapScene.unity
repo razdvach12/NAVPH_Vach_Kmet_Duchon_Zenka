@@ -203,7 +203,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 674187032}
-  - component: {fileID: 674187035}
   - component: {fileID: 674187034}
   - component: {fileID: 674187033}
   m_Layer: 0
@@ -240,7 +239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98bd2ff0f6fb0e24fa49656c6e21078c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapController
-  mapGenerator: {fileID: 674187035}
+  fallbackPreset: {fileID: 11400000, guid: e233f19c77064ee886ebcc86222006de, type: 2}
   mapRenderer: {fileID: 674187034}
   mapContent: {fileID: 1142982824}
   visionRange: 3
@@ -271,44 +270,6 @@ MonoBehaviour:
   blankIcon: {fileID: 21300000, guid: 4b75e70425f00f44caed9835c2014cd0, type: 3}
   lineThickness: 5
   lineColor: {r: 1, g: 1, b: 1, a: 0.3}
---- !u!114 &674187035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 674187031}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 434c609a1efb5724589f2fba0b6b1803, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
-  mapWidth: 7
-  mapHeight: 12
-  numberOfPaths: 5
-  xSpacing: 130
-  ySpacing: 140
-  jitter: 25
-  pathCountRules:
-  - nodeType: 1
-    minPerPath: 1
-    maxPerPath: 2
-    minFloor: 2
-    maxFloor: 10
-  cooldownRules:
-  - nodeType: 4
-    minDistanceBetween: 2
-  - nodeType: 1
-    minDistanceBetween: 2
-  randomWeights:
-  - nodeType: 0
-    weight: 50
-  - nodeType: 3
-    weight: 25
-  - nodeType: 4
-    weight: 15
-  - nodeType: 2
-    weight: 10
 --- !u!1 &1023589851
 GameObject:
   m_ObjectHideFlags: 0

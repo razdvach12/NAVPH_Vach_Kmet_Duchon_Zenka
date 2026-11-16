@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f22815ef0434fbfa75ae4b42bb363e3, type: 3}
+  m_Name: DefaultMapPreset
+  m_EditorClassIdentifier: Assembly-CSharp::MapPreset
+  mapWidth: 7
+  mapHeight: 12
+  numberOfPaths: 5
+  xSpacing: 130
+  ySpacing: 140
+  jitter: 25
+  fixedFloors:
+  - floor: 0
+    nodeType: 0
+  roomCounts:
+  - nodeType: 1
+    min: 3
+    max: 4
+    minFloor: 2
+    maxFloor: 10
+  - nodeType: 2
+    min: 2
+    max: 3
+    minFloor: 4
+    maxFloor: 9
+  - nodeType: 4
+    min: 3
+    max: 5
+    minFloor: 3
+    maxFloor: 11
+  - nodeType: 3
+    min: 5
+    max: 8
+    minFloor: 1
+    maxFloor: 10
+  pathCountRules:
+  - nodeType: 1
+    minPerPath: 1
+    maxPerPath: 2
+    minFloor: 2
+    maxFloor: 10
+  cooldownRules:
+  - nodeType: 4
+    minDistanceBetween: 2
+  - nodeType: 1
+    minDistanceBetween: 2
+  encounterDifficulty:
+  - minFloor: 0
+    maxFloor: 99
+    difficulty: 0
+  defaultEncounterDifficulty: 0
+  bossRoom: {fileID: 11400000, guid: 493cee75308d42439a51510900f5370c, type: 2}

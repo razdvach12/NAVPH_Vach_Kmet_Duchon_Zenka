@@ -211,7 +211,7 @@ MonoBehaviour:
   onFlee:
     m_PersistentCalls:
       m_Calls: []
-  mapSceneBuildIndex: 5
+  mapSceneBuildIndex: 3
   victoryReward: {fileID: 0}
   staminaText: {fileID: 0}
   staminaTextOffset: 0.4

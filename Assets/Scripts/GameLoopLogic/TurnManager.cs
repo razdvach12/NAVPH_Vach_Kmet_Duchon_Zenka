@@ -39,7 +39,7 @@ public class TurnManager : MonoBehaviour
     [Header("Koniec súboja (výhra / útek cez Smoke Bomb)")]
     [Tooltip("Build Index scény, kam sa hráč vráti po výbere odmeny alebo po úteku (mapa)")]
     [FormerlySerializedAs("fleeSceneBuildIndex")]
-    [SerializeField] private int mapSceneBuildIndex = 5;
+    [SerializeField] private int mapSceneBuildIndex = SceneIds.Map;
 
     [Tooltip("Popup s výberom odmeny po výhre - ak nie je priradený, nájde sa automaticky")]
     [SerializeField] private VictoryRewardUI victoryReward;
@@ -379,8 +379,7 @@ public class TurnManager : MonoBehaviour
 
     private void ReturnToMap()
     {
-        if (LoadingScene.Instance != null) LoadingScene.Instance.SwitchToScene(mapSceneBuildIndex);
-        else UnityEngine.SceneManagement.SceneManager.LoadScene(mapSceneBuildIndex);
+        LoadingScene.Load(mapSceneBuildIndex);
     }
 
     // Stratené HP sa prenesie do ďalšieho encountru
