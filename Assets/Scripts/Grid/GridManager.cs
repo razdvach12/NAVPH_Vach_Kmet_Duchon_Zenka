@@ -422,7 +422,7 @@ public class GridManager : MonoBehaviour
         if (isPlayerGrid) return;
 
         var overlapped = GetOverlappedSlots(centerSlot, weaponPreset);
-        foreach (var (slot, _) in overlapped)
+        foreach (var (slot, weaponCell) in overlapped)
         {
             // Výrazne červená iba ak je na políčku ŽIVÝ blok (thickness > 0)
             Color previewColor = slot.HasAliveBlock
@@ -430,6 +430,9 @@ public class GridManager : MonoBehaviour
                 : new Color(1f, 0.6f, 0.2f, 0.45f);
 
             slot.SetHighlight(true, previewColor);
+
+            // Na políčku sa ukáže, koľko damagu tam zbraň dá (iba ak viac ako 1)
+            slot.SetDamageLabel(GetDamage(weaponCell, slot));
         }
     }
 
@@ -438,7 +441,9 @@ public class GridManager : MonoBehaviour
         if (slots == null) return;
         foreach (var s in slots)
         {
-            if (s != null) s.SetHighlight(false, Color.white);
+            if (s == null) continue;
+            s.SetHighlight(false, Color.white);
+            s.SetDamageLabel(0);
         }
     }
 

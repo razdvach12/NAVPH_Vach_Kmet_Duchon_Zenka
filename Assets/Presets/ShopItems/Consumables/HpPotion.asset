@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: 'Health Potion '
   description: 
   icon: {fileID: 3861579366159045020, guid: 304fd8dd945e76442adde34d24b01361, type: 3}
-  price: 50
+  price: 30
   itemType: 1
   elementType: 0
   staminaCost: 1

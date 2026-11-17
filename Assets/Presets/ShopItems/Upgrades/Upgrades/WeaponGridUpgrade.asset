@@ -15,8 +15,9 @@ MonoBehaviour:
   itemName: Bonus Weapon size
   description: 
   icon: {fileID: 2746889905359702070, guid: 115a90339facd4b49b7576da280b9a01, type: 3}
-  price: 200
+  price: 70
   itemType: 3
   elementType: 0
   staminaCost: 1
   effectValue: 0
+  weaponGridPreset: {fileID: 0}

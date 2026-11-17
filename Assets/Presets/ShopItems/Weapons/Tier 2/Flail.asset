@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Flail
   description: 
   icon: {fileID: -8244012809094584358, guid: 0dc1b09d0a56909409175dc310300072, type: 3}
-  price: 503
+  price: 180
   itemType: 0
   elementType: 0
   staminaCost: 3

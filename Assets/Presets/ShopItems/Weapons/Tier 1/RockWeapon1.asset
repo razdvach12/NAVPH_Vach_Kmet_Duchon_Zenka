@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Pickaxe
   description: 
   icon: {fileID: -8619734295186668327, guid: dd9aa949783dc714897c31b002e6ef02, type: 3}
-  price: 504
+  price: 140
   itemType: 0
   elementType: 0
   staminaCost: 1

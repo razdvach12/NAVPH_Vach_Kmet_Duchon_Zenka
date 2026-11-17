@@ -15,8 +15,9 @@ MonoBehaviour:
   itemName: Bonus Lava HP Grid
   description: 
   icon: {fileID: -822858454477066646, guid: 7696af233e017ae41b234e1613b5d810, type: 3}
-  price: 252
+  price: 50
   itemType: 3
   elementType: 1
   staminaCost: 1
   effectValue: 0
+  weaponGridPreset: {fileID: 0}

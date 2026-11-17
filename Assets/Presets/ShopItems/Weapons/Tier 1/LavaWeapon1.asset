@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Obsidian Sword
   description: 
   icon: {fileID: 1603154981907671658, guid: 092d170f9ec45484990e2104cc4860cf, type: 3}
-  price: 200
+  price: 180
   itemType: 0
   elementType: 0
   staminaCost: 1

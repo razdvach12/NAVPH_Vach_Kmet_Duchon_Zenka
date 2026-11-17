@@ -15,8 +15,9 @@ MonoBehaviour:
   itemName: 'Bonus Ice HP Grid '
   description: 
   icon: {fileID: -4298714050365254685, guid: 0540f79e93e27bc4abe6565abfddd186, type: 3}
-  price: 255
+  price: 50
   itemType: 3
   elementType: 2
   staminaCost: 1
   effectValue: 0
+  weaponGridPreset: {fileID: 0}

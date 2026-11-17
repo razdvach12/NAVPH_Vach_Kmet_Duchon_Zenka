@@ -44,6 +44,9 @@ public class TurnManager : MonoBehaviour
     [Tooltip("Popup s výberom odmeny po výhre - ak nie je priradený, nájde sa automaticky")]
     [SerializeField] private VictoryRewardUI victoryReward;
 
+    [Tooltip("Popup po prehre (návrat do menu) - ak nie je priradený, nájde sa automaticky")]
+    [SerializeField] private DefeatPopupUI defeatPopup;
+
     // Zlato za porazených nepriateľov - pridá sa iba ak si ho hráč vyberie v popupe
     private int pendingGoldReward;
     private bool rewardChosen; // Ochrana proti dvojkliku na tlačidlá
@@ -338,6 +341,7 @@ public class TurnManager : MonoBehaviour
                 MusicManager.Instance.StopMusic();
                 MusicManager.Instance.PlaySound("Loss");
             }
+            OnDefeat();
             onDefeat?.Invoke();
             return true;
         }
@@ -359,7 +363,7 @@ public class TurnManager : MonoBehaviour
         return false;
     }
 
-    // Po výhre si hráč v popupe vyberie odmenu: vyliečenie na max HP ALEBO zlato za nepriateľov
+    // Po výhre hráč vždy dostane zlato za nepriateľov a popup mu ukáže, koľko získal
     private void OnVictory()
     {
         SavePlayerHp();
@@ -370,7 +374,11 @@ public class TurnManager : MonoBehaviour
             if (enemy != null) pendingGoldReward += enemy.goldReward;
         }
 
-        if (PlayerStats.Instance != null) PlayerStats.Instance.encountersDefeated++;
+        if (PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.encountersDefeated++;
+            PlayerStats.Instance.AddMoney(pendingGoldReward);
+        }
         rewardChosen = false;
 
         if (victoryReward == null) victoryReward = FindAnyObjectByType<VictoryRewardUI>(FindObjectsInactive.Include); // Nájde ho aj vo vypnutom Canvase
@@ -380,33 +388,56 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
-            // Bez popupu v scéne (napr. testovanie) sa zachová pôvodné správanie: zlato automaticky, hráč ostane v scéne
-            Debug.LogWarning("V scéne chýba VictoryRewardUI - zlato sa pridá automaticky.");
-            if (PlayerStats.Instance != null) PlayerStats.Instance.AddMoney(pendingGoldReward);
+            // Bez popupu v scéne (napr. testovanie) hráč ostane v scéne
+            Debug.LogWarning("V scéne chýba VictoryRewardUI - hráč ostáva v scéne.");
             rewardChosen = true;
         }
     }
 
-    // Tlačidlo "Vyliečiť" v popupe - všetky políčka HP gridu sa vrátia na max, zlato sa nepridá
-    public void ChooseHealReward()
+    // Tlačidlo "Continue" v popupe - vráti hráča na mapu (zlato už bolo pridané pri výhre)
+    public void ContinueAfterVictory()
     {
         if (State != TurnState.Victory || rewardChosen) return;
         rewardChosen = true;
 
-        PlayerStats.EnsureInstance().HealToMax();
-        if (playerGrid != null) playerGrid.HealAllToMax();
+        // Po porazení bossa je hra dohraná - ide sa na záverečnú scénu namiesto mapy
+        bool wasBossFight = difficulty == RoomDifficulty.Boss
+            || (MapRunState.CurrentNode != null && MapRunState.CurrentNode.type == NodeType.Boss);
+        if (wasBossFight)
+        {
+            MapRunState.Clear();
+            LoadingScene.Load(SceneIds.Final);
+            return;
+        }
+
         ReturnToMap();
     }
 
-    // Tlačidlo "Zlato" v popupe - pridá zlato za nepriateľov, stratené HP sa prenesie ďalej
-    public void ChooseGoldReward()
+    // Po prehre sa zobrazí death popup s tlačidlom späť do menu
+    private void OnDefeat()
     {
-        if (State != TurnState.Victory || rewardChosen) return;
+        rewardChosen = false;
+
+        if (defeatPopup == null) defeatPopup = FindAnyObjectByType<DefeatPopupUI>(FindObjectsInactive.Include); // Nájde ho aj vo vypnutom Canvase
+        if (defeatPopup != null)
+        {
+            defeatPopup.Show();
+        }
+        else
+        {
+            Debug.LogWarning("V scéne chýba DefeatPopupUI - hráč ostáva v scéne.");
+            rewardChosen = true;
+        }
+    }
+
+    // Tlačidlo "Menu" v death popupe - ukončí run a vráti hráča do menu
+    public void ReturnToMenuAfterDefeat()
+    {
+        if (State != TurnState.Defeat || rewardChosen) return;
         rewardChosen = true;
 
-        SavePlayerHp();
-        if (PlayerStats.Instance != null) PlayerStats.Instance.AddMoney(pendingGoldReward);
-        ReturnToMap();
+        MapRunState.Clear();
+        LoadingScene.Load(SceneIds.Menu);
     }
 
     private void ReturnToMap()

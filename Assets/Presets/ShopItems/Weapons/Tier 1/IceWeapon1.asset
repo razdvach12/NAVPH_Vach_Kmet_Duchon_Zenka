@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Ice Star
   description: 
   icon: {fileID: -4656157496897403196, guid: d97532cee7f565b448f3ea0dcae038c8, type: 3}
-  price: 150
+  price: 160
   itemType: 0
   elementType: 0
   staminaCost: 2

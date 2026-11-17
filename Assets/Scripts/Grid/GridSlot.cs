@@ -128,6 +128,37 @@ public class GridSlot : MonoBehaviour
         return s_whitePixelSprite;
     }
 
+    // Číslo damagu na políčku pri náhľade zbrane (zobrazí sa iba pri damage > 1, 0 = skryť)
+    private TMPro.TextMeshPro damageLabel;
+
+    public void SetDamageLabel(int damage)
+    {
+        if (damage <= 1)
+        {
+            if (damageLabel != null) damageLabel.gameObject.SetActive(false);
+            return;
+        }
+
+        if (damageLabel == null)
+        {
+            var go = new GameObject("DamageLabel");
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = new Vector3(0f, 0f, -0.1f);
+            damageLabel = go.AddComponent<TMPro.TextMeshPro>();
+            damageLabel.alignment = TMPro.TextAlignmentOptions.Center;
+            damageLabel.fontSize = 6;
+            damageLabel.fontStyle = TMPro.FontStyles.Bold;
+            damageLabel.color = Color.white;
+            damageLabel.outlineWidth = 0.25f;
+            damageLabel.outlineColor = Color.black;
+            damageLabel.sortingOrder = 20; // nad blokmi aj okrajmi políčka
+            damageLabel.rectTransform.sizeDelta = new Vector2(1f, 1f);
+        }
+
+        damageLabel.text = damage.ToString();
+        damageLabel.gameObject.SetActive(true);
+    }
+
     public void SetHighlight(bool active, Color highlightColor)
     {
         if (slotRenderer != null)

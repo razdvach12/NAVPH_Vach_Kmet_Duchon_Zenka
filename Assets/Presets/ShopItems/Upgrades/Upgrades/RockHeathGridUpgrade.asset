@@ -15,8 +15,9 @@ MonoBehaviour:
   itemName: Bonus Rock HP Grid
   description: 
   icon: {fileID: -7226573138506784439, guid: b121c32a533b5d54ba963ccbff194492, type: 3}
-  price: 250
+  price: 50
   itemType: 3
   elementType: 4
   staminaCost: 1
   effectValue: 0
+  weaponGridPreset: {fileID: 0}

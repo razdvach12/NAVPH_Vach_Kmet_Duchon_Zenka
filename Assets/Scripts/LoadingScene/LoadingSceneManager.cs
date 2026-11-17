@@ -30,6 +30,13 @@ public class LoadingSceneManager : MonoBehaviour
         LoadingScene.Load(SceneIds.Map);
     }
 
+    // Tlačidlo "Return to Menu" (napr. vo FInalScene) - ukončí run a vráti hráča do menu
+    public void OnClickMenu()
+    {
+        MapRunState.Clear();
+        LoadingScene.Load(SceneIds.Menu);
+    }
+
     public void OnClickTreasureScene()
     {
         LoadingScene.Load(SceneIds.Chest);

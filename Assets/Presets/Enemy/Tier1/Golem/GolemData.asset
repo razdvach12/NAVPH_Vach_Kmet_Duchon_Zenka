@@ -21,4 +21,6 @@ MonoBehaviour:
     targeting: 0
   - pattern: {fileID: 11400000, guid: 339518fe66d059c4d82cd13583b7c615, type: 2}
     targeting: 0
-  goldReward: 10
+  rotateGridEachRound: 0
+  cycleElementsEachRound: 0
+  goldReward: 20
