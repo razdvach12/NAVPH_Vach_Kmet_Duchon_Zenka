@@ -9,4 +9,5 @@ public static class SceneIds
 	public const int Chest = 6;
 	public const int Encounter = 7;
 	public const int Meadow = 8;
+	public const int Final = 9;
 }

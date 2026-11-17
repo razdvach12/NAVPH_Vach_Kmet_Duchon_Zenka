@@ -25,4 +25,4 @@ MonoBehaviour:
     targeting: 1
   rotateGridEachRound: 1
   cycleElementsEachRound: 1
-  goldReward: 10
+  goldReward: 500
