@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EarthGuardianData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Earth Guardian
-  enemySprite: {fileID: -4663979624467175985, guid: 17300903c472edf40add5e00e063f6ea, type: 3}
+  enemySprite: {fileID: 6107507567689220060, guid: f14a5f073d20f414b9cc7f68d4860eb0, type: 3}
   tier: 2
   bodyPreset: {fileID: 11400000, guid: fb058503ca0543069393223f2b732f20, type: 2}
   attacks:
@@ -21,4 +21,6 @@ MonoBehaviour:
     targeting: 0
   - pattern: {fileID: 11400000, guid: 5db82ebc13ec4ee7bb14a04238a6f773, type: 2}
     targeting: 1
+  rotateGridEachRound: 0
+  cycleElementsEachRound: 0
   goldReward: 20

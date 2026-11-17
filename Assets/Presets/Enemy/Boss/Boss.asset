@@ -116,8 +116,8 @@ MonoBehaviour:
     thickness: 1
   - element: 0
     thickness: 1
-  - element: 0
-    thickness: 0
+  - element: 2
+    thickness: 1
   - element: 0
     thickness: 1
   - element: 1
@@ -134,8 +134,8 @@ MonoBehaviour:
     thickness: 0
   - element: 0
     thickness: 0
-  - element: 0
-    thickness: 0
+  - element: 2
+    thickness: 1
   - element: 1
     thickness: 1
   - element: 1

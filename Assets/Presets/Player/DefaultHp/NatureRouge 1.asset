@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7194fc99f2d95ee41b98d3ab8505c32b, type: 3}
   m_Name: NatureRouge 1
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
-  width: 6
-  height: 6
+  width: 8
+  height: 8
   weaponIcon: {fileID: 0}
   actionType: 0
   staminaCost: 1
@@ -21,42 +21,22 @@ MonoBehaviour:
   - element: 0
     thickness: 0
   - element: 0
-    thickness: 0
+    thickness: 2
   - element: 0
-    thickness: 0
+    thickness: 2
   - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 0
-    thickness: 0
-  - element: 5
     thickness: 1
-  - element: 5
-    thickness: 1
-  - element: 5
-    thickness: 1
-  - element: 5
+  - element: 0
     thickness: 1
   - element: 0
     thickness: 0
   - element: 0
     thickness: 0
-  - element: 5
+  - element: 0
+    thickness: 2
+  - element: 0
+    thickness: 1
+  - element: 0
     thickness: 1
   - element: 1
     thickness: 2
@@ -64,18 +44,94 @@ MonoBehaviour:
     thickness: 2
   - element: 5
     thickness: 1
+  - element: 1
+    thickness: 1
   - element: 0
-    thickness: 0
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 5
+    thickness: 2
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 2
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 2
+  - element: 5
+    thickness: 2
+  - element: 1
+    thickness: 1
+  - element: 0
+    thickness: 1
   - element: 0
     thickness: 0
   - element: 5
     thickness: 1
   - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 2
+  - element: 1
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 0
+  - element: 1
+    thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 5
     thickness: 2
   - element: 1
     thickness: 2
-  - element: 5
+  - element: 1
     thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
   - element: 0
     thickness: 0
   - element: 0

@@ -27,7 +27,7 @@ MonoBehaviour:
   - element: 1
     thickness: 1
   - element: 1
-    thickness: 1
+    thickness: 2
   - element: 1
     thickness: 1
   - element: 0
@@ -35,7 +35,7 @@ MonoBehaviour:
   - element: 1
     thickness: 1
   - element: 1
-    thickness: 1
+    thickness: 2
   - element: 1
     thickness: 1
   - element: 1
@@ -43,7 +43,7 @@ MonoBehaviour:
   - element: 1
     thickness: 1
   - element: 1
-    thickness: 1
+    thickness: 2
   - element: 1
     thickness: 1
   - element: 0
