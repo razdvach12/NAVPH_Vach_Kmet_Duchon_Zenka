@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Bomb
   description: 
   icon: {fileID: 1589276796324118985, guid: f0aa2f33ae807e540b3bcdc624991557, type: 3}
-  price: 68
+  price: 20
   itemType: 1
   elementType: 0
   staminaCost: 1

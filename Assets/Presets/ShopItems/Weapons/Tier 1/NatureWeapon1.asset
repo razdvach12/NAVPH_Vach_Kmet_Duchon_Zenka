@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Blow Gun
   description: 
-  icon: {fileID: 3510498106446712719, guid: 2ba217226132c5b42b6d09af62a09bb2, type: 3}
-  price: 175
+  icon: {fileID: 5648082686200402338, guid: 68952493276a4c44ea30f250b081f42d, type: 3}
+  price: 110
   itemType: 0
   elementType: 0
-  staminaCost: 2
+  staminaCost: 1
   effectValue: 0
-  weaponGridPreset: {fileID: 11400000, guid: 689ce3c7e476b7c4bb030bb4aae9d171, type: 2}
+  weaponGridPreset: {fileID: 11400000, guid: 18fca6787f2ae4243bc8e1b497a12c9f, type: 2}

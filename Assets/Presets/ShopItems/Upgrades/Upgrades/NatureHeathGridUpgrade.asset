@@ -15,8 +15,9 @@ MonoBehaviour:
   itemName: Bonus Nature HP Grid
   description: 
   icon: {fileID: 6458643512563879596, guid: 97e097ebf55b1be4697bec04f0ecd4cf, type: 3}
-  price: 251
+  price: 50
   itemType: 3
   elementType: 3
   staminaCost: 1
   effectValue: 0
+  weaponGridPreset: {fileID: 0}

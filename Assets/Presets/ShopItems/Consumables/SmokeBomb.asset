@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Smoke Bomb
   description: 
   icon: {fileID: -6449965642854024004, guid: be47f31fee42c0e479c82a405f7d1c62, type: 3}
-  price: 1000
+  price: 100
   itemType: 1
   elementType: 0
   staminaCost: 1
