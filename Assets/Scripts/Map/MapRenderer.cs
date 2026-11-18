@@ -16,6 +16,7 @@ public class MapRenderer : MonoBehaviour
 
 	[Header("Node Icons (Drag your 7 sprites here)")]
 	public Sprite encounterIcon; // encounter_icon
+	public Sprite mediumEncounterIcon;
 	public Sprite shopIcon;      // Shop_icon
 	public Sprite chestIcon;     // Chest_icon (Treasure)
 	public Sprite mysteryIcon;   // Mystery_icon
@@ -120,6 +121,7 @@ public class MapRenderer : MonoBehaviour
 		switch (type)
 		{
 			case NodeType.Encounter: return encounterIcon;
+			case NodeType.MediumEncounter: return mediumEncounterIcon;
 			case NodeType.Shop: return shopIcon;
 			case NodeType.Treasure: return chestIcon;
 			case NodeType.Mystery: return mysteryIcon;
