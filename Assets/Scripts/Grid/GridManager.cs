@@ -463,8 +463,8 @@ public class GridManager : MonoBehaviour
     {
         foreach (var (slot, attackCell) in overlapped)
         {
-            // Zásah dostanú iba políčka, ktoré ešte nie sú zničené (HasAliveBlock)
-            if (slot.HasAliveBlock)
+            // Zásah dostanú iba políčka, ktoré ešte nie sú zničené (HasAliveBlock) a nie sú chránené štítom
+            if (slot.HasAliveBlock && slot != protectedSlot)
             {
                 int finalDamage = GetDamage(attackCell, slot);
                 if (finalDamage > 0)
@@ -565,6 +565,34 @@ public class GridManager : MonoBehaviour
     }
 
     // --- KONTROLA ŽIVOTOV (VÝHRA / PREHRA) ---
+
+    // --- SHIELD OF COURAGE ---
+    // Chránené políčko nedostane žiadny damage (útoky ani láva), kým sa nevyberie nové
+
+    private GridSlot protectedSlot;
+
+    // Vyberie náhodné živé políčko a ochráni ho (iba ak je živých aspoň minAlive); inak ochranu zruší
+    public void ProtectRandomAliveSlot(Sprite shieldIcon, int minAlive)
+    {
+        ClearProtectedSlot();
+        if (slots == null) return;
+
+        var alive = new List<GridSlot>();
+        foreach (var slot in slots)
+        {
+            if (slot != null && slot.HasAliveBlock) alive.Add(slot);
+        }
+        if (alive.Count < minAlive) return;
+
+        protectedSlot = alive[Random.Range(0, alive.Count)];
+        protectedSlot.SetShieldIcon(shieldIcon);
+    }
+
+    public void ClearProtectedSlot()
+    {
+        if (protectedSlot != null) protectedSlot.SetShieldIcon(null);
+        protectedSlot = null;
+    }
 
     public bool HasAnyAliveBlock()
     {
@@ -734,6 +762,49 @@ public class GridManager : MonoBehaviour
                 s.SetHighlight(true, color);
             }
             else if (s == hoveredSlot)
+            {
+                s.SetHighlight(true, new Color(1f, 0.2f, 0.2f, 0.85f));
+            }
+        }
+    }
+
+    // --- UPGRADE ZBRANE (Bonus Weapon size) ---
+    // Grid zbrane: políčko sa dá pridať na prázdne miesto, ktoré susedí hranou s existujúcim políčkom zbrane
+
+    private bool HasBlockAt(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= totalWidth || y >= totalHeight) return false;
+        GridSlot s = slots[x, y];
+        return s != null && s.currentBlock != null;
+    }
+
+    public bool CanAddWeaponCellAt(GridSlot slot)
+    {
+        if (slot == null || slots == null || slot.parentGrid != this) return false;
+        if (slot.currentBlock != null) return false;
+
+        return HasBlockAt(slot.x, slot.y - 1)
+            || HasBlockAt(slot.x, slot.y + 1)
+            || HasBlockAt(slot.x - 1, slot.y)
+            || HasBlockAt(slot.x + 1, slot.y);
+    }
+
+    // Zelená = sem sa dá pridať políčko, ostatné prázdne miesta ostanú bez zvýraznenia
+    public void ShowAddWeaponCellPreview(GridSlot hoveredSlot)
+    {
+        ClearPreview();
+        if (slots == null) return;
+
+        foreach (GridSlot s in slots)
+        {
+            if (s == null) continue;
+
+            bool isHovered = s == hoveredSlot;
+            if (CanAddWeaponCellAt(s))
+            {
+                s.SetHighlight(true, isHovered ? new Color(0.15f, 1f, 0.15f, 0.95f) : new Color(0.2f, 0.85f, 0.2f, 0.55f));
+            }
+            else if (isHovered)
             {
                 s.SetHighlight(true, new Color(1f, 0.2f, 0.2f, 0.85f));
             }
@@ -1021,7 +1092,7 @@ public class GridManager : MonoBehaviour
         foreach (GridSlot target in targets)
         {
             target.SetHighlight(false, Color.white);
-            if (!target.HasAliveBlock) continue;
+            if (!target.HasAliveBlock || target == protectedSlot) continue; // Štít chráni aj pred lávou
 
             int damage = Mathf.Max(0, 1 + GetElementBonus(BlockElement.Lava, target.currentBlock.element));
             target.currentBlock.TakeDamage(damage);

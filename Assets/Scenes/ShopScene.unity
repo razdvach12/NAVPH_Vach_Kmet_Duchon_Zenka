@@ -3834,6 +3834,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7ed451c4a13c91d4d8e2a87a3baf7cd6, type: 2}
   - {fileID: 11400000, guid: b0e03544fae8d2a449f3b54124ad23ba, type: 2}
   - {fileID: 11400000, guid: 98c897d1e09285b4a8e36abeccbc33ae, type: 2}
+  - {fileID: 11400000, guid: 382e73ec7d9be1d4299807ab14c54322, type: 2}
   weaponSlots:
   - {fileID: 3970055334624767801}
   - {fileID: 2080651862}

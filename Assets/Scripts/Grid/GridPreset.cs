@@ -67,6 +67,70 @@ public class GridPreset : ScriptableObject
         return rotated;
     }
 
+    // Kópia s prázdnym okrajom okolo (napr. pre pridanie políčka na okraj zbrane); originál sa nemení
+    public GridPreset CreatePaddedCopy(int pad = 1)
+    {
+        GridPreset copy = CreateEmptyCopy(width + 2 * pad, height + 2 * pad);
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                copy.cells[(y + pad) * copy.width + (x + pad)] = GetCell(x, y);
+            }
+        }
+        return copy;
+    }
+
+    // Kópia orezaná na najmenší obdĺžnik, ktorý obsahuje všetky neprázdne políčka
+    public GridPreset CreateTrimmedCopy()
+    {
+        int minX = width, minY = height, maxX = -1, maxY = -1;
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (GetCell(x, y).element == BlockElement.None) continue;
+                minX = Mathf.Min(minX, x); maxX = Mathf.Max(maxX, x);
+                minY = Mathf.Min(minY, y); maxY = Mathf.Max(maxY, y);
+            }
+        }
+        if (maxX < 0) return CreatePaddedCopy(0); // Prázdny preset - nie je čo orezať
+
+        GridPreset copy = CreateEmptyCopy(maxX - minX + 1, maxY - minY + 1);
+        for (int x = 0; x < copy.width; x++)
+        {
+            for (int y = 0; y < copy.height; y++)
+            {
+                copy.cells[y * copy.width + x] = GetCell(x + minX, y + minY);
+            }
+        }
+        return copy;
+    }
+
+    public void SetCell(int x, int y, CellSetup cell)
+    {
+        int index = y * width + x;
+        if (cells != null && x >= 0 && x < width && y >= 0 && index < cells.Length)
+            cells[index] = cell;
+    }
+
+    private GridPreset CreateEmptyCopy(int newWidth, int newHeight)
+    {
+        GridPreset copy = CreateInstance<GridPreset>();
+        copy.name = name;
+        copy.width = newWidth;
+        copy.height = newHeight;
+        copy.weaponIcon = weaponIcon;
+        copy.actionType = actionType;
+        copy.staminaCost = staminaCost;
+        copy.cells = new CellSetup[newWidth * newHeight];
+        for (int i = 0; i < copy.cells.Length; i++)
+        {
+            copy.cells[i] = new CellSetup { element = BlockElement.None, thickness = 1 };
+        }
+        return copy;
+    }
+
     // Automaticky upraví veľkosť poľa, keď v Inspectore zmeníš width alebo height
     private void OnValidate()
     {

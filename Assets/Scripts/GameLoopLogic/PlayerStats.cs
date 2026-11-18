@@ -154,6 +154,23 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // Nahradí zbraň na danom indexe (napr. zväčšenou kópiou po upgrade - originálny asset sa nemení)
+    public void ReplaceWeapon(int index, GridPreset newWeapon)
+    {
+        if (newWeapon == null || index < 0 || index >= unlockedWeapons.Count) return;
+        unlockedWeapons[index] = newWeapon;
+        OnWeaponsChanged?.Invoke();
+    }
+
+    // Vráti relikviu s daným efektom, ak ju hráč má (inak null)
+    public ItemData GetRelic(RelicEffect effect)
+    {
+        if (effect == RelicEffect.None) return null;
+        return relics.Find(r => r != null && r.relicEffect == effect);
+    }
+
+    public bool HasRelic(RelicEffect effect) => GetRelic(effect) != null;
+
     public void RemoveWeapon(int index)
     {
         if (index >= 0 && index < unlockedWeapons.Count)
