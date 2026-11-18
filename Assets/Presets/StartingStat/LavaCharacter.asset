@@ -15,7 +15,7 @@ MonoBehaviour:
   characterName: Lava Nieco
   characterSprite: {fileID: -214115308120325660, guid: 9086c70e9500c1442bca513465485cae, type: 3}
   startingGold: 200
-  startingStamina: 4
+  startingStamina: 6
   healthGridPreset: {fileID: 11400000, guid: de56635d67382234eb2a328c900284ae, type: 2}
   startingWeapons:
   - {fileID: 11400000, guid: 0072c14c6ecff614fa52bf54931be248, type: 2}

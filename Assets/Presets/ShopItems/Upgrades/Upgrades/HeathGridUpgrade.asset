@@ -16,8 +16,11 @@ MonoBehaviour:
   description: 
   icon: {fileID: 6956665579318794515, guid: caaf220d3c276834e9cce960818aa476, type: 3}
   price: 20
+  priceIncreasePerPurchase: 5
   itemType: 3
   elementType: 0
   staminaCost: 1
   effectValue: 0
+  upgradeEffect: 0
+  relicEffect: 0
   weaponGridPreset: {fileID: 0}

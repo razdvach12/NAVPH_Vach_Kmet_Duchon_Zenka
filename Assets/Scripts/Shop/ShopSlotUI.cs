@@ -15,27 +15,40 @@ public class ShopSlotUI : MonoBehaviour
     [HideInInspector]
     public ItemData assignedItem;
 
-    public void SetItem(ItemData newItem) 
+    // Predmety s priceIncreasePerPurchase > 0 po kúpe v obchode nezmiznú, ale zdražejú (platí iba počas tejto návštevy obchodu)
+    private int priceIncrease;
+
+    // Aktuálna cena vrátane zdraženia (asset sa nemení)
+    public int CurrentPrice => assignedItem != null ? assignedItem.price + priceIncrease : 0;
+
+    private bool IsRepeatable => assignedItem != null && assignedItem.priceIncreasePerPurchase > 0;
+
+    // Po kúpe: opakovateľný predmet zdražie a ostane, ostatné zmiznú. Vráti true, ak predmet ostal v slote.
+    private bool TryKeepAfterPurchase(bool free)
+    {
+        if (free || !IsRepeatable) return false;
+
+        priceIncrease += assignedItem.priceIncreasePerPurchase;
+        UpdatePriceText();
+        return true;
+    }
+
+    public void SetItem(ItemData newItem)
     {
         assignedItem = newItem;
+        priceIncrease = 0;
 
-        if (assignedItem != null) 
+        if (assignedItem != null)
         {
             gameObject.SetActive(true);
 
-            if (iconImage != null) 
+            if (iconImage != null)
             {
                 iconImage.gameObject.SetActive(true);
                 iconImage.sprite = assignedItem.icon;
             }
             if (nameText != null) nameText.text = assignedItem.itemName;
-            if (priceText != null)
-            {
-                if (isFreeReward || assignedItem.price <= 0)
-                    priceText.text = "";
-                else
-                    priceText.text = $"{assignedItem.price} Gold";
-            }
+            UpdatePriceText();
             
             if (buyButton != null) 
             {
@@ -45,13 +58,23 @@ public class ShopSlotUI : MonoBehaviour
                 buyButton.onClick.AddListener(TryBuyItem);
             }
         } 
-        else 
+        else
         {
             gameObject.SetActive(false);
         }
     }
 
-    public void TryBuyItem() 
+    private void UpdatePriceText()
+    {
+        if (priceText == null || assignedItem == null) return;
+
+        if (isFreeReward || assignedItem.price <= 0)
+            priceText.text = "";
+        else
+            priceText.text = $"{CurrentPrice} Gold";
+    }
+
+    public void TryBuyItem()
     {
         if (assignedItem == null) return;
 
@@ -61,7 +84,7 @@ public class ShopSlotUI : MonoBehaviour
         // --- ŠPECIÁLNA LOGIKA PRE UPGRADY GRIDU (ADD MAX HP / CHANGE ELEMENT) ---
         if (assignedItem.itemType == ItemType.Upgrade)
         {
-            if (!free && stats.money < assignedItem.price)
+            if (!free && stats.money < CurrentPrice)
             {
                 Debug.Log("Nemáš dosť goldov na tento upgrade!");
                 return;
@@ -70,7 +93,12 @@ public class ShopSlotUI : MonoBehaviour
             RewardTargetingController targeting = RewardTargetingController.EnsureInstance();
             BlockElement targetElement = ConvertElementType(assignedItem.elementType);
 
-            if (targetElement == BlockElement.None)
+            if (assignedItem.upgradeEffect == UpgradeEffect.WeaponSize)
+            {
+                // Bonus Weapon size: hráč vyberie zbraň a miesto pre nové políčko
+                targeting.StartAddWeaponCellTargeting(CompleteUpgradePurchase);
+            }
+            else if (targetElement == BlockElement.None)
             {
                 // Reward Type A: Add Max HP Cell (červený Basic štvorček)
                 targeting.StartAddMaxHpTargeting(CompleteUpgradePurchase);
@@ -111,14 +139,18 @@ public class ShopSlotUI : MonoBehaviour
             }
             // ------------------------------------------------
 
-            if (free || stats.TrySpendMoney(assignedItem.price))
+            int paidPrice = CurrentPrice;
+            if (free || stats.TrySpendMoney(paidPrice))
             {
                 Debug.Log(free
                     ? $"Vyberám odmenu: {assignedItem.itemName}."
-                    : $"Kupujem {assignedItem.itemName} za {assignedItem.price} goldov.");
-                
+                    : $"Kupujem {assignedItem.itemName} za {paidPrice} goldov.");
+
                 stats.AddPurchasedItem(assignedItem);
-                
+
+                // Opakovateľný predmet ostane v obchode a zdražie
+                if (TryKeepAfterPurchase(free)) return;
+
                 SetItem(null);
 
                 if (ShopManager.Instance != null)
@@ -147,7 +179,7 @@ public class ShopSlotUI : MonoBehaviour
 
         if (!free)
         {
-            if (!stats.TrySpendMoney(assignedItem.price))
+            if (!stats.TrySpendMoney(CurrentPrice))
             {
                 Debug.Log("Nemáš dosť goldov na tento upgrade!");
                 return;
@@ -155,6 +187,10 @@ public class ShopSlotUI : MonoBehaviour
         }
 
         Debug.Log($"Aplikovaný upgrade: {assignedItem.itemName}");
+
+        // Opakovateľný predmet v obchode ostane a zdražie (v truhle odmena zmizne ako doteraz)
+        if (TryKeepAfterPurchase(free)) return;
+
         SetItem(null);
 
         if (ShopManager.Instance != null)

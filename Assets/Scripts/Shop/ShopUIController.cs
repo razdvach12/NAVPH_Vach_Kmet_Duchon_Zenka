@@ -204,6 +204,54 @@ public class ShopUIController : MonoBehaviour
         }
     }
 
+    // --- VÝBER ZBRANE PRE UPGRADE (Bonus Weapon size) ---
+
+    public GridManager PlayerHealthGrid => playerHealthGrid;
+
+    // Index slotu zbrane pod daným bodom obrazovky (-1 = žiadny alebo prázdny slot)
+    public int GetWeaponSlotIndexAt(Vector2 screenPos)
+    {
+        if (weaponSlots == null || PlayerStats.Instance == null) return -1;
+
+        for (int i = 0; i < weaponSlots.Length && i < PlayerStats.Instance.unlockedWeapons.Count; i++)
+        {
+            if (weaponSlots[i] == null || !weaponSlots[i].activeInHierarchy) continue;
+
+            RectTransform rt = weaponSlots[i].transform as RectTransform;
+            if (rt == null) continue;
+
+            Canvas canvas = rt.GetComponentInParent<Canvas>();
+            Camera cam = canvas != null && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? canvas.rootCanvas.worldCamera
+                : null;
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(rt, screenPos, cam)) return i;
+        }
+        return -1;
+    }
+
+    private static readonly Color WeaponSlotChoiceColor = new Color(0.55f, 1f, 0.55f, 1f);
+    private static readonly Color WeaponSlotSelectedColor = new Color(1f, 0.9f, 0.3f, 1f);
+
+    // Zvýrazní sloty zbraní, z ktorých sa dá vybrať (selectedIndex = práve vybraná zbraň, -1 = žiadna; highlight false = vráti pôvodné farby)
+    public void SetWeaponSlotsHighlight(bool highlight, int selectedIndex = -1)
+    {
+        if (weaponSlots == null) return;
+        int weaponCount = PlayerStats.Instance != null ? PlayerStats.Instance.unlockedWeapons.Count : 0;
+
+        for (int i = 0; i < weaponSlots.Length; i++)
+        {
+            if (weaponSlots[i] == null) continue;
+
+            Transform itemSlotTr = weaponSlots[i].transform.Find("ItemSlot");
+            Image slotImage = itemSlotTr != null ? itemSlotTr.GetComponent<Image>() : weaponSlots[i].GetComponentInChildren<Image>();
+            if (slotImage == null) continue;
+
+            if (!highlight || i >= weaponCount) slotImage.color = Color.white;
+            else slotImage.color = i == selectedIndex ? WeaponSlotSelectedColor : WeaponSlotChoiceColor;
+        }
+    }
+
     public void UpdateShopUI()
     {
         ResolveUpperPartReferences();

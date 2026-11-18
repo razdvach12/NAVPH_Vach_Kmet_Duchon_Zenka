@@ -128,6 +128,37 @@ public class GridSlot : MonoBehaviour
         return s_whitePixelSprite;
     }
 
+    // Ikonka štítu (Shield of Courage) - políčko je toto kolo chránené pred damagom
+    private SpriteRenderer shieldIcon;
+
+    public void SetShieldIcon(Sprite icon)
+    {
+        if (icon == null)
+        {
+            if (shieldIcon != null) shieldIcon.gameObject.SetActive(false);
+            return;
+        }
+
+        if (shieldIcon == null)
+        {
+            var go = new GameObject("ShieldIcon");
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = new Vector3(0f, 0f, -0.05f);
+            shieldIcon = go.AddComponent<SpriteRenderer>();
+            shieldIcon.sortingOrder = 15; // nad blokmi, pod číslom damagu
+        }
+
+        shieldIcon.sprite = icon;
+
+        // Ikonka zaberie ~70 % políčka bez ohľadu na veľkosť sprite-u
+        Vector2 size = icon.bounds.size;
+        float maxSide = Mathf.Max(size.x, size.y);
+        float scale = maxSide > 0f ? 0.7f / maxSide : 1f;
+        shieldIcon.transform.localScale = new Vector3(scale, scale, 1f);
+
+        shieldIcon.gameObject.SetActive(true);
+    }
+
     // Číslo damagu na políčku pri náhľade zbrane (zobrazí sa iba pri damage > 1, 0 = skryť)
     private TMPro.TextMeshPro damageLabel;
 

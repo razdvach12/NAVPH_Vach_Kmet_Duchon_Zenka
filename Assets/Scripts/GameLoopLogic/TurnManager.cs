@@ -221,10 +221,32 @@ public class TurnManager : MonoBehaviour
         State = TurnState.PlayerTurn;
 
         // Maximálna stamina patrí hráčovi - ak existuje PlayerStats, berieme ju odtiaľ
-        if (PlayerStats.Instance != null) maxStamina = PlayerStats.Instance.maxStamina;
+        if (PlayerStats.Instance != null)
+        {
+            maxStamina = PlayerStats.Instance.maxStamina;
+            if (PlayerStats.Instance.HasRelic(RelicEffect.FastFeather)) maxStamina += 2;
+        }
         currentStamina = maxStamina;
         UpdateStaminaText();
+        ApplyShieldOfCourage();
         onPlayerTurnStart?.Invoke();
+    }
+
+    // Shield of Courage: na začiatku ťahu ochráni jedno náhodné živé políčko na celé kolo (ak má hráč aspoň 4 živé)
+    private const int ShieldOfCourageMinAlive = 4;
+
+    private void ApplyShieldOfCourage()
+    {
+        if (playerGrid == null) return;
+
+        ItemData shield = PlayerStats.Instance != null ? PlayerStats.Instance.GetRelic(RelicEffect.ShieldOfCourage) : null;
+        if (shield == null)
+        {
+            playerGrid.ClearProtectedSlot();
+            return;
+        }
+
+        playerGrid.ProtectRandomAliveSlot(shield.icon, ShieldOfCourageMinAlive);
     }
 
     // Vytvorí text staminy iba raz na začiatku (nie v UpdateStaminaText - to sa volá aj pri zatváraní scény

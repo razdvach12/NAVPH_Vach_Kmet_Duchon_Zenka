@@ -1566,6 +1566,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7ed451c4a13c91d4d8e2a87a3baf7cd6, type: 2}
   - {fileID: 11400000, guid: b0e03544fae8d2a449f3b54124ad23ba, type: 2}
   - {fileID: 11400000, guid: 98c897d1e09285b4a8e36abeccbc33ae, type: 2}
+  - {fileID: 11400000, guid: 382e73ec7d9be1d4299807ab14c54322, type: 2}
   allRelicItems:
   - {fileID: 11400000, guid: 34f1ae455c83f0745aa0125941d4d8b5, type: 2}
   - {fileID: 11400000, guid: 5bb38027372780f4e96ae28533071ea9, type: 2}
