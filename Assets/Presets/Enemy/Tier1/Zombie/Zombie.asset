@@ -21,7 +21,7 @@ MonoBehaviour:
   - element: 0
     thickness: 1
   - element: 3
-    thickness: 1
+    thickness: 2
   - element: 1
     thickness: 1
   - element: 0
@@ -41,30 +41,30 @@ MonoBehaviour:
   - element: 0
     thickness: 2
   - element: 3
-    thickness: 2
-  - element: 1
-    thickness: 1
-  - element: 3
-    thickness: 1
-  - element: 0
-    thickness: 1
-  - element: 1
-    thickness: 1
-  - element: 0
-    thickness: 0
-  - element: 1
     thickness: 1
   - element: 1
     thickness: 1
   - element: 3
     thickness: 1
   - element: 0
-    thickness: 0
+    thickness: 1
+  - element: 1
+    thickness: 1
   - element: 0
     thickness: 0
   - element: 1
     thickness: 1
   - element: 1
+    thickness: 1
+  - element: 0
+    thickness: 1
+  - element: 0
+    thickness: 0
+  - element: 0
+    thickness: 0
+  - element: 1
+    thickness: 1
+  - element: 0
     thickness: 1
   - element: 0
     thickness: 0

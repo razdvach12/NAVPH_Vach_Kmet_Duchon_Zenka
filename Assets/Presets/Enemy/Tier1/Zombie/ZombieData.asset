@@ -18,7 +18,7 @@ MonoBehaviour:
   bodyPreset: {fileID: 11400000, guid: 2ffea8541b99c4b498a3967c43750596, type: 2}
   attacks:
   - pattern: {fileID: 11400000, guid: fc77e77897c2433ab4776ccc8e88ee69, type: 2}
-    targeting: 0
+    targeting: 1
   - pattern: {fileID: 11400000, guid: c77023a55a616ef4e829d9bc404eac23, type: 2}
     targeting: 0
   rotateGridEachRound: 0

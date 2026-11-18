@@ -18,10 +18,10 @@ MonoBehaviour:
   actionType: 0
   staminaCost: 1
   cells:
-  - element: 0
-    thickness: 2
   - element: 1
     thickness: 1
+  - element: 1
+    thickness: 2
   - element: 0
     thickness: 1
   - element: 0
@@ -40,12 +40,12 @@ MonoBehaviour:
     thickness: 1
   - element: 0
     thickness: 1
+  - element: 1
+    thickness: 2
   - element: 1
     thickness: 3
   - element: 1
-    thickness: 1
-  - element: 1
-    thickness: 1
+    thickness: 2
   - element: 4
     thickness: 1
   - element: 0
@@ -53,7 +53,7 @@ MonoBehaviour:
   - element: 1
     thickness: 1
   - element: 4
-    thickness: 2
+    thickness: 1
   - element: 0
     thickness: 0
   - element: 1

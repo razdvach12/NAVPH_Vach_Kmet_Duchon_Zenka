@@ -30,7 +30,7 @@ MonoBehaviour:
     thickness: 1
   - element: 1
     thickness: 1
-  - element: 0
+  - element: 1
     thickness: 1
   - element: 1
     thickness: 1
