@@ -9,7 +9,8 @@ public enum NodeType
 	Treasure,
 	Mystery,
 	Rest,
-	Boss
+	Boss,
+	MediumEncounter
 }
 
 public class MapNodeData
@@ -24,6 +25,7 @@ public class MapNodeData
 	public Button spawnedButton;
 	public Image spawnedImage;
 	public bool isVisited = false;
+	public bool isRevealed = false;
 
 	public MapNodeData(int x, int y, Vector2 uiPos)
 	{

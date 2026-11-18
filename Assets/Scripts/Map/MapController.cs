@@ -139,6 +139,42 @@ public class MapController : MonoBehaviour
 	}
 
 	// Typ uzla -> scéna
+	//private void LoadSceneForNode(MapNodeData node)
+	//{
+	//	MapPreset preset = MapRunState.Preset;
+
+	//	switch (node.type)
+	//	{
+	//		case NodeType.Encounter:
+	//			EncounterSelection.NextRoom = null;
+	//			EncounterSelection.NextDifficulty = preset != null ? preset.GetEncounterDifficulty(node.y) : RoomDifficulty.Easy;
+	//			LoadingScene.Load(SceneIds.Encounter);
+	//			break;
+
+	//		case NodeType.Boss:
+	//			if (preset != null && preset.bossRoom != null)
+	//				EncounterSelection.NextRoom = preset.bossRoom;
+	//			else
+	//				EncounterSelection.NextDifficulty = RoomDifficulty.Boss;
+	//			LoadingScene.Load(SceneIds.Encounter);
+	//			break;
+
+	//		case NodeType.Shop:
+	//			LoadingScene.Load(SceneIds.Shop);
+	//			break;
+
+	//		case NodeType.Treasure:
+	//			LoadingScene.Load(SceneIds.Chest);
+	//			break;
+
+	//		case NodeType.Rest:
+	//		case NodeType.Mystery:
+	//			LoadingScene.Load(SceneIds.Meadow);
+	//			break;
+	//	}
+	//}
+
+	// Typ uzla -> scéna
 	private void LoadSceneForNode(MapNodeData node)
 	{
 		MapPreset preset = MapRunState.Preset;
@@ -148,6 +184,12 @@ public class MapController : MonoBehaviour
 			case NodeType.Encounter:
 				EncounterSelection.NextRoom = null;
 				EncounterSelection.NextDifficulty = preset != null ? preset.GetEncounterDifficulty(node.y) : RoomDifficulty.Easy;
+				LoadingScene.Load(SceneIds.Encounter);
+				break;
+
+			case NodeType.MediumEncounter:
+				EncounterSelection.NextRoom = null;
+				EncounterSelection.NextDifficulty = RoomDifficulty.Medium;
 				LoadingScene.Load(SceneIds.Encounter);
 				break;
 
@@ -203,33 +245,89 @@ public class MapController : MonoBehaviour
 		mapContent.anchoredPosition = targetAnchoredPos;
 	}
 
+	//private void UpdateFogOfWar()
+	//{
+	//	var visibleNodes = new HashSet<MapNodeData>();
+	//	var clickableNodes = new HashSet<MapNodeData>();
+	//	MapNodeData current = MapRunState.CurrentNode;
+
+	//	if (current == null)
+	//	{
+	//		// Before picking the first node, show the bottom 'visionRange' floors
+	//		foreach (var node in AllNodes)
+	//		{
+	//			if (node.y < visionRange) visibleNodes.Add(node);
+	//			if (node.y == 0) clickableNodes.Add(node);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// Keep already visited nodes visible
+	//		foreach (var node in AllNodes)
+	//		{
+	//			if (node.isVisited) visibleNodes.Add(node);
+	//		}
+
+	//		// Reveal connected nodes up to 'visionRange' steps ahead
+	//		RevealNodesRecursive(current, visionRange, visibleNodes);
+
+	//		// Only direct next nodes are clickable
+	//		foreach (var next in current.nextNodes)
+	//		{
+	//			clickableNodes.Add(next);
+	//		}
+	//	}
+
+	//	mapRenderer.UpdateAllNodeVisuals(AllNodes, visibleNodes, clickableNodes, current);
+	//}
+
+	//private void RevealNodesRecursive(MapNodeData fromNode, int stepsLeft, HashSet<MapNodeData> visibleSet)
+	//{
+	//	visibleSet.Add(fromNode);
+	//	if (stepsLeft <= 0) return;
+
+	//	foreach (var next in fromNode.nextNodes)
+	//	{
+	//		RevealNodesRecursive(next, stepsLeft - 1, visibleSet);
+	//	}
+	//}
+
 	private void UpdateFogOfWar()
 	{
 		var visibleNodes = new HashSet<MapNodeData>();
 		var clickableNodes = new HashSet<MapNodeData>();
 		MapNodeData current = MapRunState.CurrentNode;
 
+		// Určíme, po ktoré poschodie (vrátane) hráč momentálne dovidí
+		// Ak ešte nevybral prvý uzol, vidí od 0 po (visionRange - 1), napr. prvé 3 poschodia (0, 1, 2)
+		// Ak stojí na poschodí Y, vidí všetko až po poschodie (Y + visionRange)
+		int maxVisibleFloor = (current == null) ? (visionRange - 1) : (current.y + visionRange);
+
+		foreach (var node in AllNodes)
+		{
+			// Všetko do výšky maxVisibleFloor sa natrvalo odhalí
+			if (node.y <= maxVisibleFloor || node.isVisited)
+			{
+				node.isRevealed = true;
+			}
+
+			// Čo bolo raz odhalené, ostáva navždy viditeľné
+			if (node.isRevealed)
+			{
+				visibleNodes.Add(node);
+			}
+		}
+
+		// Klikateľné uzly: buď 0. poschodie na štarte, alebo priami susedia z aktuálneho uzla
 		if (current == null)
 		{
-			// Before picking the first node, show the bottom 'visionRange' floors
 			foreach (var node in AllNodes)
 			{
-				if (node.y < visionRange) visibleNodes.Add(node);
 				if (node.y == 0) clickableNodes.Add(node);
 			}
 		}
 		else
 		{
-			// Keep already visited nodes visible
-			foreach (var node in AllNodes)
-			{
-				if (node.isVisited) visibleNodes.Add(node);
-			}
-
-			// Reveal connected nodes up to 'visionRange' steps ahead
-			RevealNodesRecursive(current, visionRange, visibleNodes);
-
-			// Only direct next nodes are clickable
 			foreach (var next in current.nextNodes)
 			{
 				clickableNodes.Add(next);
@@ -237,16 +335,5 @@ public class MapController : MonoBehaviour
 		}
 
 		mapRenderer.UpdateAllNodeVisuals(AllNodes, visibleNodes, clickableNodes, current);
-	}
-
-	private void RevealNodesRecursive(MapNodeData fromNode, int stepsLeft, HashSet<MapNodeData> visibleSet)
-	{
-		visibleSet.Add(fromNode);
-		if (stepsLeft <= 0) return;
-
-		foreach (var next in fromNode.nextNodes)
-		{
-			RevealNodesRecursive(next, stepsLeft - 1, visibleSet);
-		}
 	}
 }

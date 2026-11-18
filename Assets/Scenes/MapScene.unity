@@ -245,6 +245,7 @@ MonoBehaviour:
   visionRange: 3
   introPanDuration: 3
   verticalScreenOffset: -250
+  enterNodeDelay: 0.5
 --- !u!114 &674187034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,6 +263,7 @@ MonoBehaviour:
   nodePrefab: {fileID: 1003400679995675902, guid: 24cbd9ef58441d5488224dc6358db227, type: 3}
   linePrefab: {fileID: 5134415875380769477, guid: bb062e3dd2655e4499fabd5784efe657, type: 3}
   encounterIcon: {fileID: 21300000, guid: 8379266446515784d9cbe26a455f4f21, type: 3}
+  mediumEncounterIcon: {fileID: 3886261756923517130, guid: 4d8ba16ff1bdcc44eade88a64c67bce7, type: 3}
   shopIcon: {fileID: 21300000, guid: 6460e01023c7c024f92af2b04bcbf6d3, type: 3}
   chestIcon: {fileID: 21300000, guid: b98cade5dc33ab146bc40bea3acda44e, type: 3}
   mysteryIcon: {fileID: 21300000, guid: 90efd7be49dd063439bb2de971ce47a2, type: 3}
