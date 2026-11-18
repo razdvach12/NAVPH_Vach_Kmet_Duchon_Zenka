@@ -19,11 +19,11 @@ MonoBehaviour:
   staminaCost: 1
   cells:
   - element: 1
-    thickness: 1
+    thickness: 2
   - element: 0
     thickness: 1
   - element: 1
-    thickness: 1
+    thickness: 2
   - element: 0
     thickness: 1
   - element: 1

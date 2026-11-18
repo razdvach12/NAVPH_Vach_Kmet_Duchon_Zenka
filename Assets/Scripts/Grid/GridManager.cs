@@ -658,7 +658,7 @@ public class GridManager : MonoBehaviour
         return healedAny;
     }
 
-    // Doplní všetky odomknuté Max HP políčka v gride hráča na maximálnu hrúbku (3)
+    // Doplní všetky odomknuté Max HP políčka v gride hráča na ich vlastné maximum (maxThickness, nie vždy 3)
     public void HealAllToMax()
     {
         if (slots != null)
@@ -667,8 +667,7 @@ public class GridManager : MonoBehaviour
             {
                 if (slot != null && slot.IsUnlockedMaxHp)
                 {
-                    slot.currentBlock.maxThickness = 3;
-                    slot.currentBlock.SetCurrentThickness(3);
+                    slot.currentBlock.SetCurrentThickness(slot.currentBlock.maxThickness);
                 }
             }
         }
@@ -678,8 +677,7 @@ public class GridManager : MonoBehaviour
             {
                 if (block != null)
                 {
-                    block.maxThickness = 3;
-                    block.SetCurrentThickness(3);
+                    block.SetCurrentThickness(block.maxThickness);
                 }
             }
         }
@@ -721,15 +719,23 @@ public class GridManager : MonoBehaviour
 
     // Pravidlo pre Reward Type A (Add Max HP Cell):
     // Políčko musí byť prázdne a zdieľať aspoň 1 hranu (Hore, Dole, Vľavo, Vpravo) s existujúcim Max HP políčkom
+    // Alebo existujúce Max HP políčko s maximom pod 3 - Max HP sa naň "uloží" a zvýši jeho maximum o 1
     public bool CanAddMaxHpAt(GridSlot slot)
     {
         if (!isPlayerGrid || slot == null || slots == null) return false;
+        if (CanStackMaxHpAt(slot)) return true;
         if (slot.currentBlock != null || slot.IsUnlockedMaxHp) return false;
 
         return HasUnlockedMaxHpAt(slot.x, slot.y - 1)
             || HasUnlockedMaxHpAt(slot.x, slot.y + 1)
             || HasUnlockedMaxHpAt(slot.x - 1, slot.y)
             || HasUnlockedMaxHpAt(slot.x + 1, slot.y);
+    }
+
+    // Existujúce Max HP políčko, ktorému sa dá zvýšiť maximum (max 3)
+    private bool CanStackMaxHpAt(GridSlot slot)
+    {
+        return slot.IsUnlockedMaxHp && slot.currentBlock.maxThickness < 3;
     }
 
     // Pravidlo pre Reward Type B (Change Cell Element):
@@ -761,6 +767,12 @@ public class GridManager : MonoBehaviour
 
                 s.SetHighlight(true, color);
             }
+            else if (CanStackMaxHpAt(s))
+            {
+                // Existujúce políčko s maximom pod 3 - dá sa naň uložiť ďalšie Max HP
+                bool isHovered = (s == hoveredSlot);
+                s.SetHighlight(true, isHovered ? new Color(0.15f, 1f, 0.15f, 0.95f) : new Color(0.2f, 0.85f, 0.2f, 0.55f));
+            }
             else if (s == hoveredSlot)
             {
                 s.SetHighlight(true, new Color(1f, 0.2f, 0.2f, 0.85f));
@@ -778,9 +790,11 @@ public class GridManager : MonoBehaviour
         return s != null && s.currentBlock != null;
     }
 
+    // Alebo existujúce políčko zbrane s damage pod 3 - upgrade sa naň "uloží" a zvýši jeho damage o 1
     public bool CanAddWeaponCellAt(GridSlot slot)
     {
         if (slot == null || slots == null || slot.parentGrid != this) return false;
+        if (CanStackWeaponCellAt(slot)) return true;
         if (slot.currentBlock != null) return false;
 
         return HasBlockAt(slot.x, slot.y - 1)
@@ -789,7 +803,13 @@ public class GridManager : MonoBehaviour
             || HasBlockAt(slot.x + 1, slot.y);
     }
 
-    // Zelená = sem sa dá pridať políčko, ostatné prázdne miesta ostanú bez zvýraznenia
+    // Existujúce políčko zbrane, ktorému sa dá zvýšiť damage (max 3)
+    public bool CanStackWeaponCellAt(GridSlot slot)
+    {
+        return slot != null && slot.parentGrid == this && slot.currentBlock != null && slot.currentBlock.thickness < 3;
+    }
+
+    // Zelená = sem sa dá pridať políčko (alebo zvýšiť damage existujúceho), ostatné miesta ostanú bez zvýraznenia
     public void ShowAddWeaponCellPreview(GridSlot hoveredSlot)
     {
         ClearPreview();
@@ -840,6 +860,14 @@ public class GridManager : MonoBehaviour
 
         ClearPreview();
 
+        // Uloženie na existujúce políčko: maximum +1 (a aj aktuálne HP +1)
+        if (CanStackMaxHpAt(targetSlot))
+        {
+            targetSlot.currentBlock.UpgradeMaxThickness(1);
+            SaveMaxThicknessToPreset(targetSlot);
+            return true;
+        }
+
         BlockElement elem = newElement == BlockElement.None ? BlockElement.Basic : newElement;
         CellSetup newCell = new CellSetup
         {
@@ -867,6 +895,27 @@ public class GridManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    // Uloží maximum políčka do runtime presetu hráča (hrúbka v presete = maximum políčka), aby sa prenášalo medzi scénami
+    private void SaveMaxThicknessToPreset(GridSlot targetSlot)
+    {
+        if (!IsPlayerHealthGrid || !Application.isPlaying || targetSlot.currentBlock == null) return;
+
+        PlayerStats stats = PlayerStats.EnsureInstance();
+        GridPreset runtimePreset = stats.EnsureRuntimeHealthPreset(singlePreset);
+        if (runtimePreset != null && targetSlot.x >= 0 && targetSlot.x < runtimePreset.width && targetSlot.y >= 0 && targetSlot.y < runtimePreset.height)
+        {
+            int idx = targetSlot.y * runtimePreset.width + targetSlot.x;
+            if (runtimePreset.cells != null && idx >= 0 && idx < runtimePreset.cells.Length)
+            {
+                CellSetup cell = runtimePreset.cells[idx];
+                cell.thickness = targetSlot.currentBlock.maxThickness;
+                runtimePreset.cells[idx] = cell;
+            }
+            singlePreset = runtimePreset;
+        }
+        SavePlayerHpToStats();
     }
 
     // Aplikovanie Reward Type B (Change Cell Element):
@@ -1171,7 +1220,9 @@ public class GridManager : MonoBehaviour
     // Svetová pozícia nad stredom horného okraja gridu (napr. pre text staminy)
     public Vector3 GetTopCenterWorld(float extraOffset = 0f)
     {
-        float topEdge = totalHeight * spacing * 0.5f;
+        // Ak grid ešte nie je vygenerovaný (napr. vo vypnutom paneli), vezmeme výšku z presetu
+        int rows = totalHeight > 0 ? totalHeight : (singlePreset != null ? singlePreset.height : 0);
+        float topEdge = rows * spacing * 0.5f;
         return transform.TransformPoint(new Vector3(0f, topEdge + extraOffset, 0f));
     }
 
@@ -1204,11 +1255,8 @@ public class GridManager : MonoBehaviour
         if (slotValueScript != null)
         {
             // Odovzdáme aj destroyedHpPrefab, aby ho SlotValue vedel zobraziť pri klesnutí na 0
+            // Maximum políčka = hrúbka v presete (1 až 3); zvýšiť sa dá uložením Max HP odmeny na políčko
             slotValueScript.Setup(cellData.thickness, ownerIndex, destroyedHpPrefab);
-            if (isMaxHp && isPlayerGrid)
-            {
-                slotValueScript.maxThickness = 3;
-            }
             slot.currentBlock = slotValueScript;
             slot.SetMaxHp(isMaxHp);
         }

@@ -212,7 +212,8 @@ public class PlayerStats : MonoBehaviour
                     CellSetup cell = playerHealthPreset.GetCell(x, y);
                     if (cell.element != BlockElement.None)
                     {
-                        playerCurrentHp[y * width + x] = 3;
+                        // Hrúbka v presete = maximum políčka (1 až 3)
+                        playerCurrentHp[y * width + x] = Mathf.Clamp(cell.thickness, 1, 3);
                     }
                 }
             }

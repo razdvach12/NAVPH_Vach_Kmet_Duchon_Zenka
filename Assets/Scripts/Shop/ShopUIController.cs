@@ -284,6 +284,100 @@ public class ShopUIController : MonoBehaviour
         UpdateEnemyPortraits();
     }
 
+    // --- NÁHĽADY V STĹPCI VEDĽA ZBRANÍ (hore zbraň, pod ňou útok nepriateľa) ---
+
+    [Header("Náhľad útoku nepriateľa (pod náhľadom zbrane)")]
+    [Tooltip("Horný okraj náhľadu útoku je zarovnaný s horným okrajom tohto slotu zbraní (0 = horný slot)")]
+    [SerializeField] private int enemyAttackPreviewSlotIndex = 2;
+    [SerializeField] private float enemyAttackLabelOffset = 0.4f; // Vzdialenosť názvu útoku nad gridom
+    [Tooltip("Font názvu útoku (prázdne = predvolený TextMeshPro font)")]
+    [SerializeField] private TMP_FontAsset enemyAttackLabelFont;
+
+    private GridManager enemyAttackPreviewGrid;
+    private TextMeshPro enemyAttackLabel;
+
+    // Najvyšší slot zbraní (podľa Y) - podľa neho sa zarovnáva náhľad zbrane
+    private Transform GetTopWeaponSlot()
+    {
+        Transform top = null;
+        if (weaponSlots == null) return null;
+        foreach (GameObject slot in weaponSlots)
+        {
+            if (slot == null) continue;
+            if (top == null || slot.transform.position.y > top.position.y) top = slot.transform;
+        }
+        return top;
+    }
+
+    // Slot zbraní na danom poradí zhora (napr. 2 = tretí slot zhora)
+    private Transform GetWeaponSlotFromTop(int indexFromTop)
+    {
+        if (weaponSlots == null) return null;
+        var sorted = new List<Transform>();
+        foreach (GameObject slot in weaponSlots)
+        {
+            if (slot != null) sorted.Add(slot.transform);
+        }
+        if (sorted.Count == 0) return null;
+        sorted.Sort((a, b) => b.position.y.CompareTo(a.position.y));
+        return sorted[Mathf.Clamp(indexFromTop, 0, sorted.Count - 1)];
+    }
+
+    // Zobrazí názov a tvar útoku nepriateľa pod náhľadom zbrane
+    public void ShowEnemyAttackPreview(EnemyAttack attack)
+    {
+        if (attack == null || attack.pattern == null) return;
+
+        ResolveCombatReferences();
+        if (weaponTooltipGrid == null) return;
+
+        Transform anchor = GetWeaponSlotFromTop(enemyAttackPreviewSlotIndex);
+        if (anchor == null) return;
+
+        if (enemyAttackPreviewGrid == null)
+        {
+            // Kópia náhľadu zbrane (rovnaké prefaby políčok). Meno "WeaponGrid" je dôležité -
+            // GridManager podľa neho vie, že nejde o HP grid hráča (bez obrysu Max HP, bez ukladania HP)
+            GameObject go = Instantiate(weaponTooltipGrid.gameObject, weaponTooltipGrid.transform.parent);
+            go.name = "WeaponGrid";
+            enemyAttackPreviewGrid = go.GetComponent<GridManager>();
+            enemyAttackPreviewGrid.isPlayerGrid = true; // Aby náhľad nereagoval na útoky
+            enemyAttackPreviewGrid.SetShowMaxHpOutline(false);
+        }
+
+        if (enemyAttackLabel == null)
+        {
+            var labelGo = new GameObject("EnemyAttackLabel");
+            enemyAttackLabel = labelGo.AddComponent<TextMeshPro>();
+            if (enemyAttackLabelFont != null) enemyAttackLabel.font = enemyAttackLabelFont;
+            enemyAttackLabel.alignment = TextAlignmentOptions.Center;
+            enemyAttackLabel.fontSize = 4;
+            enemyAttackLabel.color = Color.black;
+            enemyAttackLabel.sortingOrder = 100;
+        }
+
+        enemyAttackPreviewGrid.gameObject.SetActive(true);
+        enemyAttackPreviewGrid.GenerateSingleGrid(attack.pattern);
+
+        Vector3 tooltipOffset = new Vector3(2.2f, 0f, 0f);
+        WeaponButtonUI anyWeaponBtn = anchor.GetComponent<WeaponButtonUI>();
+        if (anyWeaponBtn != null) tooltipOffset = anyWeaponBtn.tooltipOffset;
+
+        WeaponButtonUI.PlaceGridTopAt(enemyAttackPreviewGrid, WeaponButtonUI.GetTopEdgeWorld(anchor) + tooltipOffset);
+
+        enemyAttackLabel.gameObject.SetActive(true);
+        enemyAttackLabel.text = attack.pattern.name;
+        Vector3 labelPos = enemyAttackPreviewGrid.GetTopCenterWorld(enemyAttackLabelOffset);
+        labelPos.z = 0f;
+        enemyAttackLabel.transform.position = labelPos;
+    }
+
+    public void HideEnemyAttackPreview()
+    {
+        if (enemyAttackPreviewGrid != null) enemyAttackPreviewGrid.gameObject.SetActive(false);
+        if (enemyAttackLabel != null) enemyAttackLabel.gameObject.SetActive(false);
+    }
+
     public void UpdateEnemyPortraits(int attackingEnemyIndex = -1)
     {
         ResolveCombatReferences();
@@ -466,6 +560,7 @@ public class ShopUIController : MonoBehaviour
                     {
                         weaponBtn.targetingController = targetingController;
                         weaponBtn.weaponTooltipGrid = weaponTooltipGrid;
+                        weaponBtn.tooltipAnchor = GetTopWeaponSlot();
                     }
                 }
             }
@@ -509,6 +604,7 @@ public class ShopUIController : MonoBehaviour
                     weaponBtn.weaponPreset = weapon;
                     weaponBtn.targetingController = targetingController;
                     weaponBtn.weaponTooltipGrid = weaponTooltipGrid;
+                    weaponBtn.tooltipAnchor = GetTopWeaponSlot();
                 }
                 else
                 {
