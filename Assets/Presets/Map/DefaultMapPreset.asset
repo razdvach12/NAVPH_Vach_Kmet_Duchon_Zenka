@@ -42,6 +42,11 @@ MonoBehaviour:
     max: 8
     minFloor: 1
     maxFloor: 10
+  - nodeType: 6
+    min: 4
+    max: 6
+    minFloor: 3
+    maxFloor: 10
   pathCountRules:
   - nodeType: 1
     minPerPath: 1
