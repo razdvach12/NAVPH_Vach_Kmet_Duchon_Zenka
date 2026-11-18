@@ -307,6 +307,9 @@ public class TurnManager : MonoBehaviour
             enemyGrid.SetAttackingEnemy(i);
             RefreshUpperPartEnemies(i);
 
+            // Názov a tvar útoku sa ukáže v stĺpci vedľa zbraní (pod náhľadom zbrane)
+            if (shopUI != null) shopUI.ShowEnemyAttackPreview(attack);
+
             playerGrid.ShowEnemyAttackPreview(target, attack.pattern);
             yield return new WaitForSeconds(attackPreviewTime);
 
@@ -317,6 +320,7 @@ public class TurnManager : MonoBehaviour
             // Po útoku vrátime obrys nepriateľa späť na bielo a skryjeme červenú guličku
             enemyGrid.SetAttackingEnemy(-1);
             RefreshUpperPartEnemies(-1);
+            if (shopUI != null) shopUI.HideEnemyAttackPreview();
 
             if (CheckCombatEnd()) yield break;
             yield return new WaitForSeconds(delayBetweenAttacks);

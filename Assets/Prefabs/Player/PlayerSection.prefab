@@ -6189,6 +6189,9 @@ MonoBehaviour:
   targetingController: {fileID: 0}
   weaponTooltipGrid: {fileID: 0}
   turnManager: {fileID: 0}
+  enemyAttackPreviewSlotIndex: 2
+  enemyAttackLabelOffset: 0.4
+  enemyAttackLabelFont: {fileID: 11400000, guid: 52412df98f3b28d46b5306ac8a1bb062, type: 2}
 --- !u!1 &7854976153288494681
 GameObject:
   m_ObjectHideFlags: 0
