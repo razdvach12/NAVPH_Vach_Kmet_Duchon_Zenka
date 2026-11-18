@@ -177,9 +177,23 @@ public class MapController : MonoBehaviour
 	// Typ uzla -> scéna
 	private void LoadSceneForNode(MapNodeData node)
 	{
+		LoadSceneForType(node.type, node);
+	}
+
+	// Typy miestností, na ktoré môže "?" náhodne preskočiť (bez Shopu a Bossa)
+	private static readonly NodeType[] MysteryOutcomes =
+	{
+		NodeType.Encounter,
+		NodeType.MediumEncounter,
+		NodeType.Treasure,
+		NodeType.Rest
+	};
+
+	private void LoadSceneForType(NodeType type, MapNodeData node)
+	{
 		MapPreset preset = MapRunState.Preset;
 
-		switch (node.type)
+		switch (type)
 		{
 			case NodeType.Encounter:
 				EncounterSelection.NextRoom = null;
@@ -210,8 +224,14 @@ public class MapController : MonoBehaviour
 				break;
 
 			case NodeType.Rest:
-			case NodeType.Mystery:
 				LoadingScene.Load(SceneIds.Meadow);
+				break;
+
+			// "?" - náhodne jedna z miestností v MysteryOutcomes (rovnaká šanca pre každú)
+			case NodeType.Mystery:
+				NodeType outcome = MysteryOutcomes[Random.Range(0, MysteryOutcomes.Length)];
+				Debug.Log($"Mystery -> {outcome}");
+				LoadSceneForType(outcome, node);
 				break;
 		}
 	}
