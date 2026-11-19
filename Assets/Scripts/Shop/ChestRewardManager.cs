@@ -75,10 +75,46 @@ public class ChestRewardManager : MonoBehaviour
             if (rewardSlots == null) rewardSlots = new List<ShopSlotUI>();
             rewardSlots.RemoveAll(s => s == null);
 
-            if (rewardSlots.Count == 0)
+            // Vždy zoberieme aj všetky ShopSlotUI priamo v TreasureSection (ak hráč v Editore vymenil prefaby bez ručného priradenia do zoznamu)
+            ShopSlotUI[] inTreasure = treasureSection.GetComponentsInChildren<ShopSlotUI>(true);
+            foreach (ShopSlotUI s in inTreasure)
             {
-                ShopSlotUI[] existing = treasureSection.GetComponentsInChildren<ShopSlotUI>(true);
-                rewardSlots.AddRange(existing);
+                if (s != null && !rewardSlots.Contains(s))
+                {
+                    rewardSlots.Add(s);
+                }
+            }
+
+            // Ak hráč v Editore omylom pretiahol ChestItem mimo TreasureSection (napr. priamo pod Canvas alebo ChestSection), presunieme ho do TreasureSection
+            if (rewardSlots.Count < 3)
+            {
+                ShopSlotUI[] allInScene = FindObjectsByType<ShopSlotUI>(FindObjectsInactive.Include);
+                foreach (ShopSlotUI s in allInScene)
+                {
+                    if (s != null && !rewardSlots.Contains(s))
+                    {
+                        s.transform.SetParent(treasureSection, true);
+                        rewardSlots.Add(s);
+                    }
+                }
+            }
+
+            float[] defaultXPositions = { 0f, 349f, 699f };
+            bool allStackedAtSameX = rewardSlots.Count > 1;
+            if (allStackedAtSameX && rewardSlots[0] != null)
+            {
+                float firstX = rewardSlots[0].GetComponent<RectTransform>() != null
+                    ? rewardSlots[0].GetComponent<RectTransform>().anchoredPosition.x
+                    : 0f;
+                for (int i = 1; i < rewardSlots.Count; i++)
+                {
+                    RectTransform r = rewardSlots[i] != null ? rewardSlots[i].GetComponent<RectTransform>() : null;
+                    if (r != null && Mathf.Abs(r.anchoredPosition.x - firstX) > 5f)
+                    {
+                        allStackedAtSameX = false;
+                        break;
+                    }
+                }
             }
 
             for (int i = 0; i < rewardSlots.Count; i++)
@@ -87,6 +123,39 @@ public class ChestRewardManager : MonoBehaviour
                 if (slot == null) continue;
 
                 slot.isFreeReward = true;
+                slot.ResolveChildReferencesIfNeeded();
+
+                RectTransform rt = slot.GetComponent<RectTransform>();
+                if (rt != null)
+                {
+                    // Pri pretiahnutí prefabu v Scene View Unity nastaví localPosition.z = -9720,
+                    // čo spolu s lokálnym Z na BuyButton (-6156) a ItemName (-9720) posunie tlačidlo za kameru!
+                    rt.localPosition = new Vector3(rt.localPosition.x, rt.localPosition.y, 0f);
+                    rt.localScale = Vector3.one;
+
+                    if (allStackedAtSameX && i < defaultXPositions.Length)
+                    {
+                        rt.anchoredPosition = new Vector2(defaultXPositions[i], 0f);
+                    }
+                }
+
+                if (slot.buyButton != null)
+                {
+                    RectTransform btnRt = slot.buyButton.GetComponent<RectTransform>();
+                    if (btnRt != null)
+                    {
+                        btnRt.localPosition = new Vector3(btnRt.localPosition.x, btnRt.localPosition.y, 0f);
+                    }
+                }
+
+                if (slot.nameText != null)
+                {
+                    RectTransform nameRt = slot.nameText.GetComponent<RectTransform>();
+                    if (nameRt != null)
+                    {
+                        nameRt.localPosition = new Vector3(nameRt.localPosition.x, nameRt.localPosition.y, 0f);
+                    }
+                }
 
                 if (slot.iconImage != null)
                 {
@@ -94,6 +163,7 @@ public class ChestRewardManager : MonoBehaviour
                     RectTransform iconRt = slot.iconImage.rectTransform;
                     if (iconRt != null)
                     {
+                        iconRt.localPosition = new Vector3(iconRt.localPosition.x, iconRt.localPosition.y, 0f);
                         iconRt.sizeDelta = new Vector2(52f, 52f);
                         iconRt.localScale = new Vector3(2.66f, 2.66f, 1f);
                     }

@@ -38,6 +38,8 @@ public class ShopSlotUI : MonoBehaviour
         assignedItem = newItem;
         priceIncrease = 0;
 
+        ResolveChildReferencesIfNeeded();
+
         if (assignedItem != null)
         {
             gameObject.SetActive(true);
@@ -46,6 +48,7 @@ public class ShopSlotUI : MonoBehaviour
             {
                 iconImage.gameObject.SetActive(true);
                 iconImage.sprite = assignedItem.icon;
+                iconImage.preserveAspect = true;
             }
             if (nameText != null) nameText.text = assignedItem.itemName;
             UpdatePriceText();
@@ -61,6 +64,28 @@ public class ShopSlotUI : MonoBehaviour
         else
         {
             gameObject.SetActive(false);
+        }
+    }
+
+    public void ResolveChildReferencesIfNeeded()
+    {
+        if (iconImage == null)
+        {
+            Transform iconTr = transform.Find("ItemIcon") ?? transform.Find("IconImage");
+            if (iconTr != null) iconImage = iconTr.GetComponent<Image>();
+        }
+
+        if (nameText == null)
+        {
+            Transform nameTr = transform.Find("ItemName") ?? transform.Find("NameText");
+            if (nameTr != null) nameText = nameTr.GetComponent<TextMeshProUGUI>();
+        }
+
+        if (buyButton == null)
+        {
+            Transform btnTr = transform.Find("BuyButton") ?? transform.Find("ChooseButton");
+            if (btnTr != null) buyButton = btnTr.GetComponent<Button>();
+            if (buyButton == null) buyButton = GetComponentInChildren<Button>(true);
         }
     }
 
