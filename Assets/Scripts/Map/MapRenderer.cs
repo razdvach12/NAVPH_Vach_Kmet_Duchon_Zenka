@@ -18,6 +18,7 @@ public class MapRenderer : MonoBehaviour
 	[Header("UI Containers (from Hierarchy)")]
 	public RectTransform linesContainer;
 	public RectTransform nodesContainer;
+	public RectTransform decorationsContainer;
 
 	[Header("Prefabs (from Assets)")]
 	public GameObject nodePrefab;
@@ -61,6 +62,29 @@ public class MapRenderer : MonoBehaviour
 	public float validLineThickness = 8f;
 	[Tooltip("Color of lines the player has already traversed")]
 	public Color visitedLineColor = new Color(1f, 0.85f, 0.2f, 0.9f);
+
+	[Header("Map Decoration Settings")]
+	[Tooltip("Drag the sliced sprites from mapa_deco_sprite here")]
+	public List<Sprite> decorationSprites = new List<Sprite>();
+	[Tooltip("Max number of decorations to fill empty spaces across the map")]
+	public int decorationCount = 22;
+	[Tooltip("Distance inward from left & right torn edges so sprites don't stick out")]
+	public float decoEdgeInset = 90f;
+	[Tooltip("Keep clear from the top (e.g. so trees don't overlap Deco_TopMountain)")]
+	public float decoTopMargin = 450f;
+	[Tooltip("Keep clear from the torn bottom edge")]
+	public float decoBottomMargin = 140f;
+	[Tooltip("Minimum distance between two decorations")]
+	public float decoMinSpacing = 180f;
+	[Tooltip("Minimum distance from any map node")]
+	public float decoNodeClearance = 135f;
+	[Tooltip("Minimum distance from any path line connecting nodes")]
+	public float decoLineClearance = 90f;
+	public Vector2 decoSizeRange = new Vector2(130f, 200f);
+	public Color decoTint = new Color(1f, 1f, 1f, 0.85f);
+	public bool allowRandomFlip = true;
+	[Tooltip("Drag PaperMaskReadMat here so decorations clip cleanly to all 3 paper parts")]
+	public Material decorationMaskMaterial;
 
 	private List<SpawnedLine> spawnedLines = new List<SpawnedLine>();
 
@@ -108,6 +132,135 @@ public class MapRenderer : MonoBehaviour
 
 			UpdateNodeVisual(node, isVisible: true, isClickable: false, isCurrentPlayerNode: false);
 		}
+
+		// 3. Spawn random decorations across all open spaces (edges + middle), avoiding nodes & paths
+		SpawnDecorations(allNodes);
+	}
+
+	private void SpawnDecorations(List<MapNodeData> allNodes)
+	{
+		if (decorationsContainer == null || decorationSprites == null || decorationSprites.Count == 0)
+			return;
+
+		Rect bounds = decorationsContainer.rect;
+		float minX = bounds.xMin + decoEdgeInset;
+		float maxX = bounds.xMax - decoEdgeInset;
+		float minY = bounds.yMin + decoBottomMargin;
+		float maxY = bounds.yMax - decoTopMargin;
+		if (minX >= maxX || minY >= maxY) return;
+
+		// Convert all node world positions into decorationsContainer local space
+		Dictionary<MapNodeData, Vector2> nodeLocalPos = new Dictionary<MapNodeData, Vector2>(allNodes.Count);
+		foreach (var node in allNodes)
+		{
+			if (node.spawnedButton != null)
+			{
+				Vector3 localPos = decorationsContainer.InverseTransformPoint(node.spawnedButton.transform.position);
+				nodeLocalPos[node] = new Vector2(localPos.x, localPos.y);
+			}
+		}
+
+		// Precompute all line segments in decorationsContainer local space
+		List<(Vector2 a, Vector2 b)> lineSegments = new List<(Vector2, Vector2)>();
+		foreach (var node in allNodes)
+		{
+			if (!nodeLocalPos.TryGetValue(node, out Vector2 fromPos)) continue;
+			foreach (var next in node.nextNodes)
+			{
+				if (nodeLocalPos.TryGetValue(next, out Vector2 toPos))
+				{
+					lineSegments.Add((fromPos, toPos));
+				}
+			}
+		}
+
+		List<Vector2> placedPositions = new List<Vector2>();
+		int maxAttempts = decorationCount * 40;
+		int attempts = 0;
+
+		while (placedPositions.Count < decorationCount && attempts < maxAttempts)
+		{
+			attempts++;
+
+			float x = UnityEngine.Random.Range(minX, maxX);
+			float y = UnityEngine.Random.Range(minY, maxY);
+			Vector2 candidate = new Vector2(x, y);
+
+			// 1. Check spacing against other decorations
+			bool tooClose = false;
+			foreach (var placed in placedPositions)
+			{
+				if (Vector2.Distance(candidate, placed) < decoMinSpacing)
+				{
+					tooClose = true;
+					break;
+				}
+			}
+			if (tooClose) continue;
+
+			// 2. Check clearance against map nodes
+			foreach (var nodePos in nodeLocalPos.Values)
+			{
+				if (Vector2.Distance(candidate, nodePos) < decoNodeClearance)
+				{
+					tooClose = true;
+					break;
+				}
+			}
+			if (tooClose) continue;
+
+			// 3. Check clearance against connecting path lines
+			if (decoLineClearance > 0f)
+			{
+				foreach (var seg in lineSegments)
+				{
+					if (DistancePointToSegment(candidate, seg.a, seg.b) < decoLineClearance)
+					{
+						tooClose = true;
+						break;
+					}
+				}
+				if (tooClose) continue;
+			}
+
+			placedPositions.Add(candidate);
+
+			GameObject decoObj = new GameObject($"Deco_{placedPositions.Count}", typeof(RectTransform), typeof(Image));
+			decoObj.transform.SetParent(decorationsContainer, false);
+
+			RectTransform rt = decoObj.GetComponent<RectTransform>();
+			rt.anchorMin = new Vector2(0.5f, 0.5f);
+			rt.anchorMax = new Vector2(0.5f, 0.5f);
+			rt.localPosition = new Vector3(candidate.x, candidate.y, 0f);
+
+			float size = UnityEngine.Random.Range(decoSizeRange.x, decoSizeRange.y);
+			rt.sizeDelta = new Vector2(size, size);
+
+			if (allowRandomFlip && UnityEngine.Random.value > 0.5f)
+			{
+				rt.localScale = new Vector3(-1f, 1f, 1f);
+			}
+
+			Image img = decoObj.GetComponent<Image>();
+			img.sprite = decorationSprites[UnityEngine.Random.Range(0, decorationSprites.Count)];
+			img.preserveAspect = true;
+			img.color = decoTint;
+			img.raycastTarget = false;
+
+			if (decorationMaskMaterial != null)
+				img.material = decorationMaskMaterial;
+		}
+	}
+
+	private float DistancePointToSegment(Vector2 p, Vector2 a, Vector2 b)
+	{
+		Vector2 ab = b - a;
+		float lenSq = ab.sqrMagnitude;
+		if (lenSq < 0.0001f) return Vector2.Distance(p, a);
+
+		float t = Mathf.Clamp01(Vector2.Dot(p - a, ab) / lenSq);
+		Vector2 projection = a + t * ab;
+		return Vector2.Distance(p, projection);
 	}
 
 	public void UpdateAllNodeVisuals(
@@ -350,6 +503,10 @@ public class MapRenderer : MonoBehaviour
 		lastCurrentNode = null;
 		foreach (Transform child in linesContainer) Destroy(child.gameObject);
 		foreach (Transform child in nodesContainer) Destroy(child.gameObject);
+		if (decorationsContainer != null)
+		{
+			foreach (Transform child in decorationsContainer) Destroy(child.gameObject);
+		}
 	}
 
 	private void OnDestroy()
