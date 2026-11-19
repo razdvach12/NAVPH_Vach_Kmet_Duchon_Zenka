@@ -496,7 +496,7 @@ MonoBehaviour:
   healIcon: {fileID: 21300000, guid: 1727700435704b348ac093898a1ec420, type: 3}
   bossIcon: {fileID: 21300000, guid: 98c5dbb9d0533f244af4f0948ac306b0, type: 3}
   blankIcon: {fileID: 21300000, guid: 4b75e70425f00f44caed9835c2014cd0, type: 3}
-  nodeBaseScale: 1.5625
+  nodeBaseScale: 2.15
   glowMaterialTemplate: {fileID: 2100000, guid: f58be63db53072b46993c18afce943e0, type: 2}
   glowSize: 8.3
   glowIntensity: 5
