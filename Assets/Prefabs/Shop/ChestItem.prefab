@@ -16,14 +16,6 @@ PrefabInstance:
       propertyPath: isFreeReward
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 6373242983107714676, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8833153815600441588, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3605803094189015500, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
       propertyPath: m_Name
       value: ChestItem
@@ -109,8 +101,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6373242983107714676, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6373242983107714676, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -355
+      objectReference: {fileID: 0}
+    - target: {fileID: 7016750458606657398, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7016750458606657398, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
+      propertyPath: m_SortingOrder
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8833153815600441588, guid: f2abe2ec273d01d48aa39e6313511eaa, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
