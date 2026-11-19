@@ -81,30 +81,12 @@ public class ChestRewardManager : MonoBehaviour
                 rewardSlots.AddRange(existing);
             }
 
-            // Ak sú v TreasureSection len 2 sloty (Relic1, Relic2), naklonujeme 3. slot (Relic3)
-            while (rewardSlots.Count > 0 && rewardSlots.Count < 3)
-            {
-                ShopSlotUI template = rewardSlots[rewardSlots.Count - 1];
-                GameObject cloneObj = Instantiate(template.gameObject, treasureSection);
-                cloneObj.name = $"Relic{rewardSlots.Count + 1}";
-                ShopSlotUI cloneSlot = cloneObj.GetComponent<ShopSlotUI>();
-                rewardSlots.Add(cloneSlot);
-            }
-
-            // Zarovnáme 3 sloty vedľa seba rovnako ako v ShopScene (0, 349, 699)
-            float[] xPositions = { 0f, 349f, 699f };
             for (int i = 0; i < rewardSlots.Count; i++)
             {
                 ShopSlotUI slot = rewardSlots[i];
                 if (slot == null) continue;
 
                 slot.isFreeReward = true;
-
-                RectTransform rt = slot.GetComponent<RectTransform>();
-                if (rt != null && i < xPositions.Length)
-                {
-                    rt.anchoredPosition = new Vector2(xPositions[i], 0f);
-                }
 
                 if (slot.iconImage != null)
                 {
@@ -115,25 +97,6 @@ public class ChestRewardManager : MonoBehaviour
                         iconRt.sizeDelta = new Vector2(52f, 52f);
                         iconRt.localScale = new Vector3(2.66f, 2.66f, 1f);
                     }
-                }
-            }
-
-            // Opravíme prípadne skryjeme duplicitný LeaveButton v TreasureSection,
-            // keďže v ChestSection už je aktívny ReturnToMapButton na rovnakom mieste
-            Transform leaveTr = treasureSection.Find("LeaveButton");
-            if (leaveTr != null)
-            {
-                Button btn = leaveTr.GetComponent<Button>();
-                if (btn != null)
-                {
-                    btn.onClick.RemoveAllListeners();
-                    btn.onClick.AddListener(() => LoadingScene.Load(SceneIds.Map));
-                }
-
-                GameObject returnBtn = GameObject.Find("ReturnToMapButton");
-                if (returnBtn != null && returnBtn.activeInHierarchy)
-                {
-                    leaveTr.gameObject.SetActive(false);
                 }
             }
         }
@@ -150,7 +113,7 @@ public class ChestRewardManager : MonoBehaviour
         // 1) Add Max HP Cell (Reward Type A)
         // 2) Change Cell Element (Reward Type B)
         // 3) Všetky zvyšné (ďalšie elementy + relikvie)
-        ItemData addMaxHpItem = candidatePool.Find(i => i != null && i.itemType == ItemType.Upgrade && i.elementType == ElementType.None);
+        ItemData addMaxHpItem = candidatePool.Find(i => i != null && i.itemType == ItemType.Upgrade && i.elementType == ElementType.None && i.upgradeEffect != UpgradeEffect.WeaponSize);
         List<ItemData> elementUpgrades = candidatePool.FindAll(i => i != null && i.itemType == ItemType.Upgrade && i.elementType != ElementType.None);
 
         List<ItemData> chosenRewards = new List<ItemData>();
