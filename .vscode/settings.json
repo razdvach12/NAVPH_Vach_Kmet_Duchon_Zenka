@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "NAVPH_Vach_Kmet_Duchon_Zenka.slnx"
+    "dotnet.defaultSolution": "Reticulum.slnx"
 }
