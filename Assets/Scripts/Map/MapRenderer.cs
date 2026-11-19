@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,13 +33,23 @@ public class MapRenderer : MonoBehaviour
 	public Sprite bossIcon;
 	public Sprite blankIcon;
 
-	[Header("Soft Radial Glow Settings")]
-	[Tooltip("Glow size in pixels (larger than the icon to surround it nicely)")]
-	public float glowSize = 140f;
-	[Tooltip("Glow beneath the node the player is currently standing on")]
-	public Color currentNodeGlowColor = new Color(1f, 0.85f, 0.1f, 0.85f); // Gold
-	[Tooltip("Glow beneath the nodes the player can currently click")]
-	public Color clickableNodeGlowColor = new Color(0.25f, 1f, 0.45f, 0.8f); // Green
+	[Header("Node Scale Settings")]
+	[Tooltip("Base scale multiplier to compensate for transparent padding (100 / 64 = 1.5625)")]
+	public float nodeBaseScale = 1.5625f;
+
+	[Header("UI Shader Glow Settings")]
+	[Tooltip("Drag your NodeGlowMat (using UI/SpriteSoftGlow shader) here")]
+	public Material glowMaterialTemplate;
+	[Range(0f, 15f)]
+	[Tooltip("Spread distance of the soft glow around the icon shape")]
+	public float glowSize = 6f;
+	[Range(0f, 5f)]
+	[Tooltip("Brightness/strength of the glow")]
+	public float glowIntensity = 2.2f;
+	[Tooltip("Glow around the node the player is currently standing on")]
+	public Color currentNodeGlowColor = new Color(1f, 0.85f, 0.1f, 1f); // Gold
+	[Tooltip("Glow around the nodes the player can currently click")]
+	public Color clickableNodeGlowColor = new Color(0.25f, 1f, 0.45f, 1f); // Green
 	[Tooltip("Tint color for revealed nodes that are not currently clickable")]
 	public Color unclickableTint = new Color(0.8f, 0.8f, 0.8f, 1f);
 
@@ -52,15 +63,24 @@ public class MapRenderer : MonoBehaviour
 	public Color visitedLineColor = new Color(1f, 0.85f, 0.2f, 0.9f);
 
 	private List<SpawnedLine> spawnedLines = new List<SpawnedLine>();
-	private Dictionary<MapNodeData, Image> nodeGlows = new Dictionary<MapNodeData, Image>();
-	private Sprite cachedGlowSprite;
+
+	private Material currentGlowMat;
+	private Material clickableGlowMat;
+
+	private List<MapNodeData> lastAllNodes;
+	private HashSet<MapNodeData> lastVisibleNodes;
+	private HashSet<MapNodeData> lastClickableNodes;
+	private MapNodeData lastCurrentNode;
+	private Coroutine refreshCoroutine;
+
+	private static readonly int GlowColorProp = Shader.PropertyToID("_GlowColor");
+	private static readonly int GlowSizeProp = Shader.PropertyToID("_GlowSize");
+	private static readonly int GlowIntensityProp = Shader.PropertyToID("_GlowIntensity");
 
 	public void RenderMap(List<MapNodeData> allNodes, Action<MapNodeData> onNodeClickedCallback)
 	{
 		ClearExistingMap();
-
-		if (cachedGlowSprite == null)
-			cachedGlowSprite = CreateSoftGlowSprite(64);
+		EnsureGlowMaterials();
 
 		// 1. Draw lines (at the very back in linesContainer)
 		foreach (var node in allNodes)
@@ -71,25 +91,7 @@ public class MapRenderer : MonoBehaviour
 			}
 		}
 
-		// 2. Spawn Glow objects FIRST in nodesContainer (so they render right UNDER all icons)
-		foreach (var node in allNodes)
-		{
-			GameObject glowObj = new GameObject($"Glow_{node.x}_{node.y}", typeof(RectTransform), typeof(Image));
-			glowObj.transform.SetParent(nodesContainer, false);
-
-			RectTransform glowRt = glowObj.GetComponent<RectTransform>();
-			glowRt.anchoredPosition = node.uiPosition;
-			glowRt.sizeDelta = new Vector2(glowSize, glowSize);
-
-			Image glowImg = glowObj.GetComponent<Image>();
-			glowImg.sprite = cachedGlowSprite;
-			glowImg.raycastTarget = false; // Do not block node clicks
-			glowImg.enabled = false;
-
-			nodeGlows[node] = glowImg;
-		}
-
-		// 3. Spawn the actual node buttons with icons (ON TOP of the glow)
+		// 2. Spawn the node buttons with icons
 		foreach (var node in allNodes)
 		{
 			GameObject btnObj = Instantiate(nodePrefab, nodesContainer);
@@ -114,7 +116,15 @@ public class MapRenderer : MonoBehaviour
 		HashSet<MapNodeData> clickableNodes,
 		MapNodeData currentPlayerNode)
 	{
-		// 1. Update nodes and their glow
+		lastAllNodes = allNodes;
+		lastVisibleNodes = visibleNodes;
+		lastClickableNodes = clickableNodes;
+		lastCurrentNode = currentPlayerNode;
+
+		EnsureGlowMaterials();
+		ApplyGlowMaterialProperties();
+
+		// 1. Update nodes
 		foreach (var node in allNodes)
 		{
 			bool isVisible = visibleNodes.Contains(node);
@@ -148,6 +158,87 @@ public class MapRenderer : MonoBehaviour
 				line.rect.sizeDelta = new Vector2(line.rect.sizeDelta.x, lineThickness);
 			}
 		}
+
+		// Force UI materials & masked clones to sync cleanly after layout/mask initialization
+		if (gameObject.activeInHierarchy)
+		{
+			if (refreshCoroutine != null) StopCoroutine(refreshCoroutine);
+			refreshCoroutine = StartCoroutine(RefreshMaterialsNextFrame());
+		}
+	}
+
+	private IEnumerator RefreshMaterialsNextFrame()
+	{
+		yield return null;
+
+		ApplyGlowMaterialProperties();
+		SyncRenderedMaterials();
+
+		Canvas.ForceUpdateCanvases();
+		refreshCoroutine = null;
+	}
+
+	// Live preview in Play Mode when adjusting sliders/colors in Inspector
+	private void OnValidate()
+	{
+		if (!Application.isPlaying) return;
+
+		ApplyGlowMaterialProperties();
+
+		if (lastAllNodes != null && lastVisibleNodes != null && lastClickableNodes != null)
+		{
+			UpdateAllNodeVisuals(lastAllNodes, lastVisibleNodes, lastClickableNodes, lastCurrentNode);
+		}
+	}
+
+	private void EnsureGlowMaterials()
+	{
+		if (glowMaterialTemplate == null) return;
+
+		if (currentGlowMat == null)
+			currentGlowMat = new Material(glowMaterialTemplate);
+
+		if (clickableGlowMat == null)
+			clickableGlowMat = new Material(glowMaterialTemplate);
+
+		ApplyGlowMaterialProperties();
+	}
+
+	private void ApplyGlowMaterialProperties()
+	{
+		ApplyGlowToMaterial(currentGlowMat, currentNodeGlowColor);
+		ApplyGlowToMaterial(clickableGlowMat, clickableNodeGlowColor);
+	}
+
+	private void ApplyGlowToMaterial(Material mat, Color glowColor)
+	{
+		if (mat == null || !mat.HasProperty(GlowSizeProp)) return;
+
+		mat.SetColor(GlowColorProp, glowColor);
+		mat.SetFloat(GlowSizeProp, glowSize);
+		mat.SetFloat(GlowIntensityProp, glowIntensity);
+	}
+
+	private void SyncRenderedMaterials()
+	{
+		if (lastAllNodes == null) return;
+
+		foreach (var node in lastAllNodes)
+		{
+			if (node.spawnedImage == null) continue;
+
+			if (node == lastCurrentNode)
+			{
+				ApplyGlowToMaterial(node.spawnedImage.materialForRendering, currentNodeGlowColor);
+			}
+			else if (lastClickableNodes != null && lastClickableNodes.Contains(node))
+			{
+				ApplyGlowToMaterial(node.spawnedImage.materialForRendering, clickableNodeGlowColor);
+			}
+
+			node.spawnedImage.RecalculateMasking();
+			node.spawnedImage.SetMaterialDirty();
+		}
 	}
 
 	private void UpdateNodeVisual(MapNodeData node, bool isVisible, bool isClickable, bool isCurrentPlayerNode)
@@ -160,15 +251,15 @@ public class MapRenderer : MonoBehaviour
 		cb.disabledColor = Color.white;
 		node.spawnedButton.colors = cb;
 
-		nodeGlows.TryGetValue(node, out Image glowImg);
-
 		// Hidden in Fog of War
 		if (!isVisible)
 		{
 			node.spawnedImage.sprite = blankIcon;
 			node.spawnedImage.color = new Color(0.75f, 0.75f, 0.75f, 0.6f);
-			node.spawnedButton.transform.localScale = Vector3.one * 0.85f;
-			if (glowImg != null) glowImg.enabled = false;
+			node.spawnedImage.material = null; // Default UI material (no glow)
+			node.spawnedButton.transform.localScale = Vector3.one * (0.85f * nodeBaseScale);
+			node.spawnedImage.RecalculateMasking();
+			node.spawnedImage.SetMaterialDirty();
 			return;
 		}
 
@@ -178,54 +269,27 @@ public class MapRenderer : MonoBehaviour
 		if (isCurrentPlayerNode)
 		{
 			node.spawnedImage.color = Color.white;
-			node.spawnedButton.transform.localScale = Vector3.one * 1.25f;
-			if (glowImg != null)
-			{
-				glowImg.enabled = true;
-				glowImg.color = currentNodeGlowColor;
-				glowImg.rectTransform.sizeDelta = new Vector2(glowSize * 1.15f, glowSize * 1.15f);
-			}
+			node.spawnedImage.material = currentGlowMat;
+			node.spawnedButton.transform.localScale = Vector3.one * (1.25f * nodeBaseScale);
+			ApplyGlowToMaterial(node.spawnedImage.materialForRendering, currentNodeGlowColor);
 		}
 		else if (isClickable)
 		{
 			node.spawnedImage.color = Color.white;
-			node.spawnedButton.transform.localScale = Vector3.one * 1.15f;
-			if (glowImg != null)
-			{
-				glowImg.enabled = true;
-				glowImg.color = clickableNodeGlowColor;
-				glowImg.rectTransform.sizeDelta = new Vector2(glowSize, glowSize);
-			}
+			node.spawnedImage.material = clickableGlowMat;
+			node.spawnedButton.transform.localScale = Vector3.one * (1.15f * nodeBaseScale);
+			ApplyGlowToMaterial(node.spawnedImage.materialForRendering, clickableNodeGlowColor);
 		}
 		else
 		{
-			node.spawnedImage.color = node.isVisited ? new Color(0.55f, 0.55f, 0.55f, 0.8f) : unclickableTint;
-			node.spawnedButton.transform.localScale = (node.type == NodeType.Boss) ? Vector3.one * 1.6f : Vector3.one * 0.9f;
-			if (glowImg != null) glowImg.enabled = false;
+			node.spawnedImage.color = node.isVisited ? new Color(0.55f, 0.55f, 0.55f, 1f) : unclickableTint;
+			node.spawnedImage.material = null; // Default UI material (no glow)
+			float stateScale = (node.type == NodeType.Boss) ? 1.6f : 0.9f;
+			node.spawnedButton.transform.localScale = Vector3.one * (stateScale * nodeBaseScale);
 		}
-	}
 
-	// Generates a smooth circular texture with a soft fade to transparent
-	private Sprite CreateSoftGlowSprite(int size)
-	{
-		Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
-		tex.filterMode = FilterMode.Bilinear;
-		tex.wrapMode = TextureWrapMode.Clamp;
-
-		float center = (size - 1) * 0.5f;
-		for (int y = 0; y < size; y++)
-		{
-			for (int x = 0; x < size; x++)
-			{
-				float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center)) / center;
-				// Quadratic falloff (Mathf.Pow) creates a smooth soft glow without harsh edges
-				float alpha = Mathf.Pow(Mathf.Clamp01(1f - dist), 2f);
-				tex.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
-			}
-		}
-		tex.Apply();
-
-		return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+		node.spawnedImage.RecalculateMasking();
+		node.spawnedImage.SetMaterialDirty();
 	}
 
 	private Sprite GetSpriteForType(NodeType type)
@@ -273,9 +337,24 @@ public class MapRenderer : MonoBehaviour
 
 	private void ClearExistingMap()
 	{
+		if (refreshCoroutine != null)
+		{
+			StopCoroutine(refreshCoroutine);
+			refreshCoroutine = null;
+		}
+
 		spawnedLines.Clear();
-		nodeGlows.Clear();
+		lastAllNodes = null;
+		lastVisibleNodes = null;
+		lastClickableNodes = null;
+		lastCurrentNode = null;
 		foreach (Transform child in linesContainer) Destroy(child.gameObject);
 		foreach (Transform child in nodesContainer) Destroy(child.gameObject);
+	}
+
+	private void OnDestroy()
+	{
+		if (currentGlowMat != null) Destroy(currentGlowMat);
+		if (clickableGlowMat != null) Destroy(clickableGlowMat);
 	}
 }
