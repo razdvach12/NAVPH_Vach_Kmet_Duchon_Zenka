@@ -151,6 +151,7 @@ MonoBehaviour:
   nameText: {fileID: 3914081383416416185}
   priceText: {fileID: 2513432924378583651}
   buyButton: {fileID: 1491916618157809033}
+  isFreeReward: 0
   assignedItem: {fileID: 0}
 --- !u!1 &7089902485340108537
 GameObject:
@@ -974,15 +975,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_margin.w
-      value: 134.7076
+      value: 122.54954
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_margin.x
+      value: 10.185341
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_margin.y
+      value: -140.41335
       objectReference: {fileID: 0}
     - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_margin.z
-      value: -39.557064
+      value: -36.69807
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_fontSizeBase
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_HorizontalAlignment
@@ -1058,7 +1087,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5746841895109542846, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 100
+      value: 120.7
       objectReference: {fileID: 0}
     - target: {fileID: 5746841895109542846, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
