@@ -18,9 +18,9 @@ MonoBehaviour:
   bodyPreset: {fileID: 11400000, guid: 909e6fd1bc8e4ecabccdf85a605f8c4e, type: 2}
   attacks:
   - pattern: {fileID: 11400000, guid: 871ae45bb7574a688e8cb25485b580ec, type: 2}
-    targeting: 0
+    targeting: 1
   - pattern: {fileID: 11400000, guid: 339518fe66d059c4d82cd13583b7c615, type: 2}
-    targeting: 0
+    targeting: 1
   rotateGridEachRound: 0
   cycleElementsEachRound: 0
   goldReward: 20

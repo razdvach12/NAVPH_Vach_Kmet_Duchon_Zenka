@@ -10,7 +10,8 @@ public class ShopManager : MonoBehaviour
     {
         Weapons,
         Consumables,
-        Relics
+        Relics,
+        Upgrades
     }
 
     [Header("Databáza všetkých predmetov")]
@@ -25,21 +26,35 @@ public class ShopManager : MonoBehaviour
     public List<ShopSlotUI> relicSlots; 
     public List<ShopSlotUI> upgradeSlots; 
 
+    [Header("Objekty sekcií (prázdne = rodič slotov danej sekcie)")]
+    public GameObject weaponSectionObject;
+    public GameObject consumableSectionObject;
+    public GameObject relicSectionObject;
+    public GameObject upgradeSectionObject;
+
     [Header("Texty pri vypredaní (UI)")]
     public GameObject emptyWeaponsText;
     public GameObject emptyConsumablesText;
     public GameObject emptyRelicsText;
+    public GameObject emptyUpgradesText;
 
-    // --- NOVÉ: Tlačidlá jednotlivých sekcií pre prepínanie ---
-    [Header("Tlačidlá sekcií v menu obchodu")]
+    // --- Tlačidlá jednotlivých sekcií pre prepínanie ---
+    [Header("Tlačidlá sekcií v menu obchodu (prázdne = nájdu sa podľa mena)")]
     public Button weaponTabButton;
     public Button consumableTabButton;
     public Button relicTabButton;
+    public Button upgradeTabButton;
+
+    [Header("Reroll (znovu vygeneruje iba práve otvorenú sekciu)")]
+    public Button rerollButton;
+    [Tooltip("Cena za reroll v goldoch (0 = zadarmo)")]
+    public int rerollCost = 0;
 
     private ShopSection currentSection = ShopSection.Weapons;
     private bool wasWeaponsEmpty;
     private bool wasConsumablesEmpty;
     private bool wasRelicsEmpty;
+    private bool wasUpgradesEmpty;
 
     void Awake()
     {
@@ -50,13 +65,20 @@ public class ShopManager : MonoBehaviour
 
     void Start() 
     {
-        // Automaticky naviažeme prepínanie sekcií na tlačidlá v obchode
+        ResolveMissingReferences();
+
+        // Automaticky naviažeme prepínanie sekcií na tlačidlá v obchode.
+        // Runtime listenery sa volajú až po tých nastavených v Inspectore, takže výsledná viditeľnosť sekcií je vždy podľa kódu.
         if (weaponTabButton != null)
             weaponTabButton.onClick.AddListener(() => SelectSection(ShopSection.Weapons));
         if (consumableTabButton != null)
             consumableTabButton.onClick.AddListener(() => SelectSection(ShopSection.Consumables));
         if (relicTabButton != null)
             relicTabButton.onClick.AddListener(() => SelectSection(ShopSection.Relics));
+        if (upgradeTabButton != null)
+            upgradeTabButton.onClick.AddListener(() => SelectSection(ShopSection.Upgrades));
+        if (rerollButton != null)
+            rerollButton.onClick.AddListener(RerollCurrentSection);
 
         if (MusicManager.Instance != null) {
             MusicManager.Instance.PlayMusic("ShopBackground");
@@ -64,6 +86,7 @@ public class ShopManager : MonoBehaviour
 
         DetectInitialActiveSection();
         GenerateShopStock();
+        ApplySectionVisibility();
     }
 
     // Volajte túto metódu vždy, keď sa niečo v obchode kúpi (napr. zo ShopSlotUI)
@@ -73,6 +96,45 @@ public class ShopManager : MonoBehaviour
         CheckIfSectionsAreEmpty();
     }
 
+    // --- DOHĽADANIE CHÝBAJÚCICH ODKAZOV (aby nebolo nutné všetko ručne priraďovať v Inspectore) ---
+    private void ResolveMissingReferences()
+    {
+        if (weaponSectionObject == null) weaponSectionObject = GetSectionObjectFromSlots(weaponSlots);
+        if (consumableSectionObject == null) consumableSectionObject = GetSectionObjectFromSlots(consumableSlots);
+        if (relicSectionObject == null) relicSectionObject = GetSectionObjectFromSlots(relicSlots);
+        if (upgradeSectionObject == null) upgradeSectionObject = GetSectionObjectFromSlots(upgradeSlots);
+
+        if (weaponTabButton == null) weaponTabButton = FindButtonByName("WeaponsButton");
+        if (consumableTabButton == null) consumableTabButton = FindButtonByName("PotionsButton");
+        if (relicTabButton == null) relicTabButton = FindButtonByName("RelicsButton");
+        if (upgradeTabButton == null) upgradeTabButton = FindButtonByName("UpgradesButton");
+        if (rerollButton == null) rerollButton = FindButtonByName("RerollButton");
+    }
+
+    private static GameObject GetSectionObjectFromSlots(List<ShopSlotUI> slots)
+    {
+        if (slots == null) return null;
+        foreach (ShopSlotUI slot in slots)
+        {
+            if (slot != null && slot.transform.parent != null)
+                return slot.transform.parent.gameObject;
+        }
+        return null;
+    }
+
+    // Nájde Button na objekte s daným menom alebo v jeho deťoch (aj neaktívnych)
+    private static Button FindButtonByName(string objectName)
+    {
+        Transform[] all = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Transform t in all)
+        {
+            if (t == null || t.name != objectName) continue;
+            Button btn = t.GetComponentInChildren<Button>(true);
+            if (btn != null) return btn;
+        }
+        return null;
+    }
+
     public void SelectSection(ShopSection section)
     {
         if (RewardTargetingController.Instance != null && RewardTargetingController.Instance.IsTargeting)
@@ -80,12 +142,23 @@ public class ShopManager : MonoBehaviour
             RewardTargetingController.Instance.CancelTargeting();
         }
         currentSection = section;
+        ApplySectionVisibility();
         CheckIfSectionsAreEmpty();
     }
 
     public void OpenWeaponsSection() => SelectSection(ShopSection.Weapons);
     public void OpenConsumablesSection() => SelectSection(ShopSection.Consumables);
     public void OpenRelicsSection() => SelectSection(ShopSection.Relics);
+    public void OpenUpgradesSection() => SelectSection(ShopSection.Upgrades);
+
+    // Zobrazí iba práve otvorenú sekciu
+    private void ApplySectionVisibility()
+    {
+        if (weaponSectionObject != null) weaponSectionObject.SetActive(currentSection == ShopSection.Weapons);
+        if (consumableSectionObject != null) consumableSectionObject.SetActive(currentSection == ShopSection.Consumables);
+        if (relicSectionObject != null) relicSectionObject.SetActive(currentSection == ShopSection.Relics);
+        if (upgradeSectionObject != null) upgradeSectionObject.SetActive(currentSection == ShopSection.Upgrades);
+    }
 
     private void DetectInitialActiveSection()
     {
@@ -95,6 +168,8 @@ public class ShopManager : MonoBehaviour
             currentSection = ShopSection.Consumables;
         else if (IsSectionHierarchyActive(relicSlots))
             currentSection = ShopSection.Relics;
+        else if (IsSectionHierarchyActive(upgradeSlots))
+            currentSection = ShopSection.Upgrades;
     }
 
     private bool IsSectionHierarchyActive(List<ShopSlotUI> slots)
@@ -112,22 +187,138 @@ public class ShopManager : MonoBehaviour
     {
         FillSlotsRandomly(allWeaponItems, weaponSlots);
         FillSlotsRandomly(allConsumableItems, consumableSlots);
-
-        List<ItemData> relicsAndUpgradesCombined = new List<ItemData>();
-        if (allRelicItems != null) relicsAndUpgradesCombined.AddRange(allRelicItems);
-        if (allUpgradeItems != null) relicsAndUpgradesCombined.AddRange(allUpgradeItems);
-
-        FillSlotsRandomly(relicsAndUpgradesCombined, relicSlots);
+        FillSlotsRandomly(allRelicItems, relicSlots);
+        FillSlotsRandomly(allUpgradeItems, upgradeSlots);
 
         wasWeaponsEmpty = IsSectionEmpty(weaponSlots);
         wasConsumablesEmpty = IsSectionEmpty(consumableSlots);
         wasRelicsEmpty = IsSectionEmpty(relicSlots);
+        wasUpgradesEmpty = IsSectionEmpty(upgradeSlots);
 
         CheckIfSectionsAreEmpty();
     }
 
+    // --- REROLL: nanovo vygeneruje iba práve otvorenú sekciu, ostatné ostanú bez zmeny ---
+    public void RerollCurrentSection()
+    {
+        if (RewardTargetingController.Instance != null && RewardTargetingController.Instance.IsTargeting)
+        {
+            RewardTargetingController.Instance.CancelTargeting();
+        }
+
+        if (rerollCost > 0)
+        {
+            PlayerStats stats = PlayerStats.EnsureInstance();
+            if (!stats.TrySpendMoney(rerollCost))
+            {
+                Debug.Log("Nemáš dosť goldov na reroll!");
+                ApplySectionVisibility();
+                CheckIfSectionsAreEmpty();
+                return;
+            }
+        }
+
+        switch (currentSection)
+        {
+            case ShopSection.Weapons:
+                RerollSlots(allWeaponItems, weaponSlots);
+                wasWeaponsEmpty = IsSectionEmpty(weaponSlots);
+                break;
+            case ShopSection.Consumables:
+                RerollSlots(allConsumableItems, consumableSlots);
+                wasConsumablesEmpty = IsSectionEmpty(consumableSlots);
+                break;
+            case ShopSection.Relics:
+                RerollSlots(allRelicItems, relicSlots);
+                wasRelicsEmpty = IsSectionEmpty(relicSlots);
+                break;
+            case ShopSection.Upgrades:
+                RerollSlots(allUpgradeItems, upgradeSlots);
+                wasUpgradesEmpty = IsSectionEmpty(upgradeSlots);
+                break;
+        }
+
+        // Tlačidlo môže mať v Inspectore nastavené aj prepínanie sekcií - vrátime zobrazenie na aktuálnu sekciu
+        ApplySectionVisibility();
+        CheckIfSectionsAreEmpty();
+    }
+
+    // Pri rerolle uprednostníme predmety, ktoré v sekcii práve neboli (ak ich je v databáze dosť)
+    void RerollSlots(List<ItemData> sourceDatabase, List<ShopSlotUI> targetSlots)
+    {
+        if (targetSlots == null) return;
+
+        if (sourceDatabase == null || sourceDatabase.Count == 0)
+        {
+            FillSlotsRandomly(sourceDatabase, targetSlots);
+            return;
+        }
+
+        var currentItems = new HashSet<ItemData>();
+        foreach (ShopSlotUI slot in targetSlots)
+        {
+            if (slot != null && slot.assignedItem != null) currentItems.Add(slot.assignedItem);
+        }
+
+        var freshItems = new List<ItemData>();
+        var oldItems = new List<ItemData>();
+        foreach (ItemData item in sourceDatabase)
+        {
+            if (item == null) continue;
+            if (currentItems.Contains(item)) oldItems.Add(item);
+            else freshItems.Add(item);
+        }
+
+        Shuffle(freshItems);
+        Shuffle(oldItems);
+
+        // Najprv nové predmety, až potom (ak nové nestačia) tie, ktoré tam už boli
+        var ordered = new List<ItemData>(freshItems);
+        ordered.AddRange(oldItems);
+
+        int index = 0;
+        foreach (ShopSlotUI slot in targetSlots)
+        {
+            if (slot == null) continue;
+            slot.SetItem(index < ordered.Count ? ordered[index] : null);
+            index++;
+        }
+
+        // Aby sa nové predmety nezobrazovali vždy v rovnakom poradí (nové vľavo, staré vpravo)
+        ShuffleSlotItems(targetSlots);
+    }
+
+    private static void ShuffleSlotItems(List<ShopSlotUI> slots)
+    {
+        var items = new List<ItemData>();
+        var validSlots = new List<ShopSlotUI>();
+        foreach (ShopSlotUI slot in slots)
+        {
+            if (slot == null) continue;
+            validSlots.Add(slot);
+            items.Add(slot.assignedItem);
+        }
+
+        Shuffle(items);
+        for (int i = 0; i < validSlots.Count; i++)
+        {
+            validSlots[i].SetItem(items[i]);
+        }
+    }
+
+    private static void Shuffle<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+    }
+
     void FillSlotsRandomly(List<ItemData> sourceDatabase, List<ShopSlotUI> targetSlots) 
     {
+        if (targetSlots == null) return;
+
         if (sourceDatabase == null || sourceDatabase.Count == 0) 
         {
             foreach(var slot in targetSlots) if (slot != null) slot.SetItem(null);
@@ -135,6 +326,7 @@ public class ShopManager : MonoBehaviour
         }
 
         List<ItemData> availableItems = new List<ItemData>(sourceDatabase);
+        availableItems.RemoveAll(item => item == null);
 
         foreach (ShopSlotUI slot in targetSlots) 
         {
@@ -184,6 +376,15 @@ public class ShopManager : MonoBehaviour
         if (relicTabButton != null) 
             relicTabButton.interactable = !relicsEmpty;
 
+        // 4. Sekcia Upgradov
+        bool upgradesEmpty = IsSectionEmpty(upgradeSlots);
+        if (!wasUpgradesEmpty && upgradesEmpty)
+            currentSection = ShopSection.Upgrades;
+        wasUpgradesEmpty = upgradesEmpty;
+
+        if (upgradeTabButton != null)
+            upgradeTabButton.interactable = !upgradesEmpty;
+
         // Najprv skryjeme všetky texty o vypredaní
         if (emptyWeaponsText != null) 
             emptyWeaponsText.SetActive(false);
@@ -191,6 +392,8 @@ public class ShopManager : MonoBehaviour
             emptyConsumablesText.SetActive(false);
         if (emptyRelicsText != null) 
             emptyRelicsText.SetActive(false);
+        if (emptyUpgradesText != null)
+            emptyUpgradesText.SetActive(false);
 
         // Zobrazíme príslušný text iba vtedy, ak je hráč práve v danej vypredanej sekcii
         if (currentSection == ShopSection.Weapons && weaponsEmpty && emptyWeaponsText != null)
@@ -199,6 +402,8 @@ public class ShopManager : MonoBehaviour
             emptyConsumablesText.SetActive(true);
         else if (currentSection == ShopSection.Relics && relicsEmpty && emptyRelicsText != null)
             emptyRelicsText.SetActive(true);
+        else if (currentSection == ShopSection.Upgrades && upgradesEmpty && emptyUpgradesText != null)
+            emptyUpgradesText.SetActive(true);
     }
 
     private bool IsSectionEmpty(List<ShopSlotUI> slots)

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7194fc99f2d95ee41b98d3ab8505c32b, type: 3}
   m_Name: Punch
   m_EditorClassIdentifier: Assembly-CSharp::GridPreset
-  width: 2
+  width: 3
   height: 2
   weaponIcon: {fileID: 0}
   actionType: 1
@@ -26,3 +26,7 @@ MonoBehaviour:
     thickness: 1
   - element: 1
     thickness: 1
+  - element: 1
+    thickness: 1
+  - element: 0
+    thickness: 0

@@ -30,8 +30,7 @@ public class RoomData : ScriptableObject
     public RoomDifficulty difficulty = RoomDifficulty.Easy;
     public List<RoomSlot> slots = new List<RoomSlot>();
 
-    // Nové prvky pridané cez "+" v Inspectore majú tier 0 - opravíme ho na platnú hodnotu
-    private void OnValidate()
+        private void OnValidate()
     {
         if (slots == null) return;
         foreach (RoomSlot slot in slots)

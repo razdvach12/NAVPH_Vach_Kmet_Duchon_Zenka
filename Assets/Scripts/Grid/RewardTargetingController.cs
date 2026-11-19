@@ -198,7 +198,17 @@ public class RewardTargetingController : MonoBehaviour
 
         if (Mouse.current.leftButton.wasPressedThisFrame && currentSlot != null && weaponUpgradeGrid.CanAddWeaponCellAt(currentSlot))
         {
-            weaponUpgradePreview.SetCell(currentSlot.x, currentSlot.y, new CellSetup { element = BlockElement.Basic, thickness = 1 });
+            if (weaponUpgradeGrid.CanStackWeaponCellAt(currentSlot))
+            {
+                // Uloženie na existujúce políčko: damage +1 (max 3)
+                CellSetup cell = weaponUpgradePreview.GetCell(currentSlot.x, currentSlot.y);
+                cell.thickness = Mathf.Clamp(cell.thickness + 1, 1, 3);
+                weaponUpgradePreview.SetCell(currentSlot.x, currentSlot.y, cell);
+            }
+            else
+            {
+                weaponUpgradePreview.SetCell(currentSlot.x, currentSlot.y, new CellSetup { element = BlockElement.Basic, thickness = 1 });
+            }
             GridPreset upgraded = weaponUpgradePreview.CreateTrimmedCopy();
             int index = weaponUpgradeIndex;
 

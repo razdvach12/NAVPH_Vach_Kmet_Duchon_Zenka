@@ -16,9 +16,9 @@ public class ChestRewardManager : MonoBehaviour
 {
     public static ChestRewardManager Instance { get; private set; }
 
-    [Header("UI Referencie (ak nie sú priradené, nájdu sa automaticky)")]
-    public Transform treasureSection;
+    [Header("Tvoje sloty priamo zo scény (pretiahni z Hierarchy)")]
     public List<ShopSlotUI> rewardSlots = new List<ShopSlotUI>();
+    public Transform treasureSection;
     public Button leaveButton;
 
     [Header("Databáza odmien (HP / Element Upgrady a Relikvie)")]
@@ -27,7 +27,7 @@ public class ChestRewardManager : MonoBehaviour
     public List<Sprite> additionalRelicSprites = new List<Sprite>();
 
     [Header("Nastavenia výberu")]
-    [Tooltip("Ak je zapnuté, po vybratí 1 odmeny z truhlice zmiznú zvyšné 2")]
+    [Tooltip("Ak je zapnuté, po vybratí 1 odmeny z truhlice zmiznú zvyšné")]
     public bool singleChoiceOnly = false;
 
     private readonly List<ItemData> runtimeCreatedItems = new List<ItemData>();
@@ -56,86 +56,25 @@ public class ChestRewardManager : MonoBehaviour
 
     private void SetupTreasureUI()
     {
-        if (treasureSection == null)
+        if (rewardSlots == null) rewardSlots = new List<ShopSlotUI>();
+        rewardSlots.RemoveAll(s => s == null);
+
+        // Ak si do rewardSlots v Inspectore nič nedal, nájde tvoje sloty v TreasureSection
+        if (rewardSlots.Count == 0 && treasureSection != null)
         {
-            Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include);
-            foreach (Canvas c in canvases)
+            ShopSlotUI[] inTreasure = treasureSection.GetComponentsInChildren<ShopSlotUI>(true);
+            foreach (ShopSlotUI s in inTreasure)
             {
-                Transform found = c.transform.Find("TreasureSection");
-                if (found != null)
-                {
-                    treasureSection = found;
-                    break;
-                }
+                if (s != null) rewardSlots.Add(s);
             }
         }
 
-        if (treasureSection != null)
+        // Len pripraví referencie, ale NEMENÍ pozíciu, scale ani sizeDelta
+        foreach (ShopSlotUI slot in rewardSlots)
         {
-            if (rewardSlots == null) rewardSlots = new List<ShopSlotUI>();
-            rewardSlots.RemoveAll(s => s == null);
-
-            if (rewardSlots.Count == 0)
-            {
-                ShopSlotUI[] existing = treasureSection.GetComponentsInChildren<ShopSlotUI>(true);
-                rewardSlots.AddRange(existing);
-            }
-
-            // Ak sú v TreasureSection len 2 sloty (Relic1, Relic2), naklonujeme 3. slot (Relic3)
-            while (rewardSlots.Count > 0 && rewardSlots.Count < 3)
-            {
-                ShopSlotUI template = rewardSlots[rewardSlots.Count - 1];
-                GameObject cloneObj = Instantiate(template.gameObject, treasureSection);
-                cloneObj.name = $"Relic{rewardSlots.Count + 1}";
-                ShopSlotUI cloneSlot = cloneObj.GetComponent<ShopSlotUI>();
-                rewardSlots.Add(cloneSlot);
-            }
-
-            // Zarovnáme 3 sloty vedľa seba rovnako ako v ShopScene (0, 349, 699)
-            float[] xPositions = { 0f, 349f, 699f };
-            for (int i = 0; i < rewardSlots.Count; i++)
-            {
-                ShopSlotUI slot = rewardSlots[i];
-                if (slot == null) continue;
-
-                slot.isFreeReward = true;
-
-                RectTransform rt = slot.GetComponent<RectTransform>();
-                if (rt != null && i < xPositions.Length)
-                {
-                    rt.anchoredPosition = new Vector2(xPositions[i], 0f);
-                }
-
-                if (slot.iconImage != null)
-                {
-                    slot.iconImage.preserveAspect = true;
-                    RectTransform iconRt = slot.iconImage.rectTransform;
-                    if (iconRt != null)
-                    {
-                        iconRt.sizeDelta = new Vector2(52f, 52f);
-                        iconRt.localScale = new Vector3(2.66f, 2.66f, 1f);
-                    }
-                }
-            }
-
-            // Opravíme prípadne skryjeme duplicitný LeaveButton v TreasureSection,
-            // keďže v ChestSection už je aktívny ReturnToMapButton na rovnakom mieste
-            Transform leaveTr = treasureSection.Find("LeaveButton");
-            if (leaveTr != null)
-            {
-                Button btn = leaveTr.GetComponent<Button>();
-                if (btn != null)
-                {
-                    btn.onClick.RemoveAllListeners();
-                    btn.onClick.AddListener(() => LoadingScene.Load(SceneIds.Map));
-                }
-
-                GameObject returnBtn = GameObject.Find("ReturnToMapButton");
-                if (returnBtn != null && returnBtn.activeInHierarchy)
-                {
-                    leaveTr.gameObject.SetActive(false);
-                }
-            }
+            if (slot == null) continue;
+            slot.isFreeReward = true;
+            slot.ResolveChildReferencesIfNeeded();
         }
     }
 
@@ -146,11 +85,7 @@ public class ChestRewardManager : MonoBehaviour
         List<ItemData> candidatePool = BuildRewardPool();
         if (candidatePool.Count == 0) return;
 
-        // Rozdelíme odmeny na:
-        // 1) Add Max HP Cell (Reward Type A)
-        // 2) Change Cell Element (Reward Type B)
-        // 3) Všetky zvyšné (ďalšie elementy + relikvie)
-        ItemData addMaxHpItem = candidatePool.Find(i => i != null && i.itemType == ItemType.Upgrade && i.elementType == ElementType.None);
+        ItemData addMaxHpItem = candidatePool.Find(i => i != null && i.itemType == ItemType.Upgrade && i.elementType == ElementType.None && i.upgradeEffect != UpgradeEffect.WeaponSize);
         List<ItemData> elementUpgrades = candidatePool.FindAll(i => i != null && i.itemType == ItemType.Upgrade && i.elementType != ElementType.None);
 
         List<ItemData> chosenRewards = new List<ItemData>();
@@ -179,7 +114,7 @@ public class ChestRewardManager : MonoBehaviour
             remainingPool.RemoveAt(idx);
         }
 
-        // Náhodne premiešame poradie 3 vybraných tlačidiel
+        // Náhodne premieša poradie odmien
         for (int i = chosenRewards.Count - 1; i > 0; i--)
         {
             int swapIdx = Random.Range(0, i + 1);
@@ -204,10 +139,7 @@ public class ChestRewardManager : MonoBehaviour
         {
             foreach (ItemData item in allUpgradeItems)
             {
-                if (item != null && !pool.Contains(item))
-                {
-                    pool.Add(item);
-                }
+                if (item != null && !pool.Contains(item)) pool.Add(item);
             }
         }
 
@@ -215,10 +147,7 @@ public class ChestRewardManager : MonoBehaviour
         {
             foreach (ItemData item in allRelicItems)
             {
-                if (item != null && !pool.Contains(item))
-                {
-                    pool.Add(item);
-                }
+                if (item != null && !pool.Contains(item)) pool.Add(item);
             }
         }
 

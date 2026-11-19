@@ -1972,8 +1972,16 @@ PrefabInstance:
       value: -954.8445
       objectReference: {fileID: 0}
     - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_fontColor.r
-      value: 0.54901963
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_fontSizeBase
@@ -1981,11 +1989,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 217532460774665459, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 4278190220
+      value: 4278190080
       objectReference: {fileID: 0}
     - target: {fileID: 3608108631307905225, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_Name
-      value: Stats
+      value: StatsText
       objectReference: {fileID: 0}
     - target: {fileID: 3608108631307905225, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_IsActive
@@ -2057,7 +2065,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5746841895109542846, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 145
+      value: 158
       objectReference: {fileID: 0}
     - target: {fileID: 5746841895109542846, guid: f396d084119a011468edad84cf6f1909, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4373,6 +4381,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterSelectionManager
   selectedCharacter: {fileID: 0}
   mapPreset: {fileID: 11400000, guid: e233f19c77064ee886ebcc86222006de, type: 2}
+  statsFont: {fileID: 0}
+  statsFontSize: 36
+  statsColor: {r: 1, g: 1, b: 1, a: 1}
+  statsOffsetBelowGrid: 40
 --- !u!1001 &1677796945
 PrefabInstance:
   m_ObjectHideFlags: 0
