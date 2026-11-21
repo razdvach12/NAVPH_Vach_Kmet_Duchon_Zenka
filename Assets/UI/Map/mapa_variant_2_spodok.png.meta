@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5379584a303ff4c438e01d3864049429
+guid: fa45cb0c833db02488103793f34f9d19
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5977823125240720228
-    second: mapa_variant_2_spodok_0
+      213: -8431902434147671624
+    second: 2mapa_variant_2_spodok_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 0
   alignment: 0
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: mapa_variant_2_spodok_0
+      name: 2mapa_variant_2_spodok_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 1980
-        height: 1980
+        height: 1971
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c9459e91a818a0da0800000000000000
-      internalID: -5977823125240720228
+      spriteID: 8b160e7096ddbfa80800000000000000
+      internalID: -8431902434147671624
       vertices: []
       indices: 
       edges: []
@@ -127,7 +127,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      mapa_variant_2_spodok_0: -5977823125240720228
+      2mapa_variant_2_spodok_0: -8431902434147671624
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 22e7b4c497386a949af890f34a528aaa
+guid: 586b1f9feefb1ff4da9c72ed4d90cc4d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3935622467604208568
-    second: mapa_variant_2_stred_teda_nekonecny_0
+      213: -1094939217684221449
+    second: 2mapa_variant_2_stred_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,13 +40,13 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 1
-    wrapV: 1
-    wrapW: 1
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 0
   alignment: 0
@@ -102,7 +102,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: mapa_variant_2_stred_teda_nekonecny_0
+      name: 2mapa_variant_2_stred_0
       rect:
         serializedVersion: 2
         x: 0
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8bb589f48c32e9630800000000000000
-      internalID: 3935622467604208568
+      spriteID: 7f1b94f259efdc0f0800000000000000
+      internalID: -1094939217684221449
       vertices: []
       indices: 
       edges: []
@@ -127,7 +127,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      mapa_variant_2_stred_teda_nekonecny_0: 3935622467604208568
+      2mapa_variant_2_stred_0: -1094939217684221449
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
