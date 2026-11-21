@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -8,16 +9,13 @@ public class MapFogOfWar : MonoBehaviour
 {
 	[Header("References")]
 	public RectTransform fogRect;
-	public Image fogLayerA;
-	public Image fogLayerB;
+	[FormerlySerializedAs("fogLayerA")]
+	public Image fogImage;
 	public List<Sprite> fogFrames = new List<Sprite>();
 
 	[Header("Smooth Cloud Animation (Ping-Pong 1-2-3-4-3-2-1)")]
 	[Tooltip("How fast it transitions between frames (lower = smoother/dreamier)")]
 	public float frameRate = 0.7f;
-	[Tooltip("Gentle horizontal drift so the fog feels alive")]
-	public float swayAmplitudeX = 35f;
-	public float swaySpeed = 0.6f;
 
 	[Header("Position & Step Movement")]
 	[Tooltip("Extra vertical offset above the highest visible node")]
@@ -40,12 +38,15 @@ public class MapFogOfWar : MonoBehaviour
 
 	private CanvasGroup canvasGroup;
 	private Coroutine moveCoroutine;
+	private Material runtimeFogMat;
 
 	private List<int> pingPongSequence = new List<int>();
 	private int sequenceIndex = 0;
 	private float blendTimer = 0f;
-	private float baseX;
 	private bool isCleared = false;
+
+	private static readonly int SecondTexProp = Shader.PropertyToID("_SecondTex");
+	private static readonly int BlendProp = Shader.PropertyToID("_Blend");
 
 	private void Awake()
 	{
@@ -54,20 +55,25 @@ public class MapFogOfWar : MonoBehaviour
 
 		// Enforce bottom pivot so anchoredPosition.y is always the bottom edge of the fog
 		fogRect.pivot = new Vector2(0.5f, 0f);
-		baseX = fogRect.anchoredPosition.x;
 
 		BuildPingPongSequence();
 
-		if (fogFrames.Count > 0 && fogLayerA != null && fogLayerB != null)
+		if (fogFrames.Count > 0 && fogImage != null)
 		{
-			// Guarantee Layer B always renders on top of Layer A
-			fogLayerB.transform.SetAsLastSibling();
+			if (fogImage.material != null && fogImage.material.HasProperty(BlendProp))
+			{
+				runtimeFogMat = new Material(fogImage.material);
+				fogImage.material = runtimeFogMat;
+			}
 
-			fogLayerA.sprite = fogFrames[pingPongSequence[0]];
-			fogLayerB.sprite = fogFrames[pingPongSequence[1 % pingPongSequence.Count]];
-			SetLayerAlpha(fogLayerA, 1f);
-			SetLayerAlpha(fogLayerB, 0f);
+			ApplyCrossfadeSprites(0, 1 % pingPongSequence.Count, 0f);
 		}
+	}
+
+	private void OnDestroy()
+	{
+		if (runtimeFogMat != null)
+			Destroy(runtimeFogMat);
 	}
 
 	private void BuildPingPongSequence()
@@ -92,39 +98,34 @@ public class MapFogOfWar : MonoBehaviour
 
 	private void AnimateClouds()
 	{
-		// 1. Subtle horizontal sway only
-		if (swayAmplitudeX > 0f)
-		{
-			Vector2 pos = fogRect.anchoredPosition;
-			pos.x = baseX + Mathf.Sin(Time.time * swaySpeed) * swayAmplitudeX;
-			fogRect.anchoredPosition = pos;
-		}
-
-		// 2. Smooth ping-pong crossfade (1 -> 2 -> 3 -> 4 -> 3 -> 2 -> 1)
-		if (pingPongSequence.Count < 2 || fogLayerA == null || fogLayerB == null) return;
+		if (pingPongSequence.Count < 2 || fogImage == null) return;
 
 		blendTimer += Time.deltaTime * frameRate;
 		while (blendTimer >= 1f)
 		{
 			blendTimer -= 1f;
 			sequenceIndex = (sequenceIndex + 1) % pingPongSequence.Count;
-			int nextSeqIndex = (sequenceIndex + 1) % pingPongSequence.Count;
-
-			fogLayerA.sprite = fogFrames[pingPongSequence[sequenceIndex]];
-			fogLayerB.sprite = fogFrames[pingPongSequence[nextSeqIndex]];
 		}
 
-		// Cosine ease-in-out for ultra-smooth blending
-		float smoothAlpha = 0.5f - 0.5f * Mathf.Cos(blendTimer * Mathf.PI);
-		SetLayerAlpha(fogLayerA, 1f);
-		SetLayerAlpha(fogLayerB, smoothAlpha);
+		int nextSeqIndex = (sequenceIndex + 1) % pingPongSequence.Count;
+		float smoothBlend = 0.5f - 0.5f * Mathf.Cos(blendTimer * Mathf.PI);
+
+		ApplyCrossfadeSprites(sequenceIndex, nextSeqIndex, smoothBlend);
 	}
 
-	private void SetLayerAlpha(Image img, float alpha)
+	private void ApplyCrossfadeSprites(int seqIdxA, int seqIdxB, float blend)
 	{
-		Color c = img.color;
-		c.a = alpha;
-		img.color = c;
+		Sprite spriteA = fogFrames[pingPongSequence[seqIdxA]];
+		Sprite spriteB = fogFrames[pingPongSequence[seqIdxB]];
+
+		if (fogImage.sprite != spriteA)
+			fogImage.sprite = spriteA;
+
+		if (runtimeFogMat != null)
+		{
+			runtimeFogMat.SetTexture(SecondTexProp, spriteB.texture);
+			runtimeFogMat.SetFloat(BlendProp, blend);
+		}
 	}
 
 	public void HideAboveMap(float startTopY)
