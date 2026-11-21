@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -86,6 +85,12 @@ public class MapRenderer : MonoBehaviour
 	[Tooltip("Drag PaperMaskReadMat here so decorations clip cleanly to all 3 paper parts")]
 	public Material decorationMaskMaterial;
 
+	[Header("Fog of War")]
+	[Tooltip("Drag the FogOfWar object (with MapFogOfWar script) here")]
+	public MapFogOfWar fogOfWar;
+	[Tooltip("How far above the Boss node the fog starts during the intro preview")]
+	public float fogIntroStartPadding = 520f;
+
 	private List<SpawnedLine> spawnedLines = new List<SpawnedLine>();
 
 	private Material currentGlowMat;
@@ -141,6 +146,8 @@ public class MapRenderer : MonoBehaviour
 	{
 		if (decorationsContainer == null || decorationSprites == null || decorationSprites.Count == 0)
 			return;
+
+		Canvas.ForceUpdateCanvases();
 
 		Rect bounds = decorationsContainer.rect;
 		float minX = bounds.xMin + decoEdgeInset;
@@ -267,7 +274,9 @@ public class MapRenderer : MonoBehaviour
 		List<MapNodeData> allNodes,
 		HashSet<MapNodeData> visibleNodes,
 		HashSet<MapNodeData> clickableNodes,
-		MapNodeData currentPlayerNode)
+		MapNodeData currentPlayerNode,
+		bool updateFog = true,
+		bool instantFog = false)
 	{
 		lastAllNodes = allNodes;
 		lastVisibleNodes = visibleNodes;
@@ -312,6 +321,21 @@ public class MapRenderer : MonoBehaviour
 			}
 		}
 
+		// 3. Update Fog of War
+		if (updateFog && fogOfWar != null && visibleNodes.Count > 0)
+		{
+			float maxVisibleY = float.MinValue;
+			foreach (var node in visibleNodes)
+				if (node.uiPosition.y > maxVisibleY) maxVisibleY = node.uiPosition.y;
+
+			bool allRevealed = (visibleNodes.Count >= allNodes.Count);
+
+			if (instantFog)
+				fogOfWar.SetPositionImmediate(maxVisibleY, allRevealed);
+			else
+				fogOfWar.MoveToNodeY(maxVisibleY, allRevealed);
+		}
+
 		// Force UI materials & masked clones to sync cleanly after layout/mask initialization
 		if (gameObject.activeInHierarchy)
 		{
@@ -340,7 +364,7 @@ public class MapRenderer : MonoBehaviour
 
 		if (lastAllNodes != null && lastVisibleNodes != null && lastClickableNodes != null)
 		{
-			UpdateAllNodeVisuals(lastAllNodes, lastVisibleNodes, lastClickableNodes, lastCurrentNode);
+			UpdateAllNodeVisuals(lastAllNodes, lastVisibleNodes, lastClickableNodes, lastCurrentNode, updateFog: false);
 		}
 	}
 

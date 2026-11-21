@@ -19,6 +19,8 @@ public class MapController : MonoBehaviour
 	public float verticalScreenOffset = -250f;
 	[Tooltip("Ako dlho sa čaká po kliku na uzol (posun mapy), kým sa začne načítavať scéna")]
 	public float enterNodeDelay = 0.5f;
+	[Tooltip("Zápornejšie číslo = kamera na začiatku intra začína vyššie nad Bossom")]
+	public float introTopOffset = -150f;
 
 	private bool canPlayerClick = false;
 
@@ -51,9 +53,9 @@ public class MapController : MonoBehaviour
 		}
 		else
 		{
-			// Návrat zo scény - mapa ostáva rovnaká, iba sa nastaví na pozíciu hráča
+			// Návrat zo scény - mapa ostáva rovnaká, hmla sa rovno nastaví na aktuálnu výšku bez intra
 			mapContent.anchoredPosition = GetScrollPositionFor(MapRunState.CurrentNode);
-			UpdateFogOfWar();
+			UpdateFogOfWar(updateFogVisual: true, instantFog: true);
 			canPlayerClick = true;
 		}
 	}
@@ -69,12 +71,26 @@ public class MapController : MonoBehaviour
 		canPlayerClick = false;
 
 		// Start viewing the Boss at the top (move MapContent down)
-		Vector2 startScrollPos = new Vector2(0, -MapRunState.BossNode.uiPosition.y + 150f);
+		Vector2 startScrollPos = new Vector2(0, -MapRunState.BossNode.uiPosition.y + introTopOffset);
 		// End viewing the 0th floor at the bottom
 		Vector2 endScrollPos = GetScrollPositionFor(null);
 
+		// Park the fog above the Boss during the initial preview
+		float fogStartY = MapRunState.BossNode.uiPosition.y + mapRenderer.fogIntroStartPadding;
+		if (mapRenderer.fogOfWar != null)
+		{
+			mapRenderer.fogOfWar.HideAboveMap(fogStartY);
+		}
+
 		mapContent.anchoredPosition = startScrollPos;
 		yield return new WaitForSeconds(1.0f); // Pause briefly on the Boss
+
+		// Start rolling the fog down in sync with the camera pan
+		if (mapRenderer.fogOfWar != null)
+		{
+			float initialMaxVisibleY = GetMaxNodeYUpToFloor(visionRange - 1);
+			mapRenderer.fogOfWar.PlayIntro(fogStartY, initialMaxVisibleY, introPanDuration);
+		}
 
 		float elapsed = 0f;
 		while (elapsed < introPanDuration)
@@ -84,11 +100,30 @@ public class MapController : MonoBehaviour
 			mapContent.anchoredPosition = Vector2.Lerp(startScrollPos, endScrollPos, t);
 			yield return null;
 		}
+		mapContent.anchoredPosition = endScrollPos;
 
-		// Once at the bottom, enable Fog of War (2-3 blocks) and allow clicking
+		// Switch hidden nodes to Fog-of-War icons while they are covered by the fog overshoot
+		UpdateFogOfWar(updateFogVisual: false);
+
+		// Wait until the fog finishes its bounce-back to the exact visibility line
+		if (mapRenderer.fogOfWar != null)
+		{
+			yield return new WaitWhile(() => mapRenderer.fogOfWar.IsAnimating);
+		}
+
 		MapRunState.IntroPlayed = true;
-		UpdateFogOfWar();
 		canPlayerClick = true;
+	}
+
+	private float GetMaxNodeYUpToFloor(int maxFloor)
+	{
+		float maxY = 0f;
+		foreach (var node in AllNodes)
+		{
+			if (node.y <= maxFloor && node.uiPosition.y > maxY)
+				maxY = node.uiPosition.y;
+		}
+		return maxY;
 	}
 
 	private void OnNodeClicked(MapNodeData clickedNode)
@@ -120,8 +155,8 @@ public class MapController : MonoBehaviour
 
 		Debug.Log($"Player entered node: {targetNode.type} at Floor {targetNode.y}");
 
-		// Recalculate visibility (2-3 steps ahead)
-		UpdateFogOfWar();
+		// Recalculate visibility (2-3 steps ahead) and smoothly glide the fog up
+		UpdateFogOfWar(updateFogVisual: true, instantFog: false);
 
 		// Smoothly scroll the map so the player stays in view, then load the room
 		StopAllCoroutines();
@@ -205,7 +240,7 @@ public class MapController : MonoBehaviour
 	{
 		canPlayerClick = false;
 		mapContent.anchoredPosition = GetScrollPositionFor(MapRunState.CurrentNode);
-		UpdateFogOfWar();
+		UpdateFogOfWar(updateFogVisual: true, instantFog: true);
 
 		// Počkáme, kým LoadingScene dokončí aktuálne načítanie (inak by nové volanie ignoroval)
 		yield return new WaitWhile(() => LoadingScene.IsBusy);
@@ -229,7 +264,7 @@ public class MapController : MonoBehaviour
 		mapContent.anchoredPosition = targetAnchoredPos;
 	}
 
-	private void UpdateFogOfWar()
+	private void UpdateFogOfWar(bool updateFogVisual = true, bool instantFog = false)
 	{
 		var visibleNodes = new HashSet<MapNodeData>();
 		var clickableNodes = new HashSet<MapNodeData>();
@@ -271,6 +306,6 @@ public class MapController : MonoBehaviour
 			}
 		}
 
-		mapRenderer.UpdateAllNodeVisuals(AllNodes, visibleNodes, clickableNodes, current);
+		mapRenderer.UpdateAllNodeVisuals(AllNodes, visibleNodes, clickableNodes, current, updateFogVisual, instantFog);
 	}
 }
