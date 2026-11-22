@@ -2683,6 +2683,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerSection
       objectReference: {fileID: 0}
+    - target: {fileID: 6519932741146443425, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7720562619263987585, guid: c73df787542eeca4ab9719a5c325f12d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2999,6 +3003,12 @@ MonoBehaviour:
   popup: {fileID: 1936491348}
   goldText: {fileID: 2033145486}
   turnManager: {fileID: 0}
+  maxHpCellsReward: 3
+  rewardRowPosition: {x: 0, y: -55}
+  rewardButtonSize: {x: 230, y: 60}
+  rewardButtonSpacing: 20
+  rewardFont: {fileID: 0}
+  rewardFontSize: 22
 --- !u!1 &1936491348
 GameObject:
   m_ObjectHideFlags: 0
