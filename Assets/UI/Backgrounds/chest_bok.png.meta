@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ed88184bd56de8945837fc479b9cc39a
+guid: 040d20fac19dc7a4b9f780774156e6ce
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1350129302749748703
-    second: ReRoll_0
+      213: 7483844110538129763
+    second: chest_bok_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ReRoll_0
+      name: chest_bok_0
       rect:
         serializedVersion: 2
-        x: 32
-        y: 37
-        width: 66
-        height: 63
+        x: 38
+        y: 49
+        width: 181
+        height: 144
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fdd9e33927f9cb210800000000000000
-      internalID: 1350129302749748703
+      spriteID: 36146034194fbd760800000000000000
+      internalID: 7483844110538129763
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ReRoll_0: 1350129302749748703
+      chest_bok_0: 7483844110538129763
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

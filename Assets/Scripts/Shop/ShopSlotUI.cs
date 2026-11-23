@@ -9,6 +9,9 @@ public class ShopSlotUI : MonoBehaviour
     public TextMeshProUGUI priceText;
     public Button buyButton;
 
+    [Tooltip("Ďalšie tlačidlá, ktoré robia to isté ako buyButton (napr. viditeľný BUY button). Ak je prázdne, automaticky sa nájde child 'BuyButton2'.")]
+    public Button[] extraBuyButtons;
+
     [Tooltip("Ak je zapnuté (alebo ak chýba priceText, napr. v ChestScene), predmet je zadarmo")]
     public bool isFreeReward = false;
 
@@ -53,12 +56,14 @@ public class ShopSlotUI : MonoBehaviour
             if (nameText != null) nameText.text = assignedItem.itemName;
             UpdatePriceText();
             
-            if (buyButton != null) 
+            HookBuyButton(buyButton);
+
+            if (extraBuyButtons != null)
             {
-                buyButton.interactable = true;
-                buyButton.gameObject.SetActive(true);
-                buyButton.onClick.RemoveAllListeners();
-                buyButton.onClick.AddListener(TryBuyItem);
+                foreach (Button extra in extraBuyButtons)
+                {
+                    HookBuyButton(extra);
+                }
             }
         } 
         else
@@ -67,8 +72,28 @@ public class ShopSlotUI : MonoBehaviour
         }
     }
 
+    // Napojí tlačidlo na kúpu predmetu. RemoveAllListeners maže iba listenery pridané z kódu,
+    // takže zvuk kliknutia nastavený v Inspectore (OnClick -> AudioSource.Play) ostane zachovaný.
+    private void HookBuyButton(Button btn)
+    {
+        if (btn == null) return;
+
+        btn.interactable = true;
+        btn.gameObject.SetActive(true);
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(TryBuyItem);
+    }
+
     public void ResolveChildReferencesIfNeeded()
     {
+        if (extraBuyButtons == null || extraBuyButtons.Length == 0)
+        {
+            // BuyButton2 je BasicButton prefab: klik zachytí vnútorný child "Button" (má Image), preto
+            // berieme všetky Buttony v jeho hierarchii (koreňový Button bez grafiky klik nikdy nedostane, takže nekúpi 2x)
+            Transform btn2Tr = transform.Find("BuyButton2");
+            if (btn2Tr != null) extraBuyButtons = btn2Tr.GetComponentsInChildren<Button>(true);
+        }
+
         if (iconImage == null)
         {
             Transform iconTr = transform.Find("ItemIcon") ?? transform.Find("IconImage");
