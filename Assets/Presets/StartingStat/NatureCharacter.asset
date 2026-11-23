@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: Nature Rouge
   characterSprite: {fileID: 2930444497125460637, guid: 8f98357b66e61c441a8fc8a9431df156, type: 3}
+  backgroundSprite: {fileID: -6572040426436272992, guid: e914ec2279d8ef24b804159a21727275, type: 3}
   startingGold: 150
   startingStamina: 6
   healthGridPreset: {fileID: 11400000, guid: f40c38bf125f6b64b90cf077a011f983, type: 2}

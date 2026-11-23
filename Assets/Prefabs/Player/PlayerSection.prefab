@@ -3673,6 +3673,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3594942918481975114}
   - component: {fileID: 8532777459869356203}
+  - component: {fileID: 5823190465710283647}
   m_Layer: 0
   m_Name: backgroundLeft
   m_TagString: Untagged
@@ -3680,6 +3681,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &5823190465710283647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416364647420365384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86f63efe2cb24a91bb9b1016762aa3d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBackgroundUI
+  stretchToFill: 1
+  backgroundTint: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &3594942918481975114
 Transform:
   m_ObjectHideFlags: 0

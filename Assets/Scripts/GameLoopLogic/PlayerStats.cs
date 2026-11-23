@@ -20,6 +20,9 @@ public class PlayerStats : MonoBehaviour
     // --- OBRÁZOK POSTAVY ---
     public Sprite playerSprite; 
 
+    [Tooltip("Postava (classa), za ktorú sa hrá tento run. Nastaví sa v InitializeCharacter.")]
+    public CharacterData selectedCharacter;
+
     [Header("Inventár")]
     public List<ItemData> relics = new List<ItemData>(); 
     public List<GridPreset> unlockedWeapons = new List<GridPreset>();
@@ -82,6 +85,8 @@ public class PlayerStats : MonoBehaviour
     public void InitializeCharacter(CharacterData character)
     {
         if (character == null) return;
+
+        selectedCharacter = character;
 
         money = character.startingGold;
         maxStamina = character.startingStamina;
