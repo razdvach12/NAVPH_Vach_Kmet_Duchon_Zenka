@@ -101,8 +101,16 @@ public class ShopUIController : MonoBehaviour
         }
     }
 
+    private bool meadowCounted; // Jedno kliknutie volá liečenie dvakrát (HealingPot listener + LoadingSceneManager)
+
     public void HealPlayerToMax()
     {
+        if (!meadowCounted)
+        {
+            meadowCounted = true;
+            PlayerStats.EnsureInstance().RecordMeadowUsed();
+        }
+
         PlayerStats.EnsureInstance().HealToMax();
 
         if (playerHealthGrid != null)

@@ -149,6 +149,9 @@ public class TurnManager : MonoBehaviour
 
     private IEnumerator Start()
     {
+        // Tréningový súboj v tutoriáli sa do štatistík runu neráta
+        if (!HandleCombatEndExternally && PlayerStats.Instance != null) PlayerStats.Instance.RecordEncounterVisited();
+
         PlayEncounterMusic();
 
         // Počkáme jeden frame, aby gridy stihli vygenerovať svoje políčka

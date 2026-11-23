@@ -63,8 +63,10 @@ public class ShopManager : MonoBehaviour
     }
 
 
-    void Start() 
+    void Start()
     {
+        if (PlayerStats.Instance != null) PlayerStats.Instance.RecordShopVisited();
+
         ResolveMissingReferences();
 
         // Automaticky naviažeme prepínanie sekcií na tlačidlá v obchode.
