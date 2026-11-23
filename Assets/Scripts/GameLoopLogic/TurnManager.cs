@@ -65,7 +65,16 @@ public class TurnManager : MonoBehaviour
     private ShopUIController shopUI;
 
     public TurnState State { get; private set; }
-    public bool CanPlayerAct => State == TurnState.PlayerTurn;
+    public bool CanPlayerAct => State == TurnState.PlayerTurn && !InputLocked;
+
+    // --- TUTORIÁL ---
+    // Počas vysvetľovania tutoriál zamkne ovládanie (hráč nemôže útočiť ani ukončiť ťah)
+    public bool InputLocked { get; set; }
+    // Tutoriál si koniec súboja rieši sám - bez popupu odmeny/prehry, bez zlata a bez návratu na mapu
+    public bool HandleCombatEndExternally { get; set; }
+    // Zavolá sa po každom úspešnom útoku zbraňou
+    public event System.Action WeaponUsed;
+    public TextMeshPro StaminaLabel => staminaText;
 
     private void Awake()
     {
@@ -193,6 +202,7 @@ public class TurnManager : MonoBehaviour
         currentStamina = Mathf.Max(0, currentStamina - GetStaminaCost(preset));
         nextAttackFree = false;
         UpdateStaminaText();
+        WeaponUsed?.Invoke();
         if (CheckCombatEnd()) return;
 
         // Zatiaľ sa ťah končí automaticky po minutí celej staminy
@@ -367,7 +377,7 @@ public class TurnManager : MonoBehaviour
                 MusicManager.Instance.StopMusic();
                 MusicManager.Instance.PlaySound("Loss");
             }
-            OnDefeat();
+            if (!HandleCombatEndExternally) OnDefeat();
             onDefeat?.Invoke();
             return true;
         }
@@ -381,7 +391,7 @@ public class TurnManager : MonoBehaviour
                 MusicManager.Instance.PlaySound("Win");
                 MusicManager.Instance.PlayMusic("MapBackground"); // Pokračuje plynulo aj po návrate na mapu
             }
-            OnVictory();
+            if (!HandleCombatEndExternally) OnVictory();
             onVictory?.Invoke();
             return true;
         }

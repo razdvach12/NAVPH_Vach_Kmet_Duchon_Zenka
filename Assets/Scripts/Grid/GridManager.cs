@@ -26,6 +26,7 @@ public class GridManager : MonoBehaviour
     private readonly List<RectInt> enemyAreas = new List<RectInt>();
 
     public IReadOnlyList<EnemyData> Enemies => enemies;
+    public Vector2Int BoardSize => new Vector2Int(boardWidth, boardHeight);
     public bool HasGeneratedSlots => slots != null;
 
     [Header("SlotValue Prefab Variants")]

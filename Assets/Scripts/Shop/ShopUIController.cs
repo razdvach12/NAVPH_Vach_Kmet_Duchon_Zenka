@@ -208,6 +208,13 @@ public class ShopUIController : MonoBehaviour
 
     public GridManager PlayerHealthGrid => playerHealthGrid;
 
+    // Sloty a portréty (napr. pre zvýraznenie v tutoriáli)
+    public GameObject[] WeaponSlotObjects => weaponSlots;
+    public GameObject[] ConsumableSlotObjects => consumableSlots;
+    public GameObject[] RelicSlotObjects => relicSlots;
+    public Image[] EnemyPortraitImages => enemyPortraits;
+    public Image CharacterPortraitImage => characterPortrait;
+
     // Index slotu zbrane pod daným bodom obrazovky (-1 = žiadny alebo prázdny slot)
     public int GetWeaponSlotIndexAt(Vector2 screenPos)
     {
