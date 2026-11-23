@@ -121,7 +121,7 @@ public class ShopSlotUI : MonoBehaviour
         if (isFreeReward || assignedItem.price <= 0)
             priceText.text = "";
         else
-            priceText.text = $"{CurrentPrice} Gold";
+            priceText.text = $"{CurrentPrice}";
     }
 
     public void TryBuyItem()
