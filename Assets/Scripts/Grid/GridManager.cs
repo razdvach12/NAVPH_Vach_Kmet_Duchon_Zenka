@@ -11,6 +11,8 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject gridSlotPrefab;
     [SerializeField] private float spacing = 1.1f;
 
+    public GameObject GridSlotPrefab => gridSlotPrefab;
+
     [Header("Player Mode (Single Preset)")]
     [SerializeField] private GridPreset singlePreset;
 

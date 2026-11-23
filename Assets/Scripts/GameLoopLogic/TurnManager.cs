@@ -51,10 +51,13 @@ public class TurnManager : MonoBehaviour
     private int pendingGoldReward;
     private bool rewardChosen; // Ochrana proti dvojkliku na tlačidlá
 
-    [Header("Zobrazenie staminy nad gridom hráča")]
-    [Tooltip("Ak nie je priradený, vytvorí sa automaticky")]
-    [SerializeField] private TextMeshPro staminaText;
-    [SerializeField] private float staminaTextOffset = 0.4f; // Vzdialenosť nad horným okrajom gridu
+    [Header("Zobrazenie staminy v PlayerSection (objekt Stamina)")]
+    [Tooltip("Rodičovský objekt Stamina v PlayerSection - ak nie je priradený, nájde sa automaticky")]
+    [SerializeField] private Transform staminaContainer;
+    [Tooltip("Prefab políčka staminy (GridSlot)")]
+    [SerializeField] private GameObject staminaGridSlotPrefab;
+    [Tooltip("Prefab výplne staminy (SlotStamina)")]
+    [SerializeField] private GameObject slotStaminaPrefab;
 
     // Cena zbrane, nad ktorou je myš (0 = nič sa nezobrazuje)
     private int previewStaminaCost;
@@ -83,9 +86,15 @@ public class TurnManager : MonoBehaviour
             }
         }
 
-        CreateStaminaTextIfMissing();
-
         PlayerStats stats = PlayerStats.EnsureInstance();
+
+        if (stats != null)
+        {
+            maxStamina = stats.maxStamina;
+            if (stats.HasRelic(RelicEffect.FastFeather)) maxStamina += 2;
+        }
+        currentStamina = maxStamina;
+        UpdateStaminaUI();
 
         // Ak hráč prišiel z výberu postavy, použijeme jeho grid životov
         if (playerGrid != null && stats.playerHealthPreset != null)
@@ -169,7 +178,7 @@ public class TurnManager : MonoBehaviour
     public void GrantFreeAttack()
     {
         nextAttackFree = true;
-        UpdateStaminaText();
+        UpdateStaminaUI();
     }
 
     // Pre consumables bez tvaru (napr. prášok) - cena je v ConsumableData.staminaCost
@@ -183,7 +192,7 @@ public class TurnManager : MonoBehaviour
         if (cost <= 0) return;
 
         currentStamina = Mathf.Max(0, currentStamina - cost);
-        UpdateStaminaText();
+        UpdateStaminaUI();
         if (currentStamina <= 0) EndPlayerTurn();
     }
 
@@ -192,7 +201,7 @@ public class TurnManager : MonoBehaviour
     {
         currentStamina = Mathf.Max(0, currentStamina - GetStaminaCost(preset));
         nextAttackFree = false;
-        UpdateStaminaText();
+        UpdateStaminaUI();
         if (CheckCombatEnd()) return;
 
         // Zatiaľ sa ťah končí automaticky po minutí celej staminy
@@ -204,7 +213,7 @@ public class TurnManager : MonoBehaviour
     public void OnPlayerUsedConsumable(int cost)
     {
         currentStamina = Mathf.Max(0, currentStamina - Mathf.Max(0, cost));
-        UpdateStaminaText();
+        UpdateStaminaUI();
         if (CheckCombatEnd()) return;
 
         if (currentStamina <= 0) EndPlayerTurn();
@@ -227,7 +236,7 @@ public class TurnManager : MonoBehaviour
             if (PlayerStats.Instance.HasRelic(RelicEffect.FastFeather)) maxStamina += 2;
         }
         currentStamina = maxStamina;
-        UpdateStaminaText();
+        UpdateStaminaUI();
         ApplyShieldOfCourage();
         onPlayerTurnStart?.Invoke();
     }
@@ -249,43 +258,125 @@ public class TurnManager : MonoBehaviour
         playerGrid.ProtectRandomAliveSlot(shield.icon, ShieldOfCourageMinAlive);
     }
 
-    // Vytvorí text staminy iba raz na začiatku (nie v UpdateStaminaText - to sa volá aj pri zatváraní scény
-    // cez OnDisable tlačidiel zbraní a vytváralo by nové objekty, ktoré Unity hlási ako neupratané)
-    private void CreateStaminaTextIfMissing()
+    private void ResolveStaminaReferences()
     {
-        if (staminaText != null) return;
+        if (staminaContainer == null)
+        {
+            staminaContainer = FindStaminaContainer(playerGrid != null ? playerGrid.transform : null);
+        }
 
-        var go = new GameObject("StaminaText");
-        staminaText = go.AddComponent<TextMeshPro>();
-        staminaText.alignment = TextAlignmentOptions.Center;
-        staminaText.fontSize = 4;
-        staminaText.color = Color.white;
-        staminaText.sortingOrder = 100;
+        if (staminaGridSlotPrefab == null && playerGrid != null && playerGrid.GridSlotPrefab != null)
+        {
+            staminaGridSlotPrefab = playerGrid.GridSlotPrefab;
+        }
+
+#if UNITY_EDITOR
+        if (staminaGridSlotPrefab == null)
+        {
+            staminaGridSlotPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Grid/Hp/GridSlot.prefab");
+        }
+        if (slotStaminaPrefab == null)
+        {
+            slotStaminaPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Grid/SlotStamina.prefab");
+        }
+#endif
     }
 
-    private void UpdateStaminaText()
+    public static Transform FindStaminaContainer(Transform reference = null)
     {
-        if (playerGrid == null || staminaText == null) return;
+        if (reference != null)
+        {
+            Transform current = reference;
+            while (current != null)
+            {
+                Transform found = current.Find("Stamina");
+                if (found != null) return found;
+                current = current.parent;
+            }
+        }
 
-        // Grid hráča sa môže zväčšiť (upgrady), preto pozíciu prepočítame vždy
-        Vector3 pos = playerGrid.GetTopCenterWorld(staminaTextOffset);
-        pos.z = 0f;
-        staminaText.transform.position = pos;
-        staminaText.text = $"Stamina {currentStamina}/{maxStamina}";
-        if (previewStaminaCost > 0) staminaText.text += $" <color=#FF5555>-{previewStaminaCost}</color>";
+        GameObject go = GameObject.Find("Stamina");
+        return go != null ? go.transform : null;
     }
 
-    // Zobrazí cenu zbrane pri stamine (napr. pri hoveri nad zbraňou)
+    public void UpdateStaminaUI()
+    {
+        ResolveStaminaReferences();
+        PopulateStaminaContainer(staminaContainer, staminaGridSlotPrefab, slotStaminaPrefab, maxStamina, currentStamina);
+    }
+
+    // Vygeneruje podľa maxStamina políčka GridSlot v objekte Stamina a podľa currentStamina do nich vloží SlotStamina
+    public static void PopulateStaminaContainer(
+        Transform container,
+        GameObject gridSlotPrefab,
+        GameObject slotStaminaPrefab,
+        int maxStaminaCount,
+        int currentStaminaCount)
+    {
+        if (container == null || gridSlotPrefab == null) return;
+        if (!container.gameObject.scene.isLoaded) return;
+
+        int totalSlots = Mathf.Max(0, maxStaminaCount);
+        int filledSlots = Mathf.Clamp(currentStaminaCount, 0, totalSlots);
+
+        for (int i = container.childCount - 1; i >= 0; i--)
+        {
+            GameObject child = container.GetChild(i).gameObject;
+            if (Application.isPlaying)
+            {
+                child.transform.SetParent(null);
+                Destroy(child);
+            }
+            else
+            {
+                DestroyImmediate(child);
+            }
+        }
+
+        const float slotScale = 83.1f;
+        const float slotSpacingY = 54f;
+        const float slotOffsetX = 4f;
+        const float slotCenterY = -2f;
+
+        float topY = slotCenterY + (totalSlots - 1) * 0.5f * slotSpacingY;
+
+        for (int i = 0; i < totalSlots; i++)
+        {
+            GameObject slotObj = Instantiate(gridSlotPrefab, container, false);
+            slotObj.name = i == 0 ? "GridSlot" : $"GridSlot ({i})";
+
+            float y = topY - i * slotSpacingY;
+            Vector3 worldPos = slotObj.transform.position;
+            slotObj.transform.position = new Vector3(worldPos.x, worldPos.y, 0f);
+            slotObj.transform.localPosition = new Vector3(slotOffsetX, y, slotObj.transform.localPosition.z);
+            slotObj.transform.localRotation = Quaternion.identity;
+            slotObj.transform.localScale = new Vector3(slotScale, slotScale, slotScale);
+
+            Collider2D slotCol = slotObj.GetComponent<Collider2D>();
+            if (slotCol != null) slotCol.enabled = false;
+
+            if (i < filledSlots && slotStaminaPrefab != null)
+            {
+                GameObject staminaObj = Instantiate(slotStaminaPrefab, slotObj.transform, false);
+                staminaObj.name = "SlotStamina";
+                staminaObj.transform.localPosition = new Vector3(0f, 0f, -0.1f);
+                staminaObj.transform.localRotation = Quaternion.identity;
+                staminaObj.transform.localScale = new Vector3(0.9181709f, 0.9181709f, 0.9181709f);
+
+                Collider2D staminaCol = staminaObj.GetComponent<Collider2D>();
+                if (staminaCol != null) staminaCol.enabled = false;
+            }
+        }
+    }
+
     public void ShowStaminaCost(int cost)
     {
         previewStaminaCost = cost;
-        UpdateStaminaText();
     }
 
     public void HideStaminaCost()
     {
         previewStaminaCost = 0;
-        UpdateStaminaText();
     }
 
     private IEnumerator EnemyTurnRoutine()

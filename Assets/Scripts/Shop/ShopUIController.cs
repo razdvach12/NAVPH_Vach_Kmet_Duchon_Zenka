@@ -28,6 +28,11 @@ public class ShopUIController : MonoBehaviour
     [Header("Relikvie hráča v UI (Ikonky / Sloty)")]
     [SerializeField] private GameObject[] relicSlots; 
 
+    [Header("Stamina hráča v UI (objekt Stamina v PlayerSection)")]
+    [SerializeField] private Transform staminaContainer;
+    [SerializeField] private GameObject staminaGridSlotPrefab;
+    [SerializeField] private GameObject slotStaminaPrefab;
+
     [Header("Combat Odkazy (automaticky sa nájdu v bojovej scéne)")]
     [SerializeField] private WeaponTargetingController targetingController;
     [SerializeField] private GridManager weaponTooltipGrid;
@@ -260,6 +265,7 @@ public class ShopUIController : MonoBehaviour
         UpdateWeaponSlots();
         UpdateConsumableSlots();
         UpdateRelicSlots();
+        UpdateStaminaSlots();
 
         if (playerHealthGrid != null)
         {
@@ -729,5 +735,48 @@ public class ShopUIController : MonoBehaviour
                 relicSlots[i].SetActive(false); 
             }
         }
+
+        UpdateStaminaSlots();
+    }
+
+    private void UpdateStaminaSlots()
+    {
+        ResolveCombatReferences();
+
+        if (turnManager != null)
+        {
+            turnManager.UpdateStaminaUI();
+            return;
+        }
+
+        if (staminaContainer == null)
+        {
+            staminaContainer = TurnManager.FindStaminaContainer(transform);
+        }
+
+        if (staminaGridSlotPrefab == null && playerHealthGrid != null && playerHealthGrid.GridSlotPrefab != null)
+        {
+            staminaGridSlotPrefab = playerHealthGrid.GridSlotPrefab;
+        }
+
+#if UNITY_EDITOR
+        if (staminaGridSlotPrefab == null)
+        {
+            staminaGridSlotPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Grid/Hp/GridSlot.prefab");
+        }
+        if (slotStaminaPrefab == null)
+        {
+            slotStaminaPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Grid/SlotStamina.prefab");
+        }
+#endif
+
+        int maxStamina = 5;
+        if (PlayerStats.Instance != null)
+        {
+            maxStamina = PlayerStats.Instance.maxStamina;
+            if (PlayerStats.Instance.HasRelic(RelicEffect.FastFeather)) maxStamina += 2;
+        }
+
+        TurnManager.PopulateStaminaContainer(staminaContainer, staminaGridSlotPrefab, slotStaminaPrefab, maxStamina, maxStamina);
     }
 }
