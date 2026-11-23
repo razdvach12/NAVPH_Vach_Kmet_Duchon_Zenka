@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: Rock Tank
   characterSprite: {fileID: -3740522674909743370, guid: dd8b0d2d52836574a88fdbae5a854b76, type: 3}
+  backgroundSprite: {fileID: -9192180232408099017, guid: c75a6c5283d22fa4abb5a102e98f1efc, type: 3}
   startingGold: 120
   startingStamina: 6
   healthGridPreset: {fileID: 11400000, guid: a4f5a8ee37acbd847a482221365835f3, type: 2}

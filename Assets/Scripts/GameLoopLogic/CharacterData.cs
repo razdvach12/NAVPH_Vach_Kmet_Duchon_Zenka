@@ -6,6 +6,10 @@ public class CharacterData : ScriptableObject
 {
     public string characterName;
     public Sprite characterSprite;
+
+    [Tooltip("Pozadie ľavého panelu hráča (PlayerSection -> backgroundLeft)")]
+    public Sprite backgroundSprite;
+
     [Header("Počiatočné hodnoty")]
     public int startingGold = 100;
     public int startingStamina = 5;

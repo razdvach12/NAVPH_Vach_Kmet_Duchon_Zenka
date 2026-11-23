@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: Lava Nieco
   characterSprite: {fileID: -214115308120325660, guid: 9086c70e9500c1442bca513465485cae, type: 3}
+  backgroundSprite: {fileID: -6718982759097330439, guid: b546ed405fd39ae4e866d4afa44ae647, type: 3}
   startingGold: 100
   startingStamina: 7
   healthGridPreset: {fileID: 11400000, guid: de56635d67382234eb2a328c900284ae, type: 2}
