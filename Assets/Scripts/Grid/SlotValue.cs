@@ -69,8 +69,17 @@ public class SlotValue : MonoBehaviour
 
         if (element == BlockElement.Ice && Random.value < GetIceDodgeChance(thickness)) return;
 
+        int before = thickness;
         thickness = Mathf.Max(0, thickness - damage);
         UpdateVisual();
+
+        // Štatistiky runu: políčka nepriateľov majú ownerEnemyIndex >= 0, hráčove -1
+        int lost = before - thickness;
+        if (lost > 0 && PlayerStats.Instance != null)
+        {
+            if (ownerEnemyIndex >= 0) PlayerStats.Instance.RecordDamageDone(lost);
+            else PlayerStats.Instance.RecordDamageTaken(lost);
+        }
     }
 
     // Zvýši hodnotu políčka (max 3) - ak prekročí maximum, zvýši sa aj maximum (Rock, Nature)

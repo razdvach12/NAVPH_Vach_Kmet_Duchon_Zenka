@@ -106,8 +106,16 @@ public class ShopUIController : MonoBehaviour
         }
     }
 
+    private bool meadowCounted; // Jedno kliknutie volá liečenie dvakrát (HealingPot listener + LoadingSceneManager)
+
     public void HealPlayerToMax()
     {
+        if (!meadowCounted)
+        {
+            meadowCounted = true;
+            PlayerStats.EnsureInstance().RecordMeadowUsed();
+        }
+
         PlayerStats.EnsureInstance().HealToMax();
 
         if (playerHealthGrid != null)
@@ -212,6 +220,13 @@ public class ShopUIController : MonoBehaviour
     // --- VÝBER ZBRANE PRE UPGRADE (Bonus Weapon size) ---
 
     public GridManager PlayerHealthGrid => playerHealthGrid;
+
+    // Sloty a portréty (napr. pre zvýraznenie v tutoriáli)
+    public GameObject[] WeaponSlotObjects => weaponSlots;
+    public GameObject[] ConsumableSlotObjects => consumableSlots;
+    public GameObject[] RelicSlotObjects => relicSlots;
+    public Image[] EnemyPortraitImages => enemyPortraits;
+    public Image CharacterPortraitImage => characterPortrait;
 
     // Index slotu zbrane pod daným bodom obrazovky (-1 = žiadny alebo prázdny slot)
     public int GetWeaponSlotIndexAt(Vector2 screenPos)

@@ -10,4 +10,5 @@ public static class SceneIds
 	public const int Encounter = 7;
 	public const int Meadow = 8;
 	public const int Final = 9;
+	public const int Tutorial = 10;
 }

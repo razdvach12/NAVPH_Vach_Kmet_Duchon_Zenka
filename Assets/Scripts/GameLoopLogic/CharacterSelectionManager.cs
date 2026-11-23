@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,15 +21,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
     private readonly List<WeaponHoverEntry> weaponHoverEntries = new List<WeaponHoverEntry>();
 
-    [Header("Text so štartovým zlatom a staminou (pod HP gridom postavy)")]
-    [Tooltip("Font textu (prázdne = predvolený TextMeshPro font)")]
-    [SerializeField] private TMP_FontAsset statsFont;
-    [SerializeField] private float statsFontSize = 36f;
-    [SerializeField] private Color statsColor = Color.white;
-    [Tooltip("Vzdialenosť textu pod spodným okrajom HP gridu (v jednotkách Canvasu)")]
-    [SerializeField] private float statsOffsetBelowGrid = 40f;
-
-    private IEnumerator Start()
+    private void Start()
     {
         if (MusicManager.Instance != null)
         {
@@ -39,90 +29,6 @@ public class CharacterSelectionManager : MonoBehaviour
         }
 
         SetupWeaponHoverPreviews();
-
-        // Počkáme jeden frame, aby si HP gridy postáv stihli vygenerovať políčka (kvôli ich výške)
-        yield return null;
-        SetupCharacterStatsTexts();
-    }
-
-    // Do každého panelu postavy (IceDescription, LavaDescription, ...) pridá text so štartovým zlatom a staminou
-    private void SetupCharacterStatsTexts()
-    {
-        CharacterData[] allCharacters = Resources.FindObjectsOfTypeAll<CharacterData>();
-        RectTransform[] allRects = FindObjectsByType<RectTransform>(FindObjectsInactive.Include);
-
-        foreach (RectTransform panel in allRects)
-        {
-            if (panel == null || !panel.name.EndsWith("Description") || panel.name == "Description") continue;
-
-            string prefix = panel.name.Substring(0, panel.name.Length - "Description".Length);
-            CharacterData character = FindCharacterByPrefix(prefix, allCharacters);
-            if (character == null) continue;
-
-            GridManager hpGrid = null;
-            foreach (GridManager gm in panel.GetComponentsInChildren<GridManager>(true))
-            {
-                if (gm != null && gm.gameObject.name != "WeaponGrid")
-                {
-                    hpGrid = gm;
-                    break;
-                }
-            }
-            if (hpGrid == null) continue;
-
-            // Pod stred HP gridu
-            Vector3 gridCenterLocal = panel.InverseTransformPoint(hpGrid.transform.position);
-            float gridBottomY = GetGridBottomLocalY(panel, hpGrid);
-            CreateStatsText(panel, "StartingStatsText",
-                $"Gold: {character.startingGold}\nStamina: {character.startingStamina}",
-                new Vector3(gridCenterLocal.x, gridBottomY - statsOffsetBelowGrid, gridCenterLocal.z));
-        }
-    }
-
-    // Spodný okraj gridu v súradniciach panelu (grid je vycentrovaný na svojej pozícii, spodok = stred - (vrch - stred))
-    private static float GetGridBottomLocalY(Transform panel, GridManager grid)
-    {
-        Vector3 centerLocal = panel.InverseTransformPoint(grid.transform.position);
-        Vector3 topLocal = panel.InverseTransformPoint(grid.GetTopCenterWorld());
-        return centerLocal.y - (topLocal.y - centerLocal.y);
-    }
-
-    // Vytvorí text v paneli postavy; localTopCenter = stred horného okraja textu v súradniciach panelu
-    private void CreateStatsText(Transform panel, string objectName, string content, Vector3 localTopCenter)
-    {
-        var textGo = new GameObject(objectName, typeof(RectTransform));
-        textGo.transform.SetParent(panel, false);
-
-        // 3D TextMeshPro (nie UI) - aby sa správne vykreslil nad spritmi postavy a pozadia
-        var text = textGo.AddComponent<TextMeshPro>();
-        if (statsFont != null) text.font = statsFont;
-        text.text = content;
-        text.alignment = TextAlignmentOptions.Top;
-        text.textWrappingMode = TextWrappingModes.NoWrap;
-        text.color = statsColor;
-        text.sortingOrder = 10;
-
-        // V 3D TextMeshPro je fontSize 10 ≈ 1 jednotka, preto zväčšíme objekt 10×, aby fontSize zodpovedal jednotkám Canvasu
-        text.fontSize = statsFontSize;
-        textGo.transform.localScale = Vector3.one * 10f;
-        text.rectTransform.sizeDelta = new Vector2(80f, 20f);
-        text.rectTransform.pivot = new Vector2(0.5f, 1f);
-
-        textGo.transform.localPosition = localTopCenter;
-    }
-
-    private static CharacterData FindCharacterByPrefix(string prefix, CharacterData[] allCharacters)
-    {
-        foreach (CharacterData ch in allCharacters)
-        {
-            if (ch == null) continue;
-            if (ch.name.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase)
-                || (ch.characterName != null && ch.characterName.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase)))
-            {
-                return ch;
-            }
-        }
-        return null;
     }
 
     private void Update()
@@ -212,18 +118,6 @@ public class CharacterSelectionManager : MonoBehaviour
             weaponGrid.SetShowMaxHpOutline(false);
             weaponGrid.SetSinglePreset(weaponPreset);
             weaponGrid.GenerateSingleGrid(weaponPreset);
-
-            // Cena zbrane v stamine - pod ikonou aj pod náhľadom gridu (podľa toho, čo siaha nižšie)
-            Transform panel = sr.transform.parent;
-            float bottomY = GetGridBottomLocalY(panel, weaponGrid);
-            if (sr.sprite != null)
-            {
-                float iconBottomY = panel.InverseTransformPoint(sr.transform.TransformPoint(new Vector3(0f, sr.sprite.bounds.min.y, 0f))).y;
-                bottomY = Mathf.Min(bottomY, iconBottomY);
-            }
-            Vector3 iconLocal = sr.transform.localPosition;
-            CreateStatsText(panel, "WeaponStaminaText", $"Stamina: {weaponPreset.staminaCost}",
-                new Vector3(iconLocal.x, bottomY - statsOffsetBelowGrid, hpGrid.transform.localPosition.z));
 
             gridObj.SetActive(false);
 
