@@ -36,6 +36,20 @@ public class PlayerStats : MonoBehaviour
     public int maxConsumables = 4; // Toľko, koľko je slotov consumables v encountri
     public List<ConsumableData> consumables = new List<ConsumableData>();
 
+    [Header("Štatistiky runu (na výpis pri výhre/smrti)")]
+    public int encountersVisited = 0;
+    public int shopsVisited = 0;
+    public int meadowsUsed = 0;
+    public int damageDone = 0;
+    public int damageTaken = 0;
+
+    // Unikátne itemy, ktoré hráč počas runu získal (HashSet = každý asset sa ráta len raz)
+    private readonly HashSet<ConsumableData> uniquePotions = new HashSet<ConsumableData>();
+    private readonly HashSet<ItemData> uniqueRelics = new HashSet<ItemData>();
+
+    public int UniquePotionsCount => uniquePotions.Count;
+    public int UniqueRelicsCount => uniqueRelics.Count;
+
     public static PlayerStats EnsureInstance()
     {
         if (Instance == null)
@@ -110,6 +124,8 @@ public class PlayerStats : MonoBehaviour
         consumables.Clear();
         relics.Clear();
 
+        ResetRunStats();
+
         Debug.Log($"Postava {character.characterName} úspešne uložená! Goldy: {money}, Zbrane: {unlockedWeapons.Count}");
 
         OnMoneyChanged?.Invoke();
@@ -155,7 +171,8 @@ public class PlayerStats : MonoBehaviour
         else if (item.itemType == ItemType.Relic)
         {
             relics.Add(item);
-            OnRelicsChanged?.Invoke(); 
+            uniqueRelics.Add(item);
+            OnRelicsChanged?.Invoke();
         }
     }
 
@@ -191,8 +208,37 @@ public class PlayerStats : MonoBehaviour
         if (consumable == null || consumables.Count >= maxConsumables) return false;
 
         consumables.Add(consumable);
+        uniquePotions.Add(consumable);
         OnConsumablesChanged?.Invoke();
         return true;
+    }
+
+    // --- ŠTATISTIKY RUNU ---
+    // Volať z miest, kde sa daná vec stane (encounter, shop, meadow, súboj)
+
+    public void RecordEncounterVisited() => encountersVisited++;
+    public void RecordShopVisited() => shopsVisited++;
+    public void RecordMeadowUsed() => meadowsUsed++;
+
+    public void RecordDamageDone(int amount)
+    {
+        if (amount > 0) damageDone += amount;
+    }
+
+    public void RecordDamageTaken(int amount)
+    {
+        if (amount > 0) damageTaken += amount;
+    }
+
+    public void ResetRunStats()
+    {
+        encountersVisited = 0;
+        shopsVisited = 0;
+        meadowsUsed = 0;
+        damageDone = 0;
+        damageTaken = 0;
+        uniquePotions.Clear();
+        uniqueRelics.Clear();
     }
 
     // Zavolá sa po použití consumable v súboji
