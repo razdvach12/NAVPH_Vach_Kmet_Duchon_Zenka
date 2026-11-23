@@ -58,9 +58,15 @@ public class TurnManager : MonoBehaviour
     [SerializeField] private GameObject staminaGridSlotPrefab;
     [Tooltip("Prefab výplne staminy (SlotStamina)")]
     [SerializeField] private GameObject slotStaminaPrefab;
+    [Tooltip("Rýchlosť pulzovania alfy staminy pri hoveri nad zbraňou")]
+    [SerializeField] private float staminaPulseSpeed = 7f;
+    [Tooltip("Minimálna hodnota alfy pri pulzovaní staminy")]
+    [SerializeField] private float staminaMinPulseAlpha = 0.2f;
 
     // Cena zbrane, nad ktorou je myš (0 = nič sa nezobrazuje)
     private int previewStaminaCost;
+    private float staminaPulseStartTime;
+    private readonly List<SpriteRenderer[]> activeStaminaSlotRenderers = new List<SpriteRenderer[]>();
 
     // Mystický prášok - najbližší útok zbraňou je zadarmo (platí, kým sa nevyužije)
     private bool nextAttackFree;
@@ -303,6 +309,26 @@ public class TurnManager : MonoBehaviour
     {
         ResolveStaminaReferences();
         PopulateStaminaContainer(staminaContainer, staminaGridSlotPrefab, slotStaminaPrefab, maxStamina, currentStamina);
+        CacheStaminaSlotRenderers();
+        ApplyStaminaPulseAlpha();
+    }
+
+    private void CacheStaminaSlotRenderers()
+    {
+        activeStaminaSlotRenderers.Clear();
+        if (staminaContainer == null) return;
+
+        for (int i = 0; i < staminaContainer.childCount; i++)
+        {
+            Transform slotTr = staminaContainer.GetChild(i);
+            if (slotTr == null) continue;
+
+            Transform staminaTr = slotTr.Find("SlotStamina");
+            if (staminaTr != null)
+            {
+                activeStaminaSlotRenderers.Add(staminaTr.GetComponentsInChildren<SpriteRenderer>(true));
+            }
+        }
     }
 
     // Vygeneruje podľa maxStamina políčka GridSlot v objekte Stamina a podľa currentStamina do nich vloží SlotStamina
@@ -371,17 +397,76 @@ public class TurnManager : MonoBehaviour
 
     public void ShowStaminaCost(int cost)
     {
-        previewStaminaCost = cost;
+        int clampedCost = Mathf.Max(0, cost);
+        if (previewStaminaCost != clampedCost)
+        {
+            previewStaminaCost = clampedCost;
+            staminaPulseStartTime = Time.unscaledTime;
+        }
+        ApplyStaminaPulseAlpha();
     }
 
     public void HideStaminaCost()
     {
+        if (previewStaminaCost == 0) return;
         previewStaminaCost = 0;
+        ApplyStaminaPulseAlpha();
+    }
+
+    private void Update()
+    {
+        if (previewStaminaCost > 0)
+        {
+            ApplyStaminaPulseAlpha();
+        }
+    }
+
+    // Pulzuje alfu posledných previewStaminaCost políčok SlotStamina (tých, ktoré sa pri útoku minú)
+    private void ApplyStaminaPulseAlpha()
+    {
+        if (activeStaminaSlotRenderers.Count == 0 && currentStamina > 0 && staminaContainer != null && staminaContainer.childCount > 0)
+        {
+            CacheStaminaSlotRenderers();
+        }
+
+        int filledCount = activeStaminaSlotRenderers.Count;
+        if (filledCount == 0) return;
+
+        int pulseCount = previewStaminaCost > 0 ? Mathf.Clamp(previewStaminaCost, 0, filledCount) : 0;
+        int pulseStartIndex = filledCount - pulseCount;
+
+        float pulseAlpha = 1f;
+        if (pulseCount > 0)
+        {
+            float t = (Mathf.Cos((Time.unscaledTime - staminaPulseStartTime) * staminaPulseSpeed) + 1f) * 0.5f;
+            pulseAlpha = Mathf.Lerp(staminaMinPulseAlpha, 1f, t);
+        }
+
+        for (int i = 0; i < filledCount; i++)
+        {
+            float targetAlpha = i >= pulseStartIndex ? pulseAlpha : 1f;
+            SpriteRenderer[] renderers = activeStaminaSlotRenderers[i];
+            if (renderers == null) continue;
+
+            for (int r = 0; r < renderers.Length; r++)
+            {
+                SpriteRenderer sr = renderers[r];
+                if (sr == null) continue;
+
+                Color c = sr.color;
+                if (!Mathf.Approximately(c.a, targetAlpha))
+                {
+                    c.a = targetAlpha;
+                    sr.color = c;
+                }
+            }
+        }
     }
 
     private IEnumerator EnemyTurnRoutine()
     {
         State = TurnState.EnemyTurn;
+        HideStaminaCost();
 
         for (int i = 0; i < enemyGrid.Enemies.Count; i++)
         {

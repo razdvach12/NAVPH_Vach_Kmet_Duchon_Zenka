@@ -10,16 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78eac9a7071643c5a61d7a63e84803f0, type: 3}
-  m_Name: EasyRoom2
+  m_Name: T1_3Vines_3
   m_EditorClassIdentifier: Assembly-CSharp::RoomData
   difficulty: 0
   slots:
   - tier: 1
-    fixedEnemy: {fileID: 0}
-    position: {x: 0, y: 0}
+    fixedEnemy: {fileID: 11400000, guid: 02f7e9dba4304c5bb23f0a5c506f46c3, type: 2}
+    position: {x: 2, y: 1}
   - tier: 1
-    fixedEnemy: {fileID: 0}
-    position: {x: 6, y: 0}
-  - tier: 1
-    fixedEnemy: {fileID: 0}
-    position: {x: 0, y: 6}
+    fixedEnemy: {fileID: 11400000, guid: 02f7e9dba4304c5bb23f0a5c506f46c3, type: 2}
+    position: {x: 6, y: 1}

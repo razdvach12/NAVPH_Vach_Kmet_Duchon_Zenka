@@ -16,7 +16,7 @@ MonoBehaviour:
   slots:
   - tier: 2
     fixedEnemy: {fileID: 0}
-    position: {x: 0, y: 0}
+    position: {x: 1, y: 1}
   - tier: 1
     fixedEnemy: {fileID: 0}
-    position: {x: 7, y: 0}
+    position: {x: 8, y: 1}

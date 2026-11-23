@@ -342,6 +342,7 @@ MonoBehaviour:
   rooms:
   - {fileID: 11400000, guid: 019f6d46d40e49d79fa98c063523afe6, type: 2}
   - {fileID: 11400000, guid: 2fff4f7e4ee35044aa694a79193f0b21, type: 2}
+  - {fileID: 11400000, guid: aa1787c54a2de7f40ab47764b09c884e, type: 2}
   - {fileID: 11400000, guid: c4c4db6d68da4714d80dc043c2ea90cd, type: 2}
   enemyPool:
   - {fileID: 11400000, guid: 02f7e9dba4304c5bb23f0a5c506f46c3, type: 2}
@@ -375,6 +376,8 @@ MonoBehaviour:
   staminaContainer: {fileID: 0}
   staminaGridSlotPrefab: {fileID: 7429591877599579584, guid: 6ba58488a4135e64880c8f0d3445e66a, type: 3}
   slotStaminaPrefab: {fileID: 4033144622217183062, guid: 110e785a48b2109449b899889753ec53, type: 3}
+  staminaPulseSpeed: 7
+  staminaMinPulseAlpha: 0.2
 --- !u!1 &70855070
 GameObject:
   m_ObjectHideFlags: 0
@@ -2042,11 +2045,11 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 634ef07e4c0cd4c42939fb6afcdd43d9, type: 2}
     - target: {fileID: 3502145610908713883, guid: 5d674926d84814f488e174eb7a73a837, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.63197
+      value: 1.11
       objectReference: {fileID: 0}
     - target: {fileID: 3502145610908713883, guid: 5d674926d84814f488e174eb7a73a837, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.40596
+      value: 0.66
       objectReference: {fileID: 0}
     - target: {fileID: 3502145610908713883, guid: 5d674926d84814f488e174eb7a73a837, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2086,7 +2089,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4622285480344632319, guid: 5d674926d84814f488e174eb7a73a837, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
