@@ -69,12 +69,27 @@ public class ChestRewardManager : MonoBehaviour
             }
         }
 
-        // Len pripraví referencie, ale NEMENÍ pozíciu, scale ani sizeDelta
+        // Len pripraví referencie, ale NEMENÍ pozíciu (x, y), scale ani sizeDelta
         foreach (ShopSlotUI slot in rewardSlots)
         {
             if (slot == null) continue;
             slot.isFreeReward = true;
             slot.ResolveChildReferencesIfNeeded();
+            FlattenDepth(slot.transform);
+        }
+    }
+
+    // Canvas je Screen Space - Camera: veľké záporné Z (ChestItem -9719, BuyButton2 v prefabe Item -10588) posunie
+    // tlačidlá za kameru a GraphicRaycaster ich potom nezasiahne (klik nefunguje). Poradie vykresľovania
+    // určuje hierarchia a sorting order, nie Z - preto Z odmien vynulujeme, vzhľad sa nezmení.
+    private static void FlattenDepth(Transform root)
+    {
+        foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
+        {
+            Vector3 p = t.localPosition;
+            if (p.z == 0f) continue;
+            p.z = 0f;
+            t.localPosition = p;
         }
     }
 

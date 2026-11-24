@@ -82,6 +82,13 @@ public class ShopSlotUI : MonoBehaviour
         btn.gameObject.SetActive(true);
         btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(TryBuyItem);
+
+        // Odmena zadarmo (truhlica) sa berie, nekupuje
+        if (isFreeReward)
+        {
+            TMP_Text label = btn.GetComponentInChildren<TMP_Text>(true);
+            if (label != null) label.text = "COLLECT";
+        }
     }
 
     public void ResolveChildReferencesIfNeeded()
