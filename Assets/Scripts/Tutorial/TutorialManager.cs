@@ -266,7 +266,7 @@ public class TutorialManager : MonoBehaviour
 
         // 3. Útok
         InfoStep(C3, "Weapons",
-            "These are your weapons. <b>Hover</b> over a weapon to see its <b>shape</b> and its <b>stamina cost</b> (red number next to stamina).\n" +
+            "These are your weapons. <b>Hover</b> over a weapon to see its <b>shape</b> and its <b>stamina cost</b> (the stamina it would use blinks).\n" +
             "Every cell of the shape deals damage equal to its layers.", WeaponsRect);
         ActionStep(C3, "Attack!",
             "Click a weapon (or press <b>1–4</b>), move the mouse over the enemy and <b>left click</b> to attack.\n" +
@@ -696,7 +696,7 @@ public class TutorialManager : MonoBehaviour
         return ScreenRectOf(alive);
     }
 
-    private Rect? StaminaRect() => turnManager.StaminaLabel != null ? ScreenRectOf(new Component[] { turnManager.StaminaLabel }) : null;
+    private Rect? StaminaRect() => turnManager.StaminaContainer != null ? ScreenRectOf(new Component[] { turnManager.StaminaContainer }) : null;
 
     private Rect? PortraitsRect()
     {

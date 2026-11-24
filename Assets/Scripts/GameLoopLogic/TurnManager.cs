@@ -83,7 +83,15 @@ public class TurnManager : MonoBehaviour
     public bool HandleCombatEndExternally { get; set; }
     // Zavolá sa po každom úspešnom útoku zbraňou
     public event System.Action WeaponUsed;
-    public TextMeshPro StaminaLabel => staminaText;
+    // Objekt Stamina v PlayerSection (napr. pre zvýraznenie v tutoriáli)
+    public Transform StaminaContainer
+    {
+        get
+        {
+            ResolveStaminaReferences();
+            return staminaContainer;
+        }
+    }
 
     private void Awake()
     {
@@ -219,7 +227,7 @@ public class TurnManager : MonoBehaviour
     {
         currentStamina = Mathf.Max(0, currentStamina - GetStaminaCost(preset));
         nextAttackFree = false;
-        UpdateStaminaText();
+        UpdateStaminaUI();
         WeaponUsed?.Invoke();
         if (CheckCombatEnd()) return;
 
