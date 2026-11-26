@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3eb7a7dacf32a004daec7eb2a33056b3
+guid: 4cb347d2445401c43b0c496a5cc4f6b7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5455751780829067956
-    second: Nature_Health_top_0
+      213: 537588431004390216
+    second: Nature_Health_top 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -24,7 +24,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -111,24 +111,11 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Nature_Health_top_0
+      name: Nature_Health_top 1_0
       rect:
         serializedVersion: 2
         x: 19
@@ -143,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4ba750fb659b6bb40800000000000000
-      internalID: 5455751780829067956
+      spriteID: 843506964d5e57700800000000000000
+      internalID: 537588431004390216
       vertices: []
       indices: 
       edges: []
@@ -163,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Nature_Health_top_0: 5455751780829067956
+      Nature_Health_top 1_0: 537588431004390216
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
