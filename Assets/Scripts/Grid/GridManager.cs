@@ -12,6 +12,9 @@ public class GridManager : MonoBehaviour
     [SerializeField] private float spacing = 1.1f;
 
     public GameObject GridSlotPrefab => gridSlotPrefab;
+    public float Spacing => spacing;
+    public int TotalWidth => totalWidth > 0 ? totalWidth : (singlePreset != null ? singlePreset.width : 0);
+    public int TotalHeight => totalHeight > 0 ? totalHeight : (singlePreset != null ? singlePreset.height : 0);
 
     [Header("Player Mode (Single Preset)")]
     [SerializeField] private GridPreset singlePreset;
@@ -1227,6 +1230,35 @@ public class GridManager : MonoBehaviour
         int rows = totalHeight > 0 ? totalHeight : (singlePreset != null ? singlePreset.height : 0);
         float topEdge = rows * spacing * 0.5f;
         return transform.TransformPoint(new Vector3(0f, topEdge + extraOffset, 0f));
+    }
+
+    // Vycentruje grid do stredu daného štvorca (napr. PlayerWeaponBg / EnemyWeaponBg)
+    // a automaticky zmenší mierku (scale), ak by zväčšený grid presahoval vnútornú plochu štvorca.
+    public void FitInsideBounds(Bounds boxBounds, float maxScale = 0.5f, float innerFillRatio = 0.82f)
+    {
+        int cols = Mathf.Max(1, TotalWidth);
+        int rows = Mathf.Max(1, TotalHeight);
+
+        // Celková neškálovaná šírka a výška vygenerovaného gridu v lokálnych jednotkách
+        float unscaledWidth = cols * spacing;
+        float unscaledHeight = rows * spacing;
+
+        // Vnútorná využiteľná plocha štvorca (innerFillRatio necháva okraj pre rámik štvorca)
+        float availableWidth = boxBounds.size.x * Mathf.Clamp(innerFillRatio, 0.1f, 1f);
+        float availableHeight = boxBounds.size.y * Mathf.Clamp(innerFillRatio, 0.1f, 1f);
+
+        float fitScaleX = unscaledWidth > 0.0001f ? availableWidth / unscaledWidth : maxScale;
+        float fitScaleY = unscaledHeight > 0.0001f ? availableHeight / unscaledHeight : maxScale;
+
+        // Menšie gridy si držia základnú mierku maxScale (0.5), väčšie sa rovnomerne zmenšia, aby nevykukovalo žiadne políčko
+        float targetWorldScale = Mathf.Min(maxScale, fitScaleX, fitScaleY);
+
+        Vector3 parentScale = transform.parent != null ? transform.parent.lossyScale : Vector3.one;
+        float sx = Mathf.Abs(parentScale.x) > 0.0001f ? targetWorldScale / Mathf.Abs(parentScale.x) : targetWorldScale;
+        float sy = Mathf.Abs(parentScale.y) > 0.0001f ? targetWorldScale / Mathf.Abs(parentScale.y) : targetWorldScale;
+
+        transform.localScale = new Vector3(sx, sy, 1f);
+        transform.position = new Vector3(boxBounds.center.x, boxBounds.center.y, 0f);
     }
 
     // --- POMOCNÉ METÓDY ---

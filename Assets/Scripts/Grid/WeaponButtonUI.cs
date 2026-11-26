@@ -9,8 +9,17 @@ public class WeaponButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     [Header("References")]
     public GridManager weaponTooltipGrid; // Malý GridManager vedľa zbrane na zobrazenie jej tvaru
     public WeaponTargetingController targetingController;
+    [Tooltip("Štvorec (SpriteRenderer), v ktorom sa vycentruje a ohraničí náhľad zbrane (napr. PlayerWeaponBg)")]
+    public SpriteRenderer previewBox;
 
-    [Header("Tooltip Position Offset")]
+    [Header("Preview Box Fit Settings")]
+    [Tooltip("Maximálna (základná) mierka gridu zbrane v štvorci; pri väčšej zbrani sa automaticky zmenší")]
+    public float maxPreviewScale = 0.5f;
+    [Tooltip("Akú časť štvorca môže grid zabrať (0.82 = 82 %, zvyšok je rezerva pre rámik štvorca)")]
+    [Range(0.5f, 1f)]
+    public float boxInnerFillRatio = 0.82f;
+
+    [Header("Tooltip Position Offset (Fallback ak chýba previewBox)")]
     public Vector3 tooltipOffset = new Vector3(2.2f, 0f, 0f); // O koľko vedľa stĺpca zbraní sa zobrazí jej grid
 
     [Tooltip("Horný slot zbraní - náhľad sa vždy zobrazí vedľa neho (horný okraj gridu = horný okraj slotu). Ak nie je nastavený, použije sa táto zbraň.")]
@@ -43,7 +52,19 @@ public class WeaponButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         weaponTooltipGrid.SetShowMaxHpOutline(false); // Náhľad zbrane nezobrazuje obvod Max HP
         weaponTooltipGrid.GenerateSingleGrid(weaponPreset);
 
-        // Náhľad je vždy hore vedľa stĺpca zbraní - horný okraj gridu zarovnáme s horným okrajom horného slotu
+        if (previewBox == null)
+        {
+            GameObject boxGo = GameObject.Find("PlayerWeaponBg");
+            if (boxGo != null) previewBox = boxGo.GetComponent<SpriteRenderer>();
+        }
+
+        if (previewBox != null)
+        {
+            weaponTooltipGrid.FitInsideBounds(previewBox.bounds, maxPreviewScale, boxInnerFillRatio);
+            return;
+        }
+
+        // Fallback, ak v scéne nie je PlayerWeaponBg
         Transform anchor = tooltipAnchor != null ? tooltipAnchor : transform;
         PlaceGridTopAt(weaponTooltipGrid, GetTopEdgeWorld(anchor) + tooltipOffset);
     }
