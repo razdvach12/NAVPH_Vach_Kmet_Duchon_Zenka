@@ -788,8 +788,7 @@ public class ShopUIController : MonoBehaviour
         int maxStamina = 5;
         if (PlayerStats.Instance != null)
         {
-            maxStamina = PlayerStats.Instance.maxStamina;
-            if (PlayerStats.Instance.HasRelic(RelicEffect.FastFeather)) maxStamina += 2;
+            maxStamina = PlayerStats.Instance.GetEffectiveMaxStamina();
         }
 
         TurnManager.PopulateStaminaContainer(staminaContainer, staminaGridSlotPrefab, slotStaminaPrefab, maxStamina, maxStamina);

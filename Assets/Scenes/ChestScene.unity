@@ -484,7 +484,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8922017378363250705, guid: c47d6c85e7a007e488916e90e95ec78a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -118
+      value: -205
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1709,6 +1709,10 @@ MonoBehaviour:
   allRelicItems:
   - {fileID: 11400000, guid: 34f1ae455c83f0745aa0125941d4d8b5, type: 2}
   - {fileID: 11400000, guid: 5bb38027372780f4e96ae28533071ea9, type: 2}
+  - {fileID: 11400000, guid: 5f148e26997891947b12cdda4b47fcf3, type: 2}
+  - {fileID: 11400000, guid: 9092e2082023aba40a25eef52be9658f, type: 2}
+  - {fileID: 11400000, guid: e4eb80694f169474db985f2b1a5b73e2, type: 2}
+  - {fileID: 11400000, guid: 0c4a3abf9e87ca943a04eef8150a4c73, type: 2}
   additionalRelicSprites:
   - {fileID: -5481697883161451914, guid: 6a8e918590c2a7f45be3d5a32362a272, type: 3}
   - {fileID: 1510457835409856077, guid: d65728af887997f498cacfb259dbe98a, type: 3}
@@ -1745,7 +1749,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1548839461
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1786,7 +1790,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1891305311
 RectTransform:
   m_ObjectHideFlags: 0

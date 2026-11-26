@@ -193,6 +193,69 @@ public class PlayerStats : MonoBehaviour
 
     public bool HasRelic(RelicEffect effect) => GetRelic(effect) != null;
 
+    // --- MODULÁRNE MODIFIKÁTORY Z RELIKVIÍ (sčítavajú sa cez všetky vlastnené relikvie) ---
+
+    // Maximálna stamina vrátane pasívnych bonusov z relikvií
+    public int GetEffectiveMaxStamina()
+    {
+        int total = maxStamina;
+        foreach (ItemData relic in relics)
+        {
+            if (relic != null) total += relic.GetMaxStaminaBonus();
+        }
+        return Mathf.Max(1, total);
+    }
+
+    // Celková zľava v obchode pre daný typ predmetu (stackuje sa, napr. 30 % + 50 % = 80 %, max 90 %)
+    public float GetShopDiscount(ItemType itemType)
+    {
+        float totalDiscount = 0f;
+        foreach (ItemData relic in relics)
+        {
+            if (relic != null) totalDiscount += relic.GetShopDiscountFor(itemType);
+        }
+        return Mathf.Clamp(totalDiscount, 0f, 0.9f);
+    }
+
+    // Výsledná cena predmetu po započítaní zliav z relikvií
+    public int GetDiscountedPrice(int basePrice, ItemType itemType)
+    {
+        if (basePrice <= 0) return 0;
+        float discount = GetShopDiscount(itemType);
+        if (discount <= 0f) return basePrice;
+        return Mathf.Max(1, Mathf.RoundToInt(basePrice * (1f - discount)));
+    }
+
+    // Výsledná odmena v goldoch po započítaní náhodných/percentuálnych bonusov z relikvií
+    public int CalculateGoldReward(int baseGold)
+    {
+        if (baseGold <= 0) return 0;
+
+        float totalBonusPercent = 0f;
+        foreach (ItemData relic in relics)
+        {
+            if (relic == null) continue;
+            relic.GetGoldBonusRange(out float minPercent, out float maxPercent);
+            if (maxPercent > 0f)
+            {
+                totalBonusPercent += UnityEngine.Random.Range(minPercent, maxPercent);
+            }
+        }
+
+        return Mathf.RoundToInt(baseGold * (1f + totalBonusPercent));
+    }
+
+    // Zistí, či niektorá z hráčových relikvií neutralizuje daný živel nepriateľa (napr. Lava -> Basic)
+    public bool IsEnemyElementNeutralized(BlockElement element)
+    {
+        if (element == BlockElement.None || element == BlockElement.Basic) return false;
+        foreach (ItemData relic in relics)
+        {
+            if (relic != null && relic.GetNeutralizedEnemyElement() == element) return true;
+        }
+        return false;
+    }
+
     public void RemoveWeapon(int index)
     {
         if (index >= 0 && index < unlockedWeapons.Count)

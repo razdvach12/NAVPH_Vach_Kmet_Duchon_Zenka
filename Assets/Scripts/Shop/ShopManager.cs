@@ -49,6 +49,10 @@ public class ShopManager : MonoBehaviour
     public Button rerollButton;
     [Tooltip("Cena za reroll v goldoch (0 = zadarmo)")]
     public int rerollCost = 0;
+    [Tooltip("Maximálny počet rerollov za jednu návštevu obchodu")]
+    [Min(0)] public int maxRerolls = 1;
+
+    private int rerollsUsed = 0;
 
     private ShopSection currentSection = ShopSection.Weapons;
     private bool wasWeaponsEmpty;
@@ -197,12 +201,27 @@ public class ShopManager : MonoBehaviour
         wasRelicsEmpty = IsSectionEmpty(relicSlots);
         wasUpgradesEmpty = IsSectionEmpty(upgradeSlots);
 
+        rerollsUsed = 0;
+        UpdateRerollButtonState();
         CheckIfSectionsAreEmpty();
+    }
+
+    private void UpdateRerollButtonState()
+    {
+        if (rerollButton != null)
+            rerollButton.interactable = rerollsUsed < maxRerolls;
     }
 
     // --- REROLL: nanovo vygeneruje iba práve otvorenú sekciu, ostatné ostanú bez zmeny ---
     public void RerollCurrentSection()
     {
+        if (rerollsUsed >= maxRerolls)
+        {
+            Debug.Log("Reroll už bol v tomto obchode použitý!");
+            UpdateRerollButtonState();
+            return;
+        }
+
         if (RewardTargetingController.Instance != null && RewardTargetingController.Instance.IsTargeting)
         {
             RewardTargetingController.Instance.CancelTargeting();
@@ -219,6 +238,9 @@ public class ShopManager : MonoBehaviour
                 return;
             }
         }
+
+        rerollsUsed++;
+        UpdateRerollButtonState();
 
         switch (currentSection)
         {

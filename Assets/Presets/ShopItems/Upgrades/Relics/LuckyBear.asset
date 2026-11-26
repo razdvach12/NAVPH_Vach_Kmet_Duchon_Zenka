@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23e4aaed00e69b34f9887f5132b6217f, type: 3}
-  m_Name: ShieldOfCourage 1
+  m_Name: LuckyBear
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: Shield Of Courage
-  description: 
-  icon: {fileID: 7791787286073988930, guid: 76a8dfdf08c6a3f4e8bb737782a7c18f, type: 3}
+  itemName: Lucky Bear
+  description: +30% to +60% bonus gold after every fight.
+  icon: {fileID: -5481697883161451914, guid: 6a8e918590c2a7f45be3d5a32362a272, type: 3}
   price: 120
   priceIncreasePerPurchase: 0
   itemType: 2
@@ -22,5 +22,11 @@ MonoBehaviour:
   staminaCost: 1
   effectValue: 0
   upgradeEffect: 0
-  relicEffect: 1
+  relicEffect: 3
+  relicMaxStaminaBonus: 0
+  relicShopDiscount: 0
+  relicConsumableDiscount: 0
+  relicGoldBonusMin: 0.3
+  relicGoldBonusMax: 0.6
+  relicNeutralizedEnemyElement: 0
   weaponGridPreset: {fileID: 0}

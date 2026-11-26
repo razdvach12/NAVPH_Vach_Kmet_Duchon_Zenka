@@ -21,8 +21,32 @@ public class ShopSlotUI : MonoBehaviour
     // Predmety s priceIncreasePerPurchase > 0 po kúpe v obchode nezmiznú, ale zdražejú (platí iba počas tejto návštevy obchodu)
     private int priceIncrease;
 
-    // Aktuálna cena vrátane zdraženia (asset sa nemení)
-    public int CurrentPrice => assignedItem != null ? assignedItem.price + priceIncrease : 0;
+    // Aktuálna cena vrátane zdraženia a zliav z relikvií (asset sa nemení)
+    public int CurrentPrice
+    {
+        get
+        {
+            if (assignedItem == null) return 0;
+            int basePrice = assignedItem.price + priceIncrease;
+            if (isFreeReward || assignedItem.price <= 0) return 0;
+            return PlayerStats.Instance != null
+                ? PlayerStats.Instance.GetDiscountedPrice(basePrice, assignedItem.itemType)
+                : basePrice;
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (PlayerStats.Instance != null)
+            PlayerStats.Instance.OnRelicsChanged += UpdatePriceText;
+        UpdatePriceText();
+    }
+
+    private void OnDisable()
+    {
+        if (PlayerStats.Instance != null)
+            PlayerStats.Instance.OnRelicsChanged -= UpdatePriceText;
+    }
 
     private bool IsRepeatable => assignedItem != null && assignedItem.priceIncreasePerPurchase > 0;
 

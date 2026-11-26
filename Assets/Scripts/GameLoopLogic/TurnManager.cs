@@ -113,8 +113,7 @@ public class TurnManager : MonoBehaviour
 
         if (stats != null)
         {
-            maxStamina = stats.maxStamina;
-            if (stats.HasRelic(RelicEffect.FastFeather)) maxStamina += 2;
+            maxStamina = stats.GetEffectiveMaxStamina();
         }
         currentStamina = maxStamina;
         UpdateStaminaUI();
@@ -256,11 +255,10 @@ public class TurnManager : MonoBehaviour
     {
         State = TurnState.PlayerTurn;
 
-        // Maximálna stamina patrí hráčovi - ak existuje PlayerStats, berieme ju odtiaľ
+        // Maximálna stamina patrí hráčovi - ak existuje PlayerStats, berieme ju odtiaľ (vrátane bonusov z relikvií)
         if (PlayerStats.Instance != null)
         {
-            maxStamina = PlayerStats.Instance.maxStamina;
-            if (PlayerStats.Instance.HasRelic(RelicEffect.FastFeather)) maxStamina += 2;
+            maxStamina = PlayerStats.Instance.GetEffectiveMaxStamina();
         }
         currentStamina = maxStamina;
         UpdateStaminaUI();
@@ -599,6 +597,7 @@ public class TurnManager : MonoBehaviour
 
         if (PlayerStats.Instance != null)
         {
+            pendingGoldReward = PlayerStats.Instance.CalculateGoldReward(pendingGoldReward);
             PlayerStats.Instance.encountersDefeated++;
             PlayerStats.Instance.AddMoney(pendingGoldReward);
         }

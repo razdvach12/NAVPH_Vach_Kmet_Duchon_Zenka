@@ -23,4 +23,10 @@ MonoBehaviour:
   effectValue: 0
   upgradeEffect: 0
   relicEffect: 2
+  relicMaxStaminaBonus: 2
+  relicShopDiscount: 0
+  relicConsumableDiscount: 0
+  relicGoldBonusMin: 0
+  relicGoldBonusMax: 0
+  relicNeutralizedEnemyElement: 0
   weaponGridPreset: {fileID: 0}

@@ -373,6 +373,12 @@ public class GridManager : MonoBehaviour
                     CellSetup cellData = body.GetCell(ex, ey);
                     if (cellData.element == BlockElement.None) continue;
 
+                    // Relikvie, ktoré neutralizujú konkrétny živel nepriateľa (napr. Heart of Magna: Lava -> Basic)
+                    if (Application.isPlaying && PlayerStats.Instance != null && PlayerStats.Instance.IsEnemyElementNeutralized(cellData.element))
+                    {
+                        cellData.element = BlockElement.Basic;
+                    }
+
                     int targetX = start.x + ex;
                     int targetY = start.y + ey;
                     if (targetX < 0 || targetX >= boardWidth || targetY < 0 || targetY >= boardHeight) continue;
@@ -1032,6 +1038,10 @@ public class GridManager : MonoBehaviour
             if (block == null || block.ownerEnemyIndex != enemyIndex) continue;
 
             BlockElement next = GetNextElement(block.element);
+            if (Application.isPlaying && PlayerStats.Instance != null && PlayerStats.Instance.IsEnemyElementNeutralized(next))
+            {
+                next = BlockElement.Basic;
+            }
             if (next == block.element) continue;
 
             ReplaceBlockElement(slot, next);

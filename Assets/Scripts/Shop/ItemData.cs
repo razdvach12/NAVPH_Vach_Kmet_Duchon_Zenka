@@ -17,12 +17,16 @@ public enum ElementType
     Rock 
 }
 
-// Efekt relikvie v súboji (None = relikvia zatiaľ nemá efekt)
+// Efekt relikvie v súboji (None = bez špeciálneho efektu, prípadne riadené čisto cez Relic Modifiers nižšie)
 public enum RelicEffect
 {
     None,
     ShieldOfCourage, // Na začiatku ťahu ochráni jedno náhodné živé políčko hráča (ak má aspoň 4 živé)
-    FastFeather      // +2 max stamina v súboji, kým ju hráč má
+    FastFeather,     // +max stamina v súboji (predvolene +2, nastaviteľné cez relicMaxStaminaBonus)
+    LuckyBear,       // Bonus k goldom za vyhrané kolo (predvolene náhodne 30% až 60%)
+    AlchemistAmulet, // Zľava na consumables v obchode (predvolene -30%)
+    CursedCoin,      // Zľava v celom obchode (predvolene -50%, stackuje sa s ostatnými zľavami)
+    HeartOfMagna     // Premení živlové políčka nepriateľa (predvolene Lava) na normálne (Basic)
 }
 
 // Čo robí upgrade (ItemType.Upgrade)
@@ -56,6 +60,73 @@ public class ItemData : ScriptableObject
     [Tooltip("Iba pre relikvie - čo relikvia robí v súboji")]
     public RelicEffect relicEffect = RelicEffect.None;
 
+    [Header("Relic Modifiers (modulárne nastavenia)")]
+    [Tooltip("Bonus k maximálnej stamine v súboji (napr. 2 pre Fast Feather)")]
+    public int relicMaxStaminaBonus = 0;
+
+    [Tooltip("Zľava na celý obchod (0.5 = -50 %, stackuje sa s ostatnými zľavami)")]
+    [Range(0f, 1f)] public float relicShopDiscount = 0f;
+
+    [Tooltip("Extra zľava na consumables (0.3 = -30 %, stackuje sa s relicShopDiscount)")]
+    [Range(0f, 1f)] public float relicConsumableDiscount = 0f;
+
+    [Tooltip("Minimálny percentuálny bonus ku goldom za kolo (0.3 = +30 %)")]
+    [Min(0f)] public float relicGoldBonusMin = 0f;
+
+    [Tooltip("Maximálny percentuálny bonus ku goldom za kolo (0.6 = +60 %)")]
+    [Min(0f)] public float relicGoldBonusMax = 0f;
+
+    [Tooltip("Živel nepriateľa, ktorý sa na začiatku boja a pri zmene živlov premení na normálne (Basic) políčko")]
+    public BlockElement relicNeutralizedEnemyElement = BlockElement.None;
+
     [Header("Prepojenie na PlayerStats")]
     public GridPreset weaponGridPreset; 
+
+    public int GetMaxStaminaBonus()
+    {
+        if (relicMaxStaminaBonus != 0) return relicMaxStaminaBonus;
+        return relicEffect == RelicEffect.FastFeather ? 2 : 0;
+    }
+
+    public float GetShopDiscountFor(ItemType targetType)
+    {
+        float discount = relicShopDiscount > 0f
+            ? relicShopDiscount
+            : (relicEffect == RelicEffect.CursedCoin ? 0.5f : 0f);
+
+        if (targetType == ItemType.Consumable)
+        {
+            discount += relicConsumableDiscount > 0f
+                ? relicConsumableDiscount
+                : (relicEffect == RelicEffect.AlchemistAmulet ? 0.3f : 0f);
+        }
+
+        return discount;
+    }
+
+    public void GetGoldBonusRange(out float minPercent, out float maxPercent)
+    {
+        if (relicGoldBonusMin > 0f || relicGoldBonusMax > 0f)
+        {
+            minPercent = Mathf.Min(relicGoldBonusMin, relicGoldBonusMax);
+            maxPercent = Mathf.Max(relicGoldBonusMin, relicGoldBonusMax);
+            return;
+        }
+
+        if (relicEffect == RelicEffect.LuckyBear)
+        {
+            minPercent = 0.3f;
+            maxPercent = 0.6f;
+            return;
+        }
+
+        minPercent = 0f;
+        maxPercent = 0f;
+    }
+
+    public BlockElement GetNeutralizedEnemyElement()
+    {
+        if (relicNeutralizedEnemyElement != BlockElement.None) return relicNeutralizedEnemyElement;
+        return relicEffect == RelicEffect.HeartOfMagna ? BlockElement.Lava : BlockElement.None;
+    }
 }
